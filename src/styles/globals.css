@@ -1,5 +1,5 @@
 /* ========================================================================
-   MaterialCalc — Design System (Utility-Pro Classic)
+   MaterialCal — Design System (Utility-Pro Classic)
    ======================================================================== */
 
 :root {
@@ -343,3 +343,17 @@ small { font-size: 13px; }
 .text-center { text-align: center; }
 .text-muted { color: var(--n500); }
 .tabular { font-variant-numeric: tabular-nums; }
+
+/* ========================================================================
+   Number inputs — hide native spinners so suffix doesn't get overlapped
+   ======================================================================== */
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

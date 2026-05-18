@@ -2,18 +2,18 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Breadcrumb from '@components/Breadcrumb.astro';
 
-const title = "Contact MaterialCalc";
-const description = "Get in touch with the MaterialCalc team. Questions about calculator accuracy, feature requests, partnership inquiries, or bug reports.";
+const title = "Contact MaterialCal";
+const description = "Get in touch with the MaterialCal team. Questions about calculator accuracy, feature requests, partnership inquiries, or bug reports.";
 
 const schema = {
   "@context": "https://schema.org",
   "@type": "ContactPage",
-  "name": "Contact MaterialCalc",
-  "url": "https://materialcalc.com/contact/"
+  "name": "Contact MaterialCal",
+  "url": "https://materialcal.com/contact/"
 };
 ---
 
-<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+<BaseLayout title={`${title} | MaterialCal`} description={description} schema={schema}>
   <div class="container content-wrapper">
     <Breadcrumb trail={[
       { label: 'Home', href: '/' },
@@ -34,28 +34,28 @@ const schema = {
           <div class="contact-icon">📩</div>
           <h3>General questions</h3>
           <p>Calculator help, methodology questions, feature requests, or general feedback.</p>
-          <a href="mailto:hello@materialcalc.com" class="contact-link">hello@materialcalc.com</a>
+          <a href="mailto:hello@materialcal.com" class="contact-link">hello@materialcal.com</a>
         </div>
 
         <div class="contact-card">
           <div class="contact-icon">🐛</div>
           <h3>Report a bug or inaccuracy</h3>
           <p>Calculator giving wrong results? Density value seems off? Send specifics — measurements you used, browser, and what you expected.</p>
-          <a href="mailto:fix@materialcalc.com" class="contact-link">fix@materialcalc.com</a>
+          <a href="mailto:fix@materialcal.com" class="contact-link">fix@materialcal.com</a>
         </div>
 
         <div class="contact-card">
           <div class="contact-icon">🤝</div>
           <h3>Partnership & embed</h3>
           <p>Want to embed our calculators on your site, propose a content partnership, or discuss licensing?</p>
-          <a href="mailto:partners@materialcalc.com" class="contact-link">partners@materialcalc.com</a>
+          <a href="mailto:partners@materialcal.com" class="contact-link">partners@materialcal.com</a>
         </div>
 
         <div class="contact-card">
           <div class="contact-icon">🔒</div>
           <h3>Privacy & legal</h3>
           <p>GDPR/CCPA data requests, takedown notices, copyright concerns, or other legal matters.</p>
-          <a href="mailto:legal@materialcalc.com" class="contact-link">legal@materialcalc.com</a>
+          <a href="mailto:legal@materialcal.com" class="contact-link">legal@materialcal.com</a>
         </div>
       </div>
 

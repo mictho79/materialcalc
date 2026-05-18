@@ -1,4 +1,4 @@
-# MaterialCalc
+# MaterialCal
 
 Free construction and landscaping material calculators — 25 calculators for gravel, concrete, paint, decks, fences, stairs, roof pitch, tile, drywall and more.
 

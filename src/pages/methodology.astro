@@ -2,19 +2,19 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Breadcrumb from '@components/Breadcrumb.astro';
 
-const title = "Methodology — How MaterialCalc Calculates";
-const description = "Detailed methodology behind MaterialCalc's calculators: formulas, density values, sources, accuracy claims, and how we handle waste factors.";
+const title = "Methodology — How MaterialCal Calculates";
+const description = "Detailed methodology behind MaterialCal's calculators: formulas, density values, sources, accuracy claims, and how we handle waste factors.";
 
 const schema = {
   "@context": "https://schema.org",
   "@type": "WebPage",
   "name": "Methodology",
   "description": description,
-  "url": "https://materialcalc.com/methodology/"
+  "url": "https://materialcal.com/methodology/"
 };
 ---
 
-<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+<BaseLayout title={`${title} | MaterialCal`} description={description} schema={schema}>
   <div class="container content-wrapper">
     <Breadcrumb trail={[
       { label: 'Home', href: '/' },
@@ -27,7 +27,7 @@ const schema = {
         <p class="intro">
           How we calculate, where our numbers come from, and how to interpret the results. This
           page documents the formulas, density values and sources behind every calculator on
-          MaterialCalc — so you can verify any estimate independently.
+          MaterialCal — so you can verify any estimate independently.
         </p>
       </header>
 
@@ -181,7 +181,7 @@ const schema = {
 
       <h2>Important Limitations</h2>
       <p>
-        MaterialCalc is an estimating tool, not professional engineering or licensed contractor
+        MaterialCal is an estimating tool, not professional engineering or licensed contractor
         advice. The formulas and density values on this page are standard industry references,
         but applying them correctly to a specific project requires judgment that no calculator
         can replace.
