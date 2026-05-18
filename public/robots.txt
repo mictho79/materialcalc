@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://materialcal.com/sitemap-index.xml
+Sitemap: https://materialcal.com/sitemap.xml
