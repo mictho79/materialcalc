@@ -1,0 +1,204 @@
+---
+// Deck Calculator — deck area to boards, joists, screws, footings.
+---
+
+<div class="tool" id="deck-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="dk-length">Deck length</label>
+      <div class="field-input">
+        <input id="dk-length" type="number" value="16" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="dk-width">Deck width</label>
+      <div class="field-input">
+        <input id="dk-width" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="dk-board-width">Decking board width</label>
+      <div class="field-input">
+        <select id="dk-board-width">
+          <option value="5.5" selected>5.5 in (2x6 actual)</option>
+          <option value="5.25">5.25 in (composite typical)</option>
+          <option value="3.5">3.5 in (2x4 actual)</option>
+          <option value="7.25">7.25 in (2x8 actual)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="dk-board-length">Board length</label>
+      <div class="field-input">
+        <select id="dk-board-length">
+          <option value="8">8 ft</option>
+          <option value="10">10 ft</option>
+          <option value="12" selected>12 ft</option>
+          <option value="16">16 ft</option>
+          <option value="20">20 ft</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="dk-joist-spacing">Joist spacing</label>
+      <div class="field-input">
+        <select id="dk-joist-spacing">
+          <option value="16" selected>16 in OC (standard)</option>
+          <option value="12">12 in OC (composite or 45° boards)</option>
+          <option value="24">24 in OC (lighter loads, code-permitting)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="dk-price">Price per deck board <span class="optional">(per piece)</span></label>
+      <div class="field-input">
+        <input id="dk-price" type="number" value="18" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix">$/board</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">Deck materials</div>
+    <div class="result-main">
+      <span class="number" id="dk-boards">36</span>
+      <span class="unit">decking boards</span>
+      <span class="aux">for <strong id="dk-area">192</strong> sq ft</span>
+    </div>
+    <div class="result-secondary">
+      Joists: <strong id="dk-joists">10</strong> (2x8 or 2x10) &nbsp;·&nbsp;
+      Footings: <strong id="dk-footings">9</strong> &nbsp;·&nbsp;
+      Screws: <strong id="dk-screws">1,200</strong>
+    </div>
+    <div class="result-cost-row">
+      Decking material cost: <strong id="dk-cost">$648</strong>
+      <span class="note">plus joists, posts, footings, hardware, railing</span>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="dk-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="dk-btn-share">↗ Share</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool { background: var(--white); border: 1px solid var(--n200); border-radius: var(--r-lg); padding: var(--s-6); margin-bottom: var(--s-4); box-shadow: var(--shadow-xs); }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+  .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px solid var(--n200); flex-wrap: wrap; gap: var(--s-2); }
+  .tool-title { font-size: 15px; font-weight: 700; color: var(--n700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .unit-toggle { display: inline-flex; background: var(--n100); border-radius: var(--r-md); padding: 3px; }
+  .unit-toggle button { border: none; background: transparent; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--n500); cursor: pointer; border-radius: var(--r-sm); }
+  .unit-toggle button.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--n700); margin-bottom: 6px; }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--n200); border-radius: var(--r-md); font-size: 15px; color: var(--n900); background: var(--white); }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+  .suffix { position: absolute; right: 12px; color: var(--n500); font-size: 13px; font-weight: 500; pointer-events: none; }
+  .result { background: var(--n50); border: 1px solid var(--n200); border-radius: var(--r-md); padding: var(--s-5); margin-top: var(--s-5); }
+  .result-label { font-size: 12px; font-weight: 700; color: var(--n500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--s-2); }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-main .aux { font-size: 14px; color: var(--n600); margin-left: 6px; }
+  .result-main .aux strong { color: var(--n900); font-weight: 700; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-cost-row { margin-top: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--n200); font-size: 14px; color: var(--n700); font-variant-numeric: tabular-nums; }
+  .result-cost-row strong { color: var(--n900); font-weight: 700; }
+  .note { color: var(--n500); font-weight: 400; font-size: 12px; margin-left: 8px; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('deck-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  function calculate() {
+    const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    let l = parseFloat($('#dk-length').value) || 0;
+    let w = parseFloat($('#dk-width').value) || 0;
+    const boardWidthIn = parseFloat($('#dk-board-width').value) || 5.5;
+    const boardLength = parseFloat($('#dk-board-length').value) || 12;
+    const joistSpacing = parseFloat($('#dk-joist-spacing').value) || 16;
+    const boardPrice = parseFloat($('#dk-price').value) || 0;
+
+    if (units === 'metric') { l = l * 3.2808; w = w * 3.2808; }
+
+    const area = l * w;
+    // Boards: account for 1/8 inch gap between boards
+    const boardSpacingFt = (boardWidthIn + 0.125) / 12;
+    const rows = Math.ceil(w / boardSpacingFt);
+    const boardsPerRow = Math.ceil(l / boardLength);
+    const totalBoards = Math.ceil(rows * boardsPerRow * 1.10); // 10% waste
+
+    // Joists: ceiling(l / spacing-in-ft) + 1
+    const joistSpacingFt = joistSpacing / 12;
+    const joists = Math.ceil(l / joistSpacingFt) + 1;
+
+    // Footings: posts at corners and ~8 ft spacing
+    const perimPosts = Math.max(4, Math.ceil((2 * (l + w)) / 8));
+    const footings = perimPosts;
+
+    // Screws: 4 per board per joist
+    const screws = Math.ceil(totalBoards * (Math.ceil(w / joistSpacingFt) + 1) * 2);
+
+    const cost = totalBoards * boardPrice;
+
+    $('#dk-boards').textContent = totalBoards.toLocaleString();
+    $('#dk-area').textContent = Math.round(area).toLocaleString();
+    $('#dk-joists').textContent = joists.toLocaleString();
+    $('#dk-footings').textContent = footings.toString();
+    $('#dk-screws').textContent = screws.toLocaleString();
+    $('#dk-cost').textContent = '$' + Math.round(cost).toLocaleString();
+  }
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      calculate();
+    });
+  });
+
+  $('#dk-btn-copy').addEventListener('click', () => {
+    const text = `Deck materials: ${$('#dk-boards').textContent} boards, ${$('#dk-joists').textContent} joists, ${$('#dk-footings').textContent} footings for ${$('#dk-area').textContent} sq ft. Cost: ${$('#dk-cost').textContent}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#dk-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+
+  $('#dk-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Deck Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+
+  calculate();
+})();
+</script>

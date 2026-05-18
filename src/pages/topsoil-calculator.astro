@@ -1,0 +1,289 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import SoilCalculator from '@components/SoilCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { topsoilFAQ } from '@data/faqs/topsoil';
+import { getRelatedCalculators } from '@data/calculators';
+
+const title = "Topsoil Calculator — How Many Yards or Tons for Your Lawn";
+const description = "Free topsoil calculator for new lawns, garden beds and grade leveling. Calculate cubic yards, tons, bags and total cost — supports screened, regular and amended topsoil.";
+
+const related = getRelatedCalculators('topsoil-calculator', 4).map(c => ({
+  title: c.shortTitle + ' Calculator',
+  href: `/${c.slug}/`,
+  desc: c.description
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Topsoil Calculator",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any (web-based)",
+    "description": description,
+    "url": "https://materialcalc.com/topsoil-calculator/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to calculate topsoil quantity",
+    "step": [
+      { "@type": "HowToStep", "name": "Measure area", "text": "Length × width in feet for rectangular areas." },
+      { "@type": "HowToStep", "name": "Choose depth", "text": "4-6 inches for new lawns; 8-12 for garden beds." },
+      { "@type": "HowToStep", "name": "Calculate cubic yards", "text": "(Area × depth in inches) ÷ 324 = cubic yards needed." },
+      { "@type": "HowToStep", "name": "Account for settling", "text": "Add 10-15% extra to compensate for compaction." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'Soil & Garden', href: '/calculators/#soil' },
+      { label: 'Topsoil Calculator' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Topsoil Calculator</h1>
+      <p class="intro">
+        Estimate exactly how much topsoil you need for new lawn installation, garden bed prep,
+        grade leveling, or landscape projects. Get results in cubic yards, tons, bags, and total
+        delivered cost — bagged vs bulk comparison automatic.
+      </p>
+    </header>
+
+    <SoilCalculator />
+
+    <article class="content">
+      <h2>How to Calculate Topsoil Quantity</h2>
+      <p>
+        Topsoil is sold by volume (cubic yards) but delivered by weight (tons). The challenge in
+        calculating how much you need is converting between the units consistently. Area measurements
+        are typically in square feet, depths in inches, and you'll order in cubic yards. Our calculator
+        automates all the conversions — here's the underlying math:
+      </p>
+
+      <div class="formula">
+        Cubic yards = (Area in sq ft × Depth in inches) ÷ 324<br>
+        Weight (tons) = Cubic yards × 1.30  &nbsp;(dry topsoil density)<br>
+        Order quantity = Cubic yards × 1.10  &nbsp;(10% for settling)
+      </div>
+
+      <p>
+        The constant 324 converts everything: it's 12 (inches per foot) × 27 (cubic feet per cubic
+        yard). The density factor of 1.30 t/yd³ assumes dry, screened topsoil — wet topsoil weighs
+        15-20% more, important to know when checking delivery weight limits.
+      </p>
+
+      <h3>Worked example: full lawn installation</h3>
+      <p>
+        Replacing or installing a new lawn on a typical suburban back yard: 1,000 sq ft area,
+        4 inches deep:
+      </p>
+      <ul>
+        <li><strong>Volume:</strong> (1,000 × 4) ÷ 324 = <strong>12.35 cubic yards</strong></li>
+        <li><strong>Weight (dry):</strong> 12.35 × 1.30 = <strong>16.05 tons</strong></li>
+        <li><strong>With 10% settling buffer:</strong> Order <strong>13.6 cubic yards</strong></li>
+        <li><strong>Bulk cost (at $30/yd³):</strong> $408</li>
+        <li><strong>Delivery:</strong> Add $50-150 depending on distance</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">Always till topsoil into existing soil</div>
+        Pure topsoil layered over compacted subsoil creates a drainage barrier — water collects at
+        the interface, roots can't penetrate downward, and plants struggle. Till the top 6-12 inches
+        to blend new topsoil with existing soil. This single step is what separates lawns that
+        thrive from lawns that fail.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="topsoil-mid-1" />
+
+      <h2>How Deep Should Topsoil Be?</h2>
+      <p>
+        Depth requirements depend on what you're growing. Going deeper than necessary wastes money;
+        too shallow causes long-term plant struggle. Recommended depths by project:
+      </p>
+
+      <h3>New lawn (seeded or sodded)</h3>
+      <p>
+        <strong>4-6 inches</strong>. Most lawn grasses develop roots 6-12 inches deep when conditions
+        permit. 4 inches is the minimum for healthy lawn establishment; 6 inches is preferred for
+        premium installations. Below 4 inches, lawn vigor suffers within 2-3 years.
+      </p>
+
+      <h3>Sod installation</h3>
+      <p>
+        <strong>4 inches minimum</strong> of prepared topsoil before laying sod. The sod itself
+        brings 1/2 inch of growing medium, but its roots need to grow into your soil within 2-3
+        weeks. Insufficient depth = sod that browns and lifts when stressed by heat or drought.
+      </p>
+
+      <h3>Garden beds (in-ground)</h3>
+      <p>
+        <strong>6-12 inches of topsoil tilled in</strong> with existing soil. Vegetable gardens
+        benefit from deeper amendment (12 inches) for root crops like carrots and parsnips.
+        Flower beds need 6-8 inches. Most failures here come from cutting corners on depth.
+      </p>
+
+      <h3>Raised garden beds</h3>
+      <p>
+        <strong>Full depth of the bed</strong> — typically 8 to 18 inches. Use a soil mix (topsoil
+        + compost + amendments), not pure topsoil. Pure topsoil in raised beds compacts and drains
+        poorly; a proper mix stays loose and productive for years.
+      </p>
+
+      <h3>Grade leveling / regrading</h3>
+      <p>
+        <strong>Variable</strong> depending on existing grade vs target grade. Use fill dirt for
+        most of the volume below 4 inches, then top with 4+ inches of topsoil where plant growth
+        is desired. Pure topsoil for grading is wasteful — fill dirt is half the price.
+      </p>
+
+      <h3>Top dressing existing lawn</h3>
+      <p>
+        <strong>1/4 inch maximum</strong> at a time. Thicker layers smother existing grass. For
+        leveling small depressions, you can fill up to 1 inch but expect the grass underneath
+        to die — be ready to reseed.
+      </p>
+
+      <h2>Topsoil Quantity by Project</h2>
+      <p>
+        Quick reference for the most common topsoil projects:
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>Topsoil needed</th>
+              <th>Bulk cost (at $30/yd³)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>500 sq ft lawn @ 4"</td><td>6.2 yd³ (8 tons)</td><td>$185</td></tr>
+            <tr><td>1,000 sq ft lawn @ 4"</td><td>12.3 yd³ (16 tons)</td><td>$370</td></tr>
+            <tr><td>1,000 sq ft lawn @ 6"</td><td>18.5 yd³ (24 tons)</td><td>$555</td></tr>
+            <tr><td>2,500 sq ft lawn @ 4"</td><td>30.9 yd³ (40 tons)</td><td>$925</td></tr>
+            <tr><td>5,000 sq ft lawn @ 4"</td><td>61.8 yd³ (80 tons)</td><td>$1,850</td></tr>
+            <tr><td>200 sq ft garden bed @ 6"</td><td>3.7 yd³ (4.8 tons)</td><td>$110</td></tr>
+            <tr><td>500 sq ft garden bed @ 8"</td><td>12.3 yd³ (16 tons)</td><td>$370</td></tr>
+            <tr><td>4x8 raised bed @ 12"</td><td>1.2 yd³ (1.5 tons)</td><td>$36</td></tr>
+            <tr><td>Top dressing 1,000 sq ft @ 1/4"</td><td>0.77 yd³ (1 ton)</td><td>$23</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Choosing the Right Topsoil</h2>
+      <p>
+        "Topsoil" is a category with significant variation in quality. Knowing what to ask for
+        saves money and improves results.
+      </p>
+
+      <h3>Screened topsoil (recommended)</h3>
+      <p>
+        Sifted through 1/2 inch mesh to remove rocks, sticks, and clumps. Worth the $10-15/yd³
+        premium for any precision work — lawn installation, vegetable gardens, premium landscaping.
+        Cost: $30-55/yd³. Distinguishes from "regular topsoil" or "unscreened."
+      </p>
+
+      <h3>Pulverized topsoil</h3>
+      <p>
+        Mechanically broken down to fine, uniform texture — even smoother than screened. Premium
+        product for high-end lawn installation and golf course-quality grass establishment.
+        Cost: $40-70/yd³. Overkill for most residential projects.
+      </p>
+
+      <h3>Regular (unscreened) topsoil</h3>
+      <p>
+        Stripped from agricultural fields or construction sites without sifting. May contain
+        rocks, debris, weed seeds. Fine for fill projects or grade adjustment; problematic for
+        lawns or vegetable beds. Cost: $20-35/yd³. Buy only if you can accept the debris content.
+      </p>
+
+      <h3>Compost-amended topsoil</h3>
+      <p>
+        Topsoil pre-mixed with 20-30% compost. Ready for lawn or garden installation without
+        additional amendment. Convenient but expensive per yard. Cost: $40-65/yd³. DIY version
+        (buy topsoil + compost separately, mix yourself) saves 20-30%.
+      </p>
+
+      <h3>Black dirt (regional term)</h3>
+      <p>
+        In the Midwest US, "black dirt" usually means dark, organic-rich topsoil — premium grade.
+        In other regions, it can mean anything dark colored, including peat-rich soils that
+        compact when dry. Ask suppliers specifically what "black dirt" means in their inventory.
+      </p>
+
+      <AdSlot label="AdSense in-content #2" slotId="topsoil-mid-2" />
+
+      <h2>How to Install New Lawn Topsoil</h2>
+      <p>
+        A successful new lawn depends on proper soil prep. Here's the professional process:
+      </p>
+
+      <ol>
+        <li><strong>Remove existing vegetation.</strong> Spray glyphosate herbicide 7-14 days before, or strip sod manually. Don't try to till live grass — it regenerates.</li>
+        <li><strong>Test soil pH.</strong> $15 home test kit. Most lawns thrive at pH 6.0-7.0. Adjust with lime (raise pH) or sulfur (lower pH) before topsoil arrives.</li>
+        <li><strong>Loosen existing soil.</strong> Rototill the top 6-8 inches of existing ground. This breaks compaction and creates a transition zone for new topsoil.</li>
+        <li><strong>Deliver and spread topsoil.</strong> Have the truck dump in stages around the area. Use a wheelbarrow and rake to spread 4-6 inches evenly.</li>
+        <li><strong>Till topsoil into existing soil.</strong> Critical step. Use rototiller to mix the top 4 inches of new topsoil with the top 4 inches of existing soil. Creates a continuous root zone.</li>
+        <li><strong>Grade and level.</strong> Use a landscape rake to level. Slope away from buildings at 1-2%. Roll lightly with a partially-filled lawn roller to settle.</li>
+        <li><strong>Seed or sod.</strong> Apply seed/starter fertilizer at recommended rates, or lay sod with staggered seams. Water immediately and keep moist for 14-21 days.</li>
+        <li><strong>Top up at 4-6 weeks.</strong> Settled depressions get a 1/4 inch top dressing of additional topsoil. Reseed/resod as needed.</li>
+      </ol>
+
+      <h2>Costs Beyond the Topsoil Itself</h2>
+      <p>
+        For a new lawn project, topsoil is usually 30-40% of total cost. Don't forget to budget for:
+      </p>
+      <ul>
+        <li><strong>Delivery:</strong> $50-150 per load (truck holds 5-15 yards typically)</li>
+        <li><strong>Equipment rental:</strong> Rototiller $80-120/day, landscape rake $20/day, wheelbarrow $0 (buy a good one)</li>
+        <li><strong>Seed or sod:</strong> Seed $30-50/lb (covers 250-350 sq ft); sod $0.30-0.75/sq ft installed</li>
+        <li><strong>Starter fertilizer:</strong> $30-60 per 1,000 sq ft</li>
+        <li><strong>Soil amendments:</strong> Lime, sulfur, compost — typically $50-150 for amendments</li>
+        <li><strong>Irrigation:</strong> Sprinkler heads ($20-50 ea), hose timers ($30-80) if irrigation needed</li>
+        <li><strong>Labor (if hired):</strong> $40-60/hr for unskilled labor; lawn install companies charge $1.50-3/sq ft turnkey</li>
+      </ul>
+
+      <h2>Common Topsoil Mistakes</h2>
+      <ul>
+        <li><strong>Skipping the till-in step:</strong> Pure topsoil over compacted subsoil = drainage barrier = unhealthy lawn within 2 seasons</li>
+        <li><strong>Going too shallow:</strong> 2-3 inches isn't enough for healthy turfgrass roots. Spend on depth.</li>
+        <li><strong>Buying unscreened for lawn work:</strong> Rocks and debris ruin lawn quality and damage mowers for years afterward.</li>
+        <li><strong>Forgetting settling buffer:</strong> 12 yards installed becomes 10 yards visible by spring. Order with 10-15% buffer.</li>
+        <li><strong>Wrong depth for raised beds:</strong> Pure topsoil compacts in raised beds. Use proper soil mix (topsoil + compost + amendments).</li>
+        <li><strong>Buying bagged for big projects:</strong> 12 yards of lawn topsoil in bags costs $1,700-2,400 vs $360-500 bulk. Always bulk above 1 yard.</li>
+      </ul>
+    </article>
+
+    <FAQ items={topsoilFAQ} />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} />
+
+    <EmbedCTA calculator="topsoil" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>

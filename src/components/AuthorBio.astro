@@ -1,0 +1,49 @@
+---
+// Generic "last updated" signal — no fake credentials, no claimed authorship.
+export interface Props {
+  updated?: string;
+}
+
+const { updated = "November 2026" } = Astro.props;
+---
+
+<aside class="updated-note">
+  <div class="updated-label">📅 Last reviewed</div>
+  <div class="updated-date">{updated}</div>
+  <p class="updated-disclaimer">
+    Calculations are estimates based on standard material density values and typical industry
+    practice. Always verify with your local supplier before placing large orders. See our
+    <a href="/methodology/">methodology page</a> for formulas and references.
+  </p>
+</aside>
+
+<style>
+  .updated-note {
+    background: var(--n50);
+    padding: var(--s-4);
+    border-radius: var(--r-md);
+    margin: var(--s-8) 0;
+    font-size: 13px;
+    border-left: 3px solid var(--n300);
+  }
+  .updated-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--n500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .updated-date {
+    font-weight: 700;
+    color: var(--n900);
+    font-size: 14px;
+    margin-bottom: var(--s-2);
+  }
+  .updated-disclaimer {
+    color: var(--n600);
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+  }
+</style>

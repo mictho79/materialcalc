@@ -1,0 +1,356 @@
+---
+// Mulch Calculator — bagged version emphasized since mulch usually sold in 2 ft³ bags.
+---
+
+<div class="tool" id="mulch-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="shape-row" role="tablist" aria-label="Shape">
+    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Rectangle</button>
+    <button type="button" class="shape-btn" data-shape="circle">● Circle</button>
+    <button type="button" class="shape-btn" data-shape="triangle">▲ Triangle</button>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="m-length"><span data-shape-text="length">Length</span></label>
+      <div class="field-input">
+        <input id="m-length" type="number" value="20" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show-when="rectangle,triangle">
+      <label for="m-width">Width</label>
+      <div class="field-input">
+        <input id="m-width" type="number" value="8" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="m-depth">Depth</label>
+      <div class="field-input">
+        <input id="m-depth" type="number" value="3" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="m-type">Mulch type</label>
+      <div class="field-input">
+        <select id="m-type">
+          <option value="0.95">Hardwood (shredded) — 0.95 t/yd³</option>
+          <option value="0.50">Pine bark — 0.50 t/yd³</option>
+          <option value="0.45">Cedar — 0.45 t/yd³</option>
+          <option value="0.85">Black-dyed hardwood — 0.85 t/yd³</option>
+          <option value="0.85">Red-dyed hardwood — 0.85 t/yd³</option>
+          <option value="0.40">Pine straw — 0.40 t/yd³</option>
+          <option value="0.55">Rubber mulch — 0.55 t/yd³</option>
+          <option value="0.60">Cocoa hull — 0.60 t/yd³</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="m-bag-price">Bag price <span class="optional">(2 ft³)</span></label>
+      <div class="field-input">
+        <input id="m-bag-price" type="number" value="5" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix">$/bag</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="m-bulk-price">Bulk price per yd³ <span class="optional">(optional)</span></label>
+      <div class="field-input">
+        <input id="m-bulk-price" type="number" value="35" min="0" step="1" inputmode="decimal" />
+        <span class="suffix">$/yd³</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">You need</div>
+    <div class="result-main">
+      <span class="number" id="m-yards">1.48</span>
+      <span class="unit">cubic yards</span>
+    </div>
+    <div class="result-secondary">
+      ≈ <strong id="m-bags">20</strong> bags (2 ft³) &nbsp;·&nbsp;
+      ≈ <strong id="m-feet">40.00</strong> ft³ &nbsp;·&nbsp;
+      <strong id="m-tons">1.41</strong> tons
+    </div>
+    <div class="result-cost-row">
+      Bagged cost: <strong id="m-bag-cost">$100</strong>
+      &nbsp;·&nbsp;
+      Bulk cost: <strong id="m-bulk-cost">$52</strong>
+      <span class="savings" id="m-savings">(save $48 with bulk)</span>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="m-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="m-btn-share">↗ Share</button>
+      
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool {
+    background: var(--white);
+    border: 1px solid var(--n200);
+    border-radius: var(--r-lg);
+    padding: var(--s-6);
+    margin-bottom: var(--s-4);
+    box-shadow: var(--shadow-xs);
+  }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+
+  .tool-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--s-5);
+    padding-bottom: var(--s-4);
+    border-bottom: 1px solid var(--n200);
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .tool-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--n700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .unit-toggle {
+    display: inline-flex;
+    background: var(--n100);
+    border-radius: var(--r-md);
+    padding: 3px;
+  }
+  .unit-toggle button {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--n500);
+    cursor: pointer;
+    border-radius: var(--r-sm);
+  }
+  .unit-toggle button.active {
+    background: var(--white);
+    color: var(--primary);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .shape-row { display: flex; gap: var(--s-2); margin-bottom: var(--s-5); }
+  .shape-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1.5px solid var(--n200);
+    background: var(--white);
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--n700);
+    cursor: pointer;
+    transition: all var(--t-fast);
+  }
+  .shape-btn:hover { border-color: var(--primary); }
+  .shape-btn.active { border-color: var(--primary); background: var(--primary); color: var(--white); }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-4);
+    margin-bottom: var(--s-4);
+  }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  [data-show-when][hidden] { display: none; }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--n700);
+    margin-bottom: 6px;
+  }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border: 1.5px solid var(--n200);
+    border-radius: var(--r-md);
+    font-size: 15px;
+    color: var(--n900);
+    background: var(--white);
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30,58,95,0.1);
+  }
+  .suffix {
+    position: absolute;
+    right: 12px;
+    color: var(--n500);
+    font-size: 13px;
+    font-weight: 500;
+    pointer-events: none;
+  }
+
+  .result {
+    background: var(--n50);
+    border: 1px solid var(--n200);
+    border-radius: var(--r-md);
+    padding: var(--s-5);
+    margin-top: var(--s-5);
+  }
+  .result-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--n500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--s-2);
+  }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1.1;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-cost-row {
+    margin-top: var(--s-2);
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--n200);
+    font-size: 14px;
+    color: var(--n700);
+    font-variant-numeric: tabular-nums;
+  }
+  .result-cost-row strong { color: var(--n900); font-weight: 700; }
+  .savings { color: var(--success); font-weight: 600; margin-left: var(--s-2); }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('mulch-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+  const widthField = $('#m-width').closest('.field');
+  const lengthLabel = root.querySelector('[data-shape-text="length"]');
+
+  function calculate() {
+    const shape = root.querySelector('.shape-btn.active').dataset.shape;
+    const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    const l = parseFloat($('#m-length').value) || 0;
+    const w = parseFloat($('#m-width').value) || 0;
+    const d = parseFloat($('#m-depth').value) || 0;
+    const density = parseFloat($('#m-type').value) || 0.95;
+    const bagPrice = parseFloat($('#m-bag-price').value) || 0;
+    const bulkPrice = parseFloat($('#m-bulk-price').value) || 0;
+
+    let area = 0;
+    if (shape === 'rectangle')   area = l * w;
+    else if (shape === 'circle') area = Math.PI * Math.pow(l / 2, 2);
+    else                          area = 0.5 * l * w;
+
+    let cubicYards, cubicFeet;
+    if (units === 'imperial') {
+      cubicFeet = area * (d / 12);
+      cubicYards = cubicFeet / 27;
+    } else {
+      const cm = area * (d / 100);
+      cubicYards = cm * 1.30795;
+      cubicFeet = cm * 35.3147;
+    }
+
+    const tons = cubicYards * density;
+    const bags = cubicFeet / 2;  // standard 2 ft³ bags
+    const bagCost = Math.ceil(bags) * bagPrice;
+    const bulkCost = cubicYards * bulkPrice;
+    const savings = bagCost - bulkCost;
+
+    $('#m-yards').textContent = cubicYards.toFixed(2);
+    $('#m-feet').textContent = cubicFeet.toFixed(2);
+    $('#m-bags').textContent = Math.ceil(bags).toLocaleString();
+    $('#m-tons').textContent = tons.toFixed(2);
+    $('#m-bag-cost').textContent = '$' + Math.round(bagCost).toLocaleString();
+    $('#m-bulk-cost').textContent = '$' + Math.round(bulkCost).toLocaleString();
+
+    const savingsEl = $('#m-savings');
+    if (savings > 5 && bagPrice > 0 && bulkPrice > 0) {
+      savingsEl.textContent = `(save $${Math.round(savings)} with bulk)`;
+      savingsEl.style.display = '';
+    } else {
+      savingsEl.style.display = 'none';
+    }
+  }
+
+  function updateShape(shape) {
+    if (shape === 'circle') {
+      widthField.hidden = true;
+      if (lengthLabel) lengthLabel.textContent = 'Diameter';
+    } else {
+      widthField.hidden = false;
+      if (lengthLabel) lengthLabel.textContent = 'Length';
+    }
+  }
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+
+  root.querySelectorAll('.shape-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateShape(btn.dataset.shape);
+      calculate();
+    });
+  });
+
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      root.querySelectorAll('[data-unit="depth"]').forEach(el => el.textContent = metric ? 'cm' : 'in');
+      calculate();
+    });
+  });
+
+  $('#m-btn-copy').addEventListener('click', () => {
+    const text = `Mulch needed: ${$('#m-yards').textContent} yd³ (${$('#m-bags').textContent} bags @ 2 ft³). Bulk cost: ${$('#m-bulk-cost').textContent}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#m-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+
+  $('#m-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Mulch Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+
+  calculate();
+})();
+</script>

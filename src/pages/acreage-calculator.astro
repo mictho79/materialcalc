@@ -1,0 +1,335 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import AcreageCalculator from '@components/AcreageCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { acreageFAQ } from '@data/faqs/acreage';
+import { getRelatedCalculators } from '@data/calculators';
+
+const title = "Acreage Calculator — Land Area in Acres, Hectares & Sq Ft";
+const description = "Free acreage calculator for any land shape. Compute lot size in acres, square feet, square meters, and hectares — rectangle, circle, triangle, trapezoid or irregular 4-sided.";
+
+const related = getRelatedCalculators('acreage-calculator', 4).map(c => ({
+  title: c.shortTitle + ' Calculator',
+  href: `/${c.slug}/`,
+  desc: c.description
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Acreage Calculator",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any (web-based)",
+    "description": description,
+    "url": "https://materialcalc.com/acreage-calculator/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to calculate acreage",
+    "step": [
+      { "@type": "HowToStep", "name": "Measure the property", "text": "Get accurate side dimensions from a survey, deed, or careful measurement." },
+      { "@type": "HowToStep", "name": "Choose the shape", "text": "Rectangle, circle, triangle, trapezoid, or irregular four-sided lot." },
+      { "@type": "HowToStep", "name": "Calculate square footage", "text": "Apply the area formula for your shape (e.g. L × W for rectangle)." },
+      { "@type": "HowToStep", "name": "Convert to acres", "text": "Divide square feet by 43,560 to get acres." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'Volume & Measurement', href: '/calculators/#volume' },
+      { label: 'Acreage Calculator' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Acreage Calculator</h1>
+      <p class="intro">
+        Calculate the exact size of any land area in acres, square feet, square meters, and hectares.
+        Supports rectangles, circles, triangles, trapezoids, and irregular 4-sided lots — perfect
+        for property surveys, real estate, farming, and zoning calculations.
+      </p>
+    </header>
+
+    <AcreageCalculator />
+
+    <article class="content">
+      <h2>How to Calculate Acreage</h2>
+      <p>
+        Acreage is just area expressed in acres — the standard land unit in the United States. The
+        calculation is two steps: first compute the area in square feet using the appropriate shape
+        formula, then divide by 43,560 (the number of square feet in one acre). Our calculator handles
+        the math automatically, but understanding the formula helps you verify results and handle
+        unusual shapes.
+      </p>
+
+      <div class="formula">
+        Acres = Square feet ÷ 43,560<br>
+        Square meters = Square feet × 0.0929<br>
+        Hectares = Acres × 0.4047
+      </div>
+
+      <p>
+        The number 43,560 originates from historical English measurement: an acre was defined as
+        a furlong by a chain (660 ft × 66 ft = 43,560 sq ft). This odd-looking conversion factor
+        is exact and has been used in US land law since colonial times.
+      </p>
+
+      <h3>Worked example: a typical suburban lot</h3>
+      <p>
+        Suppose your property is 200 ft long × 145 ft wide (a typical mid-sized suburban lot):
+      </p>
+      <ul>
+        <li><strong>Square feet:</strong> 200 × 145 = <strong>29,000 sq ft</strong></li>
+        <li><strong>Acres:</strong> 29,000 ÷ 43,560 = <strong>0.666 acres</strong></li>
+        <li><strong>Square meters:</strong> 29,000 × 0.0929 = <strong>2,694 m²</strong></li>
+        <li><strong>Hectares:</strong> 0.666 × 0.4047 = <strong>0.269 ha</strong></li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">An acre isn't actually a defined shape</div>
+        An acre is purely a measure of area, not shape. A 1-acre square is 209.08 × 209.08 ft.
+        A 1-acre rectangle could be 43.56 × 1,000 ft, or 50 × 871 ft, or any other dimensions that
+        multiply to 43,560. Property assessors care about the total area, not the shape.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="ac-mid-1" />
+
+      <h2>Calculating Different Property Shapes</h2>
+      <p>
+        Real properties rarely come as perfect rectangles. Here's how to handle the most common
+        property shapes.
+      </p>
+
+      <h3>Rectangle (most lots)</h3>
+      <p>
+        Length × Width. Most suburban lots are roughly rectangular even if not perfectly so. For
+        small deviations (under 5°), approximate with a rectangle using the average dimensions.
+      </p>
+
+      <h3>Circle (round properties, easements)</h3>
+      <p>
+        π × radius². Useful for circular easements, well-drilling exclusion zones, or unusual
+        property shapes. A 100 ft radius circular property is 31,416 sq ft, about 0.72 acres.
+      </p>
+
+      <h3>Triangle (corner lots, irregular shapes)</h3>
+      <p>
+        (Base × Height) ÷ 2. For corner lots where two property lines form a triangle, measure
+        the base of the triangle and the perpendicular height (not the slanted side). A triangle
+        with 200 ft base and 150 ft height = 15,000 sq ft = 0.34 acres.
+      </p>
+
+      <h3>Trapezoid (lots with parallel front/back lines but different widths)</h3>
+      <p>
+        ((Width A + Width B) ÷ 2) × Length. Many rural and farm lots are trapezoid-shaped because
+        they follow road frontage on one side. A lot 100 ft wide at the road, 200 ft wide at the
+        back, and 300 ft deep: ((100 + 200) ÷ 2) × 300 = 45,000 sq ft = 1.03 acres.
+      </p>
+
+      <h3>Irregular four-sided (most rural lots)</h3>
+      <p>
+        For 4-sided lots where no angles are right angles, you can use Bretschneider's formula
+        (an approximation) when you know just the four side lengths. Our calculator includes this
+        option. For most accurate results on truly irregular property, use a county tax assessor
+        plot or a professional survey.
+      </p>
+
+      <h3>Complex polygons</h3>
+      <p>
+        Properties with 5+ sides or curves require either: (1) breaking into multiple simpler shapes
+        and summing the area, or (2) using GIS data from your county. Many counties publish parcel
+        data online with accurate square footage already calculated.
+      </p>
+
+      <h2>How Big Is an Acre? Real-World Comparisons</h2>
+      <p>
+        It's surprisingly hard to picture an acre in your head. These comparisons help:
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Comparison</th>
+              <th>Size in acres</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 acre (the reference)</td><td>1.00 acre = 43,560 sq ft = 4,047 m²</td></tr>
+            <tr><td>American football field (including end zones)</td><td>1.32 acres</td></tr>
+            <tr><td>American football field (playing area only)</td><td>1.10 acres</td></tr>
+            <tr><td>FIFA soccer pitch (standard)</td><td>1.76 acres</td></tr>
+            <tr><td>Olympic-size swimming pool</td><td>0.03 acres (1,320 sq ft)</td></tr>
+            <tr><td>Tennis court (singles)</td><td>0.06 acres (2,808 sq ft)</td></tr>
+            <tr><td>Basketball court (NBA)</td><td>0.11 acres (4,700 sq ft)</td></tr>
+            <tr><td>Standard suburban lot (avg)</td><td>0.20-0.40 acres</td></tr>
+            <tr><td>Walmart Supercenter (average)</td><td>4.0 acres of building</td></tr>
+            <tr><td>Average US farm field</td><td>40-80 acres per field</td></tr>
+            <tr><td>Central Park, NYC</td><td>843 acres</td></tr>
+            <tr><td>1 square mile</td><td>640 acres</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Common Land Area Conversions</h2>
+      <p>
+        Quick reference for the most common unit conversions involving acres:
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>1 acre equals...</th>
+              <th>Conversion factor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Square feet</td><td>43,560 sq ft</td></tr>
+            <tr><td>Square yards</td><td>4,840 sq yd</td></tr>
+            <tr><td>Square meters</td><td>4,046.86 m²</td></tr>
+            <tr><td>Hectares</td><td>0.4047 ha</td></tr>
+            <tr><td>Square miles</td><td>0.001563 sq mi (1/640)</td></tr>
+            <tr><td>Square kilometers</td><td>0.004047 km²</td></tr>
+            <tr><td>Square chains (historical)</td><td>10 sq chains</td></tr>
+            <tr><td>Square rods (historical)</td><td>160 sq rd</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Common Property Sizes and Their Acreage</h2>
+      <p>
+        Quick lookup table for common lot sizes — useful for real estate, zoning, and farming planning:
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Lot size (rectangular approx)</th>
+              <th>Square feet</th>
+              <th>Acres</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>50 × 100 ft (small urban)</td><td>5,000 sq ft</td><td>0.115 acres</td></tr>
+            <tr><td>60 × 120 ft (typical city lot)</td><td>7,200 sq ft</td><td>0.165 acres</td></tr>
+            <tr><td>75 × 150 ft (suburban small)</td><td>11,250 sq ft</td><td>0.258 acres</td></tr>
+            <tr><td>100 × 150 ft (1/3 acre)</td><td>15,000 sq ft</td><td>0.344 acres</td></tr>
+            <tr><td>110 × 200 ft (1/2 acre)</td><td>22,000 sq ft</td><td>0.505 acres</td></tr>
+            <tr><td>150 × 200 ft (3/4 acre)</td><td>30,000 sq ft</td><td>0.689 acres</td></tr>
+            <tr><td>200 × 220 ft (1 acre)</td><td>44,000 sq ft</td><td>1.010 acres</td></tr>
+            <tr><td>300 × 290 ft (2 acres)</td><td>87,000 sq ft</td><td>1.997 acres</td></tr>
+            <tr><td>400 × 545 ft (5 acres)</td><td>218,000 sq ft</td><td>5.005 acres</td></tr>
+            <tr><td>660 × 660 ft (10 acres)</td><td>435,600 sq ft</td><td>10.000 acres</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <AdSlot label="AdSense in-content #2" slotId="ac-mid-2" />
+
+      <h2>How to Measure Land Accurately</h2>
+      <p>
+        DIY acreage calculation depends on how accurate your measurements are. Options ranked from
+        most to least accurate:
+      </p>
+
+      <h3>1. Professional survey</h3>
+      <p>
+        For closings, legal disputes, or anything where accuracy matters: hire a licensed land surveyor.
+        Cost: $400-1,500 for typical residential lot. The deliverable is a stamped survey accepted by
+        title companies, banks, and courts. Use county GIS data for free if you just need approximate
+        numbers.
+      </p>
+
+      <h3>2. County GIS / parcel data</h3>
+      <p>
+        Most US counties publish parcel maps online with measured boundaries. Search "[your county]
+        property search" or "[county] GIS." Accuracy: ±2-5% typically. Free and fast. Best option
+        for non-legal use cases.
+      </p>
+
+      <h3>3. GPS with mapping app</h3>
+      <p>
+        Apps like GPS Fields Area Measure, Google Earth Pro, or Land Calculator let you walk the
+        property perimeter while GPS records corners. Accuracy: ±5-10% in good conditions. Free or
+        low-cost. Good for rural properties without published parcels.
+      </p>
+
+      <h3>4. Tape measurement</h3>
+      <p>
+        Old school. Mark corners with stakes, run a 100-ft tape along each side. Accuracy depends
+        on terrain — slopes and obstacles introduce error. Good for small lots; impractical for
+        rural acreage.
+      </p>
+
+      <h3>5. Stride pacing</h3>
+      <p>
+        Less accurate but quick. Calibrate your stride length, count steps along each side.
+        Accuracy: ±10-20%. Useful for rough estimates only — never for legal documents or transactions.
+      </p>
+
+      <h2>Why Acreage Matters</h2>
+      <p>
+        Knowing your exact acreage matters for several practical reasons:
+      </p>
+      <ul>
+        <li><strong>Property tax assessment</strong> — taxes are often calculated per acre or per parcel area. Errors in recorded acreage cost real money.</li>
+        <li><strong>Zoning compliance</strong> — minimum lot sizes, setback distances, and building permits all reference acreage.</li>
+        <li><strong>Real estate transactions</strong> — listing accuracy affects pricing. A 0.95-acre lot listed as "1 acre" can lead to legal disputes.</li>
+        <li><strong>Farming and agriculture</strong> — seed quantities, fertilizer rates, yield estimates, and crop insurance all calculate per acre.</li>
+        <li><strong>Insurance</strong> — coverage rates and premium calculations often use property size.</li>
+        <li><strong>Subdivision potential</strong> — determining how many lots you can subdivide depends on local minimum lot sizes vs total area.</li>
+        <li><strong>Land conservation</strong> — agricultural easements, conservation programs, and tax benefits are typically per-acre based.</li>
+      </ul>
+
+      <h2>Hectares vs Acres: International Context</h2>
+      <p>
+        The acre is used in the US, UK (residual), and a few other former British colonies. Most of
+        the world uses hectares. The conversion is straightforward but the visual difference matters:
+      </p>
+      <ul>
+        <li><strong>1 hectare = 2.471 acres</strong> — about 2.5× larger</li>
+        <li><strong>1 hectare = 10,000 m²</strong> — a 100m × 100m square</li>
+        <li><strong>1 hectare = 107,639 sq ft</strong></li>
+        <li><strong>10 hectares = 24.71 acres</strong> — typical small Canadian farm</li>
+        <li><strong>1 acre = 0.405 hectares</strong></li>
+      </ul>
+      <p>
+        For real estate work involving international buyers/sellers, always convert and disclose
+        both units clearly. A "10-acre" property is "4.05 hectares" to a European buyer — they
+        may not know acres at all.
+      </p>
+    </article>
+
+    <FAQ items={acreageFAQ} />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} />
+
+    <EmbedCTA calculator="acreage" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>

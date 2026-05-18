@@ -1,0 +1,208 @@
+---
+// Fence Calculator — linear feet to posts + panels/pickets + rails + concrete.
+---
+
+<div class="tool" id="fence-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="fc-length">Total fence length</label>
+      <div class="field-input">
+        <input id="fc-length" type="number" value="150" min="0" step="1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="fc-height">Fence height</label>
+      <div class="field-input">
+        <select id="fc-height">
+          <option value="4">4 ft (front yard, decorative)</option>
+          <option value="5">5 ft (mid-height)</option>
+          <option value="6" selected>6 ft (privacy / standard)</option>
+          <option value="7">7 ft (tall privacy)</option>
+          <option value="8">8 ft (max residential)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="fc-style">Fence style</label>
+      <div class="field-input">
+        <select id="fc-style">
+          <option value="panel" selected>Pre-built panel (8 ft sections)</option>
+          <option value="picket">Picket (build on site)</option>
+          <option value="chainlink">Chain link</option>
+          <option value="ranch">Split-rail / ranch (3-rail)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="fc-spacing">Post spacing</label>
+      <div class="field-input">
+        <select id="fc-spacing">
+          <option value="6">6 ft (heavy duty)</option>
+          <option value="8" selected>8 ft (standard)</option>
+          <option value="10">10 ft (chain link / ranch)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="fc-gates">Number of gates</label>
+      <div class="field-input">
+        <input id="fc-gates" type="number" value="1" min="0" step="1" inputmode="decimal" />
+        <span class="suffix">gates</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="fc-price">Price per panel <span class="optional">(materials)</span></label>
+      <div class="field-input">
+        <input id="fc-price" type="number" value="65" min="0" step="1" inputmode="decimal" />
+        <span class="suffix">$/panel</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">Fence materials</div>
+    <div class="result-main">
+      <span class="number" id="fc-posts">20</span>
+      <span class="unit">posts</span>
+      <span class="aux"><strong id="fc-panels">19</strong> panels (or equivalent)</span>
+    </div>
+    <div class="result-secondary">
+      Rails: <strong id="fc-rails">57</strong> &nbsp;·&nbsp;
+      Concrete: <strong id="fc-concrete">20</strong> bags (50 lb) &nbsp;·&nbsp;
+      Gate posts: <strong id="fc-gateposts">2</strong>
+    </div>
+    <div class="result-cost-row">
+      Estimated panel cost: <strong id="fc-cost">$1,235</strong>
+      <span class="note">plus posts, rails, hardware, gates, concrete</span>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="fc-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="fc-btn-share">↗ Share</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool { background: var(--white); border: 1px solid var(--n200); border-radius: var(--r-lg); padding: var(--s-6); margin-bottom: var(--s-4); box-shadow: var(--shadow-xs); }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+  .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px solid var(--n200); flex-wrap: wrap; gap: var(--s-2); }
+  .tool-title { font-size: 15px; font-weight: 700; color: var(--n700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .unit-toggle { display: inline-flex; background: var(--n100); border-radius: var(--r-md); padding: 3px; }
+  .unit-toggle button { border: none; background: transparent; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--n500); cursor: pointer; border-radius: var(--r-sm); }
+  .unit-toggle button.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--n700); margin-bottom: 6px; }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--n200); border-radius: var(--r-md); font-size: 15px; color: var(--n900); background: var(--white); }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+  .suffix { position: absolute; right: 12px; color: var(--n500); font-size: 13px; font-weight: 500; pointer-events: none; }
+  .result { background: var(--n50); border: 1px solid var(--n200); border-radius: var(--r-md); padding: var(--s-5); margin-top: var(--s-5); }
+  .result-label { font-size: 12px; font-weight: 700; color: var(--n500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--s-2); }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-main .aux { font-size: 14px; color: var(--n600); margin-left: 6px; }
+  .result-main .aux strong { color: var(--n900); font-weight: 700; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-cost-row { margin-top: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--n200); font-size: 14px; color: var(--n700); font-variant-numeric: tabular-nums; }
+  .result-cost-row strong { color: var(--n900); font-weight: 700; }
+  .note { color: var(--n500); font-weight: 400; font-size: 12px; margin-left: 8px; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('fence-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  function calculate() {
+    const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    let length = parseFloat($('#fc-length').value) || 0;
+    const height = parseFloat($('#fc-height').value) || 6;
+    const style = $('#fc-style').value;
+    const spacing = parseFloat($('#fc-spacing').value) || 8;
+    const gates = parseInt($('#fc-gates').value) || 0;
+    const panelPrice = parseFloat($('#fc-price').value) || 0;
+
+    if (units === 'metric') length = length * 3.2808;
+
+    if (length <= 0) return;
+
+    // Posts: ceiling(length / spacing) + 1
+    const posts = Math.ceil(length / spacing) + 1;
+    const panels = Math.ceil(length / spacing);
+
+    // Rails: 2 rails for 4 ft, 3 rails for 5-8 ft fences
+    const railsPerSection = height >= 5 ? 3 : 2;
+    const rails = panels * railsPerSection;
+
+    // Concrete: 1 bag per regular post, 2 bags per gate post (heavier)
+    const gatePosts = gates * 2;
+    const concrete = posts + gatePosts;
+
+    // Cost calc — panels variant
+    let cost;
+    if (style === 'picket') {
+      // Estimate ~10 pickets per 8 ft section at $3 each
+      const pickets = panels * 10;
+      cost = pickets * 3 + posts * 25 + rails * 8;
+    } else {
+      cost = panels * panelPrice;
+    }
+
+    $('#fc-posts').textContent = posts.toLocaleString();
+    $('#fc-panels').textContent = panels.toLocaleString();
+    $('#fc-rails').textContent = rails.toLocaleString();
+    $('#fc-concrete').textContent = concrete.toLocaleString();
+    $('#fc-gateposts').textContent = gatePosts.toString();
+    $('#fc-cost').textContent = '$' + Math.round(cost).toLocaleString();
+  }
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      calculate();
+    });
+  });
+
+  $('#fc-btn-copy').addEventListener('click', () => {
+    const text = `Fence materials: ${$('#fc-posts').textContent} posts, ${$('#fc-panels').textContent} panels, ${$('#fc-rails').textContent} rails. Estimated cost: ${$('#fc-cost').textContent}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#fc-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+
+  $('#fc-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Fence Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+
+  calculate();
+})();
+</script>

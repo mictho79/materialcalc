@@ -1,0 +1,96 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="cols">
+      <div>
+        <div class="brand">Material<span>Calc</span></div>
+        <p class="tagline">Free, accurate calculators for every construction and landscaping material. Trusted by contractors and homeowners.</p>
+      </div>
+      <div>
+        <h4>Popular</h4>
+        <a href="/gravel-calculator/">Gravel</a>
+        <a href="/cubic-yard-calculator/">Cubic Yard</a>
+        <a href="/board-feet-calculator/">Board Feet</a>
+        <a href="/mulch-calculator/">Mulch</a>
+        <a href="/square-footage-calculator/">Square Footage</a>
+      </div>
+      <div>
+        <h4>More Calculators</h4>
+        <a href="/concrete-calculator/">Concrete</a>
+        <a href="/sand-calculator/">Sand</a>
+        <a href="/stone-calculator/">Stone</a>
+        <a href="/calculators/">Browse all →</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="/about/">About</a>
+        <a href="/methodology/">Methodology</a>
+        <a href="/contact/">Contact</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+      </div>
+    </div>
+    <div class="bottom">© {year} MaterialCalc · All calculations are estimates — always confirm with your supplier before ordering.</div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--n900);
+    color: var(--n300);
+    padding: var(--s-10) 0 var(--s-6);
+    margin-top: var(--s-16);
+    font-size: 14px;
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: var(--s-8);
+    margin-bottom: var(--s-8);
+  }
+  @media (max-width: 720px) {
+    .cols { grid-template-columns: 1fr 1fr; gap: var(--s-6); }
+  }
+  @media (max-width: 480px) {
+    .cols { grid-template-columns: 1fr; }
+  }
+  .brand {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: var(--s-2);
+  }
+  .brand span { color: var(--accent); }
+  .tagline {
+    color: var(--n400);
+    margin-top: var(--s-2);
+    max-width: 320px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  h4 {
+    color: var(--white);
+    font-size: 13px;
+    margin-bottom: var(--s-3);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .site-footer a {
+    color: var(--n300);
+    display: block;
+    padding: 4px 0;
+    font-size: 13px;
+    text-decoration: none;
+  }
+  .site-footer a:hover { color: var(--accent); }
+  .bottom {
+    padding-top: var(--s-6);
+    border-top: 1px solid var(--n700);
+    font-size: 12px;
+    color: var(--n500);
+  }
+</style>

@@ -1,0 +1,260 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import FenceCalculator from '@components/FenceCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import { fenceFAQ } from '@data/faqs/fence';
+import { getRelatedCalculators } from '@data/calculators';
+
+const title = "Fence Calculator — Posts, Panels, Rails & Concrete";
+const description = "Free fence calculator for wood, vinyl, chain link and split-rail. Figures posts, panels, rails, gates and concrete from your total length and post spacing. Works for privacy, picket, ranch and chain link styles.";
+
+const related = getRelatedCalculators('fence-calculator', 4).map(c => ({
+  title: c.shortTitle + ' Calculator',
+  href: `/${c.slug}/`,
+  desc: c.description
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Fence Calculator",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any (web-based)",
+    "description": description,
+    "url": "https://materialcalc.com/fence-calculator/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'Outdoor & Fencing', href: '/calculators/#outdoor' },
+      { label: 'Fence Calculator' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Fence Calculator</h1>
+      <p class="intro">
+        Plan your fence project completely. Calculate posts, panels, rails, gates, and concrete from
+        your total fence length. Works for wood privacy, picket, chain link, and split-rail styles —
+        plus a complete cost and construction guide so you don't end up buying twice.
+      </p>
+    </header>
+
+    <FenceCalculator />
+
+    <article class="content">
+      <h2>How to Calculate Fence Materials</h2>
+      <p>
+        Fence math has one critical rule most beginners miss: posts have a "fence post problem" — for any
+        fence section, you need one more post than the number of sections, because every section needs a
+        post at each end. A 150 ft fence at 8 ft spacing isn't 18.75 posts; it's 19 sections plus 1 closing
+        post = 20 posts.
+      </p>
+
+      <div class="formula">
+        Number of sections = Fence length ÷ post spacing (round up)<br>
+        Number of posts = sections + 1 (the closing post)<br>
+        Rails per section = 2 for ≤4 ft fences, 3 for 5-8 ft fences<br>
+        Concrete bags = posts + (2 × number of gates)<br>
+        Gate posts = 2 extra posts (one each side) for every gate
+      </div>
+
+      <h3>Worked example: 150 ft backyard privacy fence</h3>
+      <p>
+        150 ft of 6 ft cedar privacy fence with one gate, 8 ft post spacing:
+      </p>
+      <ul>
+        <li><strong>Sections:</strong> 150 ÷ 8 = 18.75 → 19 sections</li>
+        <li><strong>Posts:</strong> 19 + 1 = 20 posts (8 ft long, 4x4 pressure-treated)</li>
+        <li><strong>Panels:</strong> 19 pre-built panels (or pickets equivalent)</li>
+        <li><strong>Rails (if not pre-paneled):</strong> 19 × 3 = 57 rails (2x4 cedar, ~7 ft 9 in long)</li>
+        <li><strong>Gate posts (extra strength):</strong> 2 additional posts</li>
+        <li><strong>Concrete:</strong> 20 posts + 2 (gate doubles) = 22 bags of 50 lb fast-setting</li>
+        <li><strong>Material cost estimate:</strong> $1,200-1,800 DIY (panels, posts, hardware, gate, concrete)</li>
+        <li><strong>Installed by pro:</strong> $4,500-7,500 for the same job</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">Call 811 before you dig</div>
+        Three business days before digging post holes, call 811 (or use the online tool). Utilities mark
+        their underground lines for free. Hitting a gas line is a 911 event; hitting a fiber line costs
+        $500-2,000 in repair fees. It's mandatory in most US states and takes 5 minutes to request.
+      </div>
+
+      <AdSlot slotId="fence-mid-1" />
+
+      <h2>Fence Heights and Code Requirements</h2>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Height</th>
+              <th>Typical use</th>
+              <th>Post / spacing</th>
+              <th>Permit usually needed?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>3 ft</td><td>Decorative front yard, garden border</td><td>4x4, 8 ft spacing</td><td>No</td></tr>
+            <tr><td>4 ft</td><td>Front yard, picket, pool fence (with gate latches)</td><td>4x4, 8 ft spacing</td><td>No</td></tr>
+            <tr><td>5 ft</td><td>Mid-height privacy, kid/dog containment</td><td>4x4, 8 ft spacing</td><td>Sometimes</td></tr>
+            <tr><td>6 ft</td><td>Backyard privacy — most common</td><td>4x4, 8 ft spacing</td><td>Often yes</td></tr>
+            <tr><td>7 ft</td><td>Tall privacy, partial windbreak</td><td>4x4 or 6x6, 8 ft</td><td>Yes</td></tr>
+            <tr><td>8 ft</td><td>Max residential, windbreak, deer fence</td><td>6x6, 6-8 ft spacing</td><td>Yes — many cities prohibit</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Fence Types and Cost Per Linear Foot 2026</h2>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>DIY materials</th>
+              <th>Installed</th>
+              <th>Lifespan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Chain link (4 ft)</td><td>$8-12/ft</td><td>$12-25/ft</td><td>15-25 years</td></tr>
+            <tr><td>Chain link (6 ft)</td><td>$12-18/ft</td><td>$18-35/ft</td><td>15-25 years</td></tr>
+            <tr><td>Pressure-treated pine (6 ft privacy)</td><td>$15-25/ft</td><td>$25-45/ft</td><td>15-20 years</td></tr>
+            <tr><td>Cedar (6 ft privacy)</td><td>$20-35/ft</td><td>$30-50/ft</td><td>20-30 years</td></tr>
+            <tr><td>Redwood (6 ft privacy)</td><td>$35-55/ft</td><td>$45-75/ft</td><td>25-35 years</td></tr>
+            <tr><td>Vinyl (6 ft privacy)</td><td>$25-40/ft</td><td>$30-55/ft</td><td>30-50 years</td></tr>
+            <tr><td>Aluminum / steel ornamental</td><td>$25-50/ft</td><td>$35-65/ft</td><td>30-50 years</td></tr>
+            <tr><td>Wrought iron</td><td>$45-80/ft</td><td>$60-120/ft</td><td>50+ years</td></tr>
+            <tr><td>Composite (Trex Seclusions)</td><td>$30-50/ft</td><td>$40-70/ft</td><td>25-30 years</td></tr>
+            <tr><td>Split-rail / ranch (3-rail)</td><td>$12-20/ft</td><td>$18-30/ft</td><td>10-20 years</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Material Components Explained</h2>
+
+      <h3>Posts</h3>
+      <p>
+        The structure of the fence. 4x4 pressure-treated for residential 4-6 ft fences; 6x6 for tall or
+        windy sites. Use ground-contact rated lumber (UC4A or UC4B stamp). Length = fence height + 2 ft
+        minimum for burial. End posts and gate posts always go in concrete; line posts can be concrete or
+        tamped gravel depending on soil and code.
+      </p>
+
+      <h3>Panels vs pickets</h3>
+      <p>
+        Pre-built panels (8 ft sections, 2-3 rails attached, pickets pre-nailed) are much faster to install
+        but limit your design options. Custom picket fence built on site uses individual pickets nailed to
+        horizontal rails — more work but lets you match unusual heights or curves. Most modern DIY projects
+        use panels.
+      </p>
+
+      <h3>Rails</h3>
+      <p>
+        Horizontal members between posts that pickets attach to. 2x4 lumber is standard; 2x6 for tall or
+        privacy fences. Two rails for fences 4 ft and under, three for 5-8 ft fences. Cut to fit between
+        posts — typically 7 ft 9 in for 8 ft post spacing.
+      </p>
+
+      <h3>Gates</h3>
+      <p>
+        Standard residential gate widths: 3 ft (walk-through), 4 ft (wide walk-through), 5-6 ft (mower
+        access), 10-12 ft (double gates for vehicles). Gates use double posts (4x4 alongside each gate
+        side or single 6x6) with extra concrete depth. Gate hardware costs $30-100 for residential walk-
+        through gate, $100-250 for double-leaf vehicle gates.
+      </p>
+
+      <AdSlot slotId="fence-mid-2" />
+
+      <h2>How to Build a Fence: Step by Step</h2>
+      <ol>
+        <li><strong>Verify property lines.</strong> Survey or accurate plat map. Check setback requirements (often 6-12 inches off property line) and HOA / city rules.</li>
+        <li><strong>Call 811.</strong> Three business days minimum before digging. Mark planned post holes with marking paint.</li>
+        <li><strong>Pull permits if required.</strong> Most cities require permits for fences over 6 ft. Some require them for any fence.</li>
+        <li><strong>Set the corner and end posts first.</strong> These define the fence line. Use string lines between them to align line posts.</li>
+        <li><strong>Dig post holes.</strong> Posthole digger or rented power auger ($75-100/day). Depth = 1/3 of total post length OR below frost line, whichever is deeper. 10-12 inch diameter holes.</li>
+        <li><strong>Set posts plumb in concrete.</strong> 4-6 inches of gravel at bottom for drainage. Position post, level both directions, pour dry-mix fast-set concrete into hole, add water per bag instructions. Brace and let cure 30-60 minutes before stress.</li>
+        <li><strong>String line at top of posts.</strong> Cut posts to even height (or set lower posts higher in their holes initially). Most fences look better with posts cut to consistent height after concrete sets.</li>
+        <li><strong>Attach rails.</strong> 3 inches from top of pickets, 8 inches from bottom, even middle rail for 5+ ft fences. Use galvanized or stainless screws — galvanized nails work but loosen over years.</li>
+        <li><strong>Install pickets or panels.</strong> Panels: lift into place, screw to posts. Pickets: pre-measure and pre-nail to make spacing consistent. Use a spacer block for uniform gaps.</li>
+        <li><strong>Hang gates.</strong> Heavy-duty gate hinges (3+ per gate side), gate latch, gate stops. Plumb the gate carefully — a gate that drags is a constant annoyance.</li>
+        <li><strong>Stain or seal within 30 days.</strong> Fresh pressure-treated lumber should weather 1-3 months before staining, but cedar should be stained promptly. Stain extends fence life 30-50%.</li>
+      </ol>
+
+      <h2>Slopes: Stepped vs Racked Fencing</h2>
+      <p>
+        Sloped ground creates a design choice that affects materials and look:
+      </p>
+
+      <h3>Stepped fence</h3>
+      <p>
+        Each section steps up or down from its neighbor. Posts stay vertical, panels stay rectangular.
+        Used with pre-built panels. Creates triangular gaps under low end of each panel — typical fix is
+        kickboards or letting the panel touch grade. Simpler but less elegant.
+      </p>
+
+      <h3>Racked fence</h3>
+      <p>
+        Each section is parallelogram-shaped, following the slope angle. Posts stay vertical; pickets stay
+        vertical; rails angle with the ground. Looks much better on slopes but requires either custom
+        construction or racked-panel kits. Manufacturer racks are often only $10-20 more per panel.
+      </p>
+
+      <h3>Contoured fence</h3>
+      <p>
+        Pickets angle with the slope; rails also angle. Old-school approach, most labor-intensive. Looks
+        beautiful on gentle slopes; impractical on steep ones. Rare in modern DIY work.
+      </p>
+
+      <h2>Fence Lifespan and Maintenance</h2>
+      <ul>
+        <li><strong>Stain every 2-3 years.</strong> Most important maintenance. Doubles fence life.</li>
+        <li><strong>Reset loose posts immediately.</strong> A leaning post stresses neighboring sections — small repairs prevent cascading failure.</li>
+        <li><strong>Trim vegetation away.</strong> Vines and brush trap moisture against wood. Climbing plants destroy fences faster than weather.</li>
+        <li><strong>Replace damaged pickets promptly.</strong> One missing picket lets neighborhood kids and animals through and tempts further damage.</li>
+        <li><strong>Check gate alignment annually.</strong> Adjust hinges and stops as posts settle. Gates that drag are the #1 source of broken hinges.</li>
+        <li><strong>Inspect ground line.</strong> Posts fail at the soil line first. Use post brackets to elevate replacement posts above the soil.</li>
+      </ul>
+
+      <h2>Common Fence Mistakes</h2>
+      <ul>
+        <li><strong>Not calling 811:</strong> Striking a gas or electric line is dangerous and expensive. Free service, 5 minutes to request.</li>
+        <li><strong>Posts too shallow:</strong> 1/3 of post height minimum. Tall fences in windy areas need 36-48 inches deep.</li>
+        <li><strong>Wood posts below grade without ground-contact rating:</strong> Untreated or above-ground rated lumber rots within 3-5 years. Always UC4A or UC4B stamp.</li>
+        <li><strong>Concrete crown not sloped:</strong> Water pools around post, accelerates rot. Slope concrete away from post.</li>
+        <li><strong>Forgetting gate-post doubling:</strong> Gates put massive lateral load on their posts. Singles bend; doubles last.</li>
+        <li><strong>Building right on property line without agreement:</strong> Without written neighbor agreement, you may be required to move it.</li>
+        <li><strong>Setting fence too tight to neighboring features:</strong> Leave 6-12 inches between fence and structures for maintenance access.</li>
+        <li><strong>Skipping the kickboard:</strong> A horizontal board at the bottom hides ground irregularities and keeps animals from digging under. Worth the extra $1/ft.</li>
+      </ul>
+    </article>
+
+    <FAQ items={fenceFAQ} />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>

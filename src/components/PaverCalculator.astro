@@ -1,0 +1,260 @@
+---
+// Paver Calculator — counts pavers needed for a given area, plus base materials.
+---
+
+<div class="tool" id="paver-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="pv-length">Patio length</label>
+      <div class="field-input">
+        <input id="pv-length" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="pv-width">Patio width</label>
+      <div class="field-input">
+        <input id="pv-width" type="number" value="10" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="pv-paver-preset">Paver size</label>
+      <div class="field-input">
+        <select id="pv-paver-preset">
+          <option value="4x8">4" × 8" (standard brick — Holland)</option>
+          <option value="6x6">6" × 6"</option>
+          <option value="6x9">6" × 9"</option>
+          <option value="6x12">6" × 12"</option>
+          <option value="12x12" selected>12" × 12" (square)</option>
+          <option value="12x18">12" × 18"</option>
+          <option value="18x18">18" × 18"</option>
+          <option value="12x24">12" × 24" (large format)</option>
+          <option value="16x16">16" × 16"</option>
+          <option value="24x24">24" × 24" (extra large)</option>
+          <option value="custom">Custom dimensions</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" id="pv-custom-wrap" hidden>
+      <label for="pv-paver-length-custom">Paver length × width</label>
+      <div class="custom-grid">
+        <div class="field-input">
+          <input id="pv-paver-length-custom" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
+          <span class="suffix" data-unit="depth">in</span>
+        </div>
+        <span class="custom-x">×</span>
+        <div class="field-input">
+          <input id="pv-paver-width-custom" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
+          <span class="suffix" data-unit="depth">in</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="pv-paver-price">Price per paver <span class="optional">(optional)</span></label>
+      <div class="field-input">
+        <input id="pv-paver-price" type="number" value="3.50" min="0" step="0.10" inputmode="decimal" />
+        <span class="suffix">$/paver</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="pv-waste">Waste / cutting allowance</label>
+      <div class="field-input">
+        <select id="pv-waste">
+          <option value="0.05">5% (straight cuts only)</option>
+          <option value="0.10" selected>10% (recommended)</option>
+          <option value="0.15">15% (curves, herringbone pattern)</option>
+          <option value="0.20">20% (complex patterns, octagons)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="pv-base-depth">Base depth (crushed stone)</label>
+      <div class="field-input">
+        <input id="pv-base-depth" type="number" value="4" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="pv-sand-depth">Bedding sand</label>
+      <div class="field-input">
+        <input id="pv-sand-depth" type="number" value="1" min="0" step="0.25" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">You need</div>
+    <div class="result-main">
+      <span class="number" id="pv-paver-count">132</span>
+      <span class="unit">pavers</span>
+    </div>
+    <div class="result-secondary">
+      Area: <strong id="pv-area">120</strong> sq ft &nbsp;·&nbsp;
+      Base: <strong id="pv-base">1.48</strong> yd³ crushed stone &nbsp;·&nbsp;
+      Sand: <strong id="pv-sand">0.37</strong> yd³
+    </div>
+    <div class="result-cost-row">
+      Paver cost: <strong id="pv-paver-cost">$462</strong>
+      &nbsp;·&nbsp;
+      Base materials: <strong id="pv-base-cost">$72</strong>
+      &nbsp;·&nbsp;
+      <strong>Total materials: <span id="pv-total-cost">$534</span></strong>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="pv-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="pv-btn-share">↗ Share</button>
+      
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool { background: var(--white); border: 1px solid var(--n200); border-radius: var(--r-lg); padding: var(--s-6); margin-bottom: var(--s-4); box-shadow: var(--shadow-xs); }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+  .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px solid var(--n200); flex-wrap: wrap; gap: var(--s-2); }
+  .tool-title { font-size: 15px; font-weight: 700; color: var(--n700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .unit-toggle { display: inline-flex; background: var(--n100); border-radius: var(--r-md); padding: 3px; }
+  .unit-toggle button { border: none; background: transparent; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--n500); cursor: pointer; border-radius: var(--r-sm); }
+  .unit-toggle button.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  [hidden] { display: none !important; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--n700); margin-bottom: 6px; }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--n200); border-radius: var(--r-md); font-size: 15px; color: var(--n900); background: var(--white); }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+  .suffix { position: absolute; right: 12px; color: var(--n500); font-size: 13px; font-weight: 500; pointer-events: none; }
+  .custom-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
+  .custom-x { font-weight: 700; color: var(--n500); }
+  .result { background: var(--n50); border: 1px solid var(--n200); border-radius: var(--r-md); padding: var(--s-5); margin-top: var(--s-5); }
+  .result-label { font-size: 12px; font-weight: 700; color: var(--n500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--s-2); }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-cost-row { margin-top: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--n200); font-size: 14px; color: var(--n700); font-variant-numeric: tabular-nums; }
+  .result-cost-row strong { color: var(--n900); font-weight: 700; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('paver-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  function getPaverSize() {
+    const preset = $('#pv-paver-preset').value;
+    const customWrap = $('#pv-custom-wrap');
+    if (preset === 'custom') {
+      customWrap.hidden = false;
+      return {
+        l: parseFloat($('#pv-paver-length-custom').value) || 0,
+        w: parseFloat($('#pv-paver-width-custom').value) || 0
+      };
+    } else {
+      customWrap.hidden = true;
+      const [l, w] = preset.split('x').map(Number);
+      return { l, w };
+    }
+  }
+
+  function calculate() {
+    const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    const isMetric = units === 'metric';
+
+    // Patio dimensions in user units; convert to sq ft
+    const pLen = parseFloat($('#pv-length').value) || 0;
+    const pWid = parseFloat($('#pv-width').value) || 0;
+    const lengthMul = isMetric ? 3.28084 : 1;  // m → ft
+    const patioSqFt = pLen * pWid * lengthMul * lengthMul;
+
+    // Paver size in inches (preset) or in selected depth unit (custom)
+    const size = getPaverSize();
+    let paverLenIn, paverWidIn;
+    if ($('#pv-paver-preset').value === 'custom') {
+      const depthMul = isMetric ? (1 / 2.54) : 1;  // cm → in
+      paverLenIn = size.l * depthMul;
+      paverWidIn = size.w * depthMul;
+    } else {
+      paverLenIn = size.l;
+      paverWidIn = size.w;
+    }
+
+    const paverSqFt = (paverLenIn * paverWidIn) / 144;
+    const waste = parseFloat($('#pv-waste').value) || 0.10;
+    const paverPrice = parseFloat($('#pv-paver-price').value) || 0;
+
+    // Pavers needed
+    const paverCount = Math.ceil((patioSqFt / paverSqFt) * (1 + waste));
+
+    // Base material (crushed stone) in cubic yards
+    const baseDepthIn = parseFloat($('#pv-base-depth').value) || 0;
+    const baseDepthFt = baseDepthIn * (isMetric ? 0.0328084 : (1 / 12));
+    const baseCubicFeet = patioSqFt * baseDepthFt;
+    const baseCubicYards = baseCubicFeet / 27;
+
+    // Sand
+    const sandDepthIn = parseFloat($('#pv-sand-depth').value) || 0;
+    const sandDepthFt = sandDepthIn * (isMetric ? 0.0328084 : (1 / 12));
+    const sandCubicFeet = patioSqFt * sandDepthFt;
+    const sandCubicYards = sandCubicFeet / 27;
+
+    // Costs: pavers + base ($45/yd³ crushed stone) + sand ($40/yd³ paver sand)
+    const paverCost = paverCount * paverPrice;
+    const baseCost = baseCubicYards * 45 + sandCubicYards * 40;
+    const totalCost = paverCost + baseCost;
+
+    $('#pv-paver-count').textContent = paverCount.toLocaleString();
+    $('#pv-area').textContent = Math.round(patioSqFt).toLocaleString();
+    $('#pv-base').textContent = baseCubicYards.toFixed(2);
+    $('#pv-sand').textContent = sandCubicYards.toFixed(2);
+    $('#pv-paver-cost').textContent = '$' + Math.round(paverCost).toLocaleString();
+    $('#pv-base-cost').textContent = '$' + Math.round(baseCost).toLocaleString();
+    $('#pv-total-cost').textContent = '$' + Math.round(totalCost).toLocaleString();
+  }
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      root.querySelectorAll('[data-unit="depth"]').forEach(el => el.textContent = metric ? 'cm' : 'in');
+      calculate();
+    });
+  });
+  $('#pv-btn-copy').addEventListener('click', () => {
+    const text = `Pavers needed: ${$('#pv-paver-count').textContent} pieces. Base: ${$('#pv-base').textContent} yd³, sand: ${$('#pv-sand').textContent} yd³. Total materials: ${$('#pv-total-cost').textContent}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#pv-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+  $('#pv-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Paver Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+  calculate();
+})();
+</script>

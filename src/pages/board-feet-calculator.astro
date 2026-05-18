@@ -1,0 +1,321 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import BoardFeetCalculator from '@components/BoardFeetCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { boardFeetFAQ } from '@data/faqs/board-feet';
+import { getRelatedCalculators } from '@data/calculators';
+
+const title = "Board Feet Calculator — Calculate Lumber Volume & Cost";
+const description = "Free board feet calculator. Estimate exact lumber quantity, total board feet, and cost for any woodworking project — deck, cabinets, flooring, or furniture.";
+
+const related = getRelatedCalculators('board-feet-calculator', 4).map(c => ({
+  title: c.shortTitle + ' Calculator',
+  href: `/${c.slug}/`,
+  desc: c.description
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Board Feet Calculator",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any (web-based)",
+    "description": description,
+    "url": "https://materialcalc.com/board-feet-calculator/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to calculate board feet for lumber",
+    "description": "Calculate the board foot volume of lumber pieces for any project.",
+    "step": [
+      { "@type": "HowToStep", "name": "Measure dimensions",        "text": "Measure thickness and width in inches, length in feet or inches." },
+      { "@type": "HowToStep", "name": "Apply the formula",         "text": "Board feet per piece = (Thickness × Width × Length in inches) ÷ 144" },
+      { "@type": "HowToStep", "name": "Multiply by quantity",      "text": "Total BF = BF per piece × number of pieces" },
+      { "@type": "HowToStep", "name": "Add waste factor",          "text": "Multiply by 1.10 for typical woodworking, 1.15-1.20 for complex cuts." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'Volume & Measurement', href: '/calculators/#volume' },
+      { label: 'Board Feet Calculator' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Board Feet Calculator</h1>
+      <p class="intro">
+        Calculate total board feet, linear feet, and material cost for any lumber project.
+        Works with rough lumber, dimensional softwood, and exotic hardwoods — supports both
+        nominal (2×4) and actual measured dimensions.
+      </p>
+    </header>
+
+    <BoardFeetCalculator />
+
+    <article class="content">
+      <h2>What Is a Board Foot?</h2>
+      <p>
+        A board foot is the standard unit of volume used to price lumber, especially hardwoods,
+        in the United States and Canada. One board foot equals 144 cubic inches of wood, which
+        you can visualize as a piece measuring 12 inches long × 12 inches wide × 1 inch thick,
+        or any equivalent volume. A 6 ft long 1×6 board, for instance, also contains exactly
+        3 board feet.
+      </p>
+      <p>
+        The board foot system originated when most lumber was sold rough — that is, milled to
+        approximate dimensions but not surfaced flat. Buying by volume rather than by piece allowed
+        prices to scale with the actual amount of wood, regardless of the variable widths and
+        lengths typical of rough hardwood. Today, dimensional softwood (2×4s, 2×6s) is generally
+        sold by linear foot or per piece, while rough hardwood is still sold by board foot.
+      </p>
+
+      <h2>How to Calculate Board Feet</h2>
+      <p>
+        The formula is simple, but the trick is keeping your units consistent. All three dimensions
+        must be in inches, or you can use feet for length if you remember to divide by 12 instead of 144:
+      </p>
+
+      <div class="formula">
+        Board feet = (Thickness × Width × Length in inches) ÷ 144<br>
+        OR<br>
+        Board feet = (Thickness × Width × Length in feet) ÷ 12
+      </div>
+
+      <h3>Worked example</h3>
+      <p>
+        Say you're buying 10 pieces of red oak that are 1 inch thick, 6 inches wide, and 8 feet long:
+      </p>
+      <ul>
+        <li><strong>BF per piece:</strong> (1 × 6 × 8) ÷ 12 = <strong>4 board feet</strong></li>
+        <li><strong>Total BF:</strong> 4 × 10 = <strong>40 board feet</strong></li>
+        <li><strong>Cost (at $6.50/BF for red oak):</strong> 40 × $6.50 = <strong>$260</strong></li>
+        <li><strong>With 10% waste:</strong> Order 44 BF = <strong>$286</strong></li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">Nominal vs actual dimensions matter</div>
+        Dimensional softwood is sold by nominal sizes that don't match its actual measurements.
+        A "2×4" is actually 1.5 × 3.5 inches after planing. Calculations using nominal dimensions
+        give "nominal board feet" — what you're charged. Calculations using actual dimensions give
+        you the real wood volume. Always confirm with your supplier which they use.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="bf-mid-1" />
+
+      <h2>Board Feet by Project Type</h2>
+      <p>
+        Different projects have radically different lumber requirements. Here are typical board foot
+        quantities for common woodworking and construction jobs.
+      </p>
+
+      <h3>Decks</h3>
+      <p>
+        A 12 × 16 ft deck (192 sq ft of decking surface) using 5/4 × 6 boards needs approximately
+        <strong>240 board feet for the deck surface alone</strong>. Adding framing — joists (2×8s
+        at 16" on center), beams, posts, and railing — brings the total to roughly
+        <strong>400–500 board feet</strong> of pressure-treated softwood. Premium decking (mahogany,
+        ipe, cedar) is sold by BF and costs significantly more per square foot.
+      </p>
+
+      <h3>Fences</h3>
+      <p>
+        A 100 linear feet of 6 ft tall privacy fence requires approximately:
+        <strong>110 BF</strong> of pressure-treated posts (4×4 × 8 ft, every 8 ft),
+        <strong>67 BF</strong> of horizontal rails (2×4 × 100 ft total), and
+        <strong>240 BF</strong> of 1×6 vertical pickets. Total around <strong>420 BF</strong>
+        for materials. Add 10–15% for cuts and replacements.
+      </p>
+
+      <h3>Kitchen cabinets (face frames and doors)</h3>
+      <p>
+        A 10-foot run of cabinets typically requires <strong>200–300 board feet</strong> of solid
+        hardwood for face frames, doors, and drawer fronts, plus 4–6 sheets of plywood for the boxes
+        themselves. Add 15% waste because of the complex joinery and door-and-rail construction.
+        Material cost for mid-range hardwoods (cherry, maple) runs $1,500–$3,000.
+      </p>
+
+      <h3>Hardwood flooring</h3>
+      <p>
+        A 300 sq ft room with 3/4 inch × 3-1/4 inch tongue-and-groove hardwood needs approximately
+        <strong>61 board feet</strong> for the flooring itself, plus 10% waste = 67 BF. At $7/BF for
+        red oak, that's about $470 in flooring. Wide-plank or engineered flooring sold by square
+        foot is priced differently.
+      </p>
+
+      <h3>Custom furniture</h3>
+      <p>
+        A solid wood dining table (36" × 72") with substantial top and legs requires roughly
+        <strong>30–40 board feet of 8/4 stock</strong> (8/4 means 2 inches thick). A bookshelf
+        unit (84" tall × 36" wide) needs around <strong>50–70 board feet</strong>. These figures
+        assume mostly straight cuts; intricate work with curved pieces can double the requirement.
+      </p>
+
+      <h3>Garage and shed framing</h3>
+      <p>
+        A 12 × 12 ft shed with conventional stick framing needs about <strong>650–800 board feet</strong>
+        of dimensional softwood (2×4 studs, 2×6 plates, 2×6 rafters), plus plywood sheathing.
+        Detached garage at 24 × 24 ft: roughly <strong>2,000–2,500 BF</strong> of framing lumber.
+      </p>
+
+      <h2>Hardwood vs Softwood: Different Math</h2>
+      <p>
+        Softwood (pine, fir, spruce) used in construction is typically sold per piece or per linear foot,
+        in standard nominal sizes. The lumberyard price already accounts for the volume in board feet
+        — you don't usually need to calculate it unless you're estimating total project cost.
+      </p>
+      <p>
+        Hardwood (oak, maple, walnut, cherry) is almost always sold by the board foot, often in
+        random widths and lengths. You'll see prices like "$6.50/BF for FAS red oak, 4/4 thick" and
+        you need to calculate exactly how many board feet you're getting from a stack of mixed boards.
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Species</th>
+              <th>Grade FAS ($/BF)</th>
+              <th>Common ($/BF)</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Poplar</td><td>$3–5</td><td>$2–3.50</td><td>Beginner-friendly, paint-grade</td></tr>
+            <tr><td>Red oak</td><td>$5–8</td><td>$4–6</td><td>Most popular hardwood in US</td></tr>
+            <tr><td>White oak</td><td>$6–10</td><td>$5–7</td><td>Durable, used in flooring & furniture</td></tr>
+            <tr><td>Hard maple</td><td>$6–9</td><td>$5–7</td><td>Cabinets, butcher blocks</td></tr>
+            <tr><td>Cherry</td><td>$7–11</td><td>$5–8</td><td>Premium furniture wood</td></tr>
+            <tr><td>Walnut</td><td>$10–16</td><td>$8–12</td><td>Dark, expensive, beautiful</td></tr>
+            <tr><td>Mahogany</td><td>$12–20</td><td>$9–14</td><td>Boat building, fine furniture</td></tr>
+            <tr><td>Sapele</td><td>$8–13</td><td>$6–10</td><td>Mahogany alternative</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Understanding Lumber Dimensions: Nominal vs Actual</h2>
+      <p>
+        This trips up almost everyone the first time they buy lumber. The size on the label isn't
+        the size of the wood you take home. A "2×4" is actually 1-1/2 × 3-1/2 inches. The difference
+        comes from the planing process that smooths rough lumber into the dimensional product you buy.
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Nominal</th>
+              <th>Actual (S4S)</th>
+              <th>Nominal BF/LF</th>
+              <th>Actual BF/LF</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 × 2</td><td>3/4 × 1-1/2</td><td>0.17</td><td>0.094</td></tr>
+            <tr><td>1 × 4</td><td>3/4 × 3-1/2</td><td>0.33</td><td>0.22</td></tr>
+            <tr><td>1 × 6</td><td>3/4 × 5-1/2</td><td>0.50</td><td>0.34</td></tr>
+            <tr><td>1 × 8</td><td>3/4 × 7-1/4</td><td>0.67</td><td>0.45</td></tr>
+            <tr><td>2 × 4</td><td>1-1/2 × 3-1/2</td><td>0.67</td><td>0.44</td></tr>
+            <tr><td>2 × 6</td><td>1-1/2 × 5-1/2</td><td>1.00</td><td>0.69</td></tr>
+            <tr><td>2 × 8</td><td>1-1/2 × 7-1/4</td><td>1.33</td><td>0.91</td></tr>
+            <tr><td>2 × 10</td><td>1-1/2 × 9-1/4</td><td>1.67</td><td>1.16</td></tr>
+            <tr><td>2 × 12</td><td>1-1/2 × 11-1/4</td><td>2.00</td><td>1.41</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        For pricing purposes, most lumberyards use nominal dimensions. For estimating actual wood
+        you'll have to work with — especially in fine woodworking — use actual dimensions. Our
+        calculator handles both: enter the dimensions you want to compute with, and it returns
+        the matching board feet.
+      </p>
+
+      <h2>Hardwood Grades: What They Mean</h2>
+      <p>
+        Hardwood is graded by the National Hardwood Lumber Association (NHLA) based on the percentage
+        of clear, defect-free face. Higher grades cost more but waste less.
+      </p>
+      <ul>
+        <li><strong>FAS (First and Seconds):</strong> The premium grade. Minimum 83% clear face, both sides. Used for fine furniture, cabinets, and millwork.</li>
+        <li><strong>Selects:</strong> Minimum 83% clear on one face, FAS on the other. Slightly cheaper than FAS and works for most furniture.</li>
+        <li><strong>#1 Common:</strong> Minimum 66% clear face. Great value for paint-grade work or projects with shorter required clear cuttings.</li>
+        <li><strong>#2 Common:</strong> Minimum 50% clear. Lots of knots and defects; suitable for rustic projects, framing, or shop fixtures.</li>
+        <li><strong>#3 Common:</strong> Rough lumber with significant defects. Used for pallets, crates, and concealed structural work.</li>
+      </ul>
+
+      <AdSlot label="AdSense in-content #2" slotId="bf-mid-2" />
+
+      <h2>Waste Factor for Woodworking</h2>
+      <p>
+        Unlike construction lumber where you can usually find a use for shorter pieces, fine
+        woodworking generates significant waste. Defects must be cut around. Long pieces need to
+        be ripped from wider boards. Joinery (mortises, dovetails, etc.) consumes material.
+        Build these realistic waste factors into your estimate:
+      </p>
+      <ul>
+        <li><strong>10% waste:</strong> Straight, simple work in defect-free FAS lumber — shelving, simple cabinet boxes, decking.</li>
+        <li><strong>15% waste:</strong> Cabinet work with face frames, doors, and drawer fronts. Most furniture projects.</li>
+        <li><strong>20% waste:</strong> Highly figured wood (curly maple, burled walnut) where matching grain matters. Rough lumber with knots.</li>
+        <li><strong>25–30% waste:</strong> Curved work, bent laminations, intricate joinery, or when working with very short required cuts from longer boards.</li>
+      </ul>
+
+      <h2>Where to Buy Lumber and How to Save</h2>
+      <p>
+        Big-box stores (Home Depot, Lowe's) are convenient for dimensional softwood and basic
+        hardwoods like poplar, red oak, and pine — but selection is limited and quality varies.
+        For serious woodworking, you want a dedicated hardwood dealer. Here's how to source intelligently:
+      </p>
+      <ul>
+        <li><strong>Local hardwood dealers:</strong> Best price-to-quality ratio for hardwoods. Many will let you pick boards individually. Online directories list dealers by region.</li>
+        <li><strong>Mill direct:</strong> If you have a local sawmill, buying rough lumber and milling it yourself saves 30–50%. Requires a jointer and planer plus the skill to use them.</li>
+        <li><strong>Online specialty suppliers:</strong> Bell Forest Products, Cook Woods, and others ship anywhere. Premium for exotic species you can't get locally.</li>
+        <li><strong>Reclaimed and salvage:</strong> Local Habitat for Humanity ReStores, demolition contractors, and Craigslist often have old lumber at fraction of new prices.</li>
+      </ul>
+      <p>
+        For bulk orders, always ask about volume discounts. Most hardwood dealers give 5–10% off
+        for orders over 100 BF, and 10–15% off for orders over 500 BF. Negotiate.
+      </p>
+
+      <h2>Tools for Working with Lumber</h2>
+      <p>
+        To efficiently use the lumber you've calculated, you'll need a few key tools. Tape measure
+        and combination square cover most measuring needs. A circular saw or miter saw handles
+        crosscuts; a table saw is essential for ripping. For hardwoods sold rough, a jointer and
+        planer let you mill your own — saving substantial money on surfaced lumber. A digital
+        moisture meter ($30–80) prevents the disaster of building with wood that's too wet,
+        which causes shrinkage cracks and joint failures within months.
+      </p>
+    </article>
+
+    <FAQ items={boardFeetFAQ} />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} />
+
+    <EmbedCTA calculator="board-feet" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul { font-size: 15px; line-height: 1.7; }
+  .content > ul li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>

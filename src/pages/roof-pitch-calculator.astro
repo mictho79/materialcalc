@@ -1,0 +1,340 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import RoofPitchCalculator from '@components/RoofPitchCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { roofPitchFAQ } from '@data/faqs/roof-pitch';
+import { getRelatedCalculators } from '@data/calculators';
+
+const title = "Roof Pitch Calculator — Convert Pitch, Angle, Slope & Rafter Length";
+const description = "Free roof pitch calculator. Convert between pitch (x/12), angle in degrees, slope percentage, and rafter length. Calculate roof surface area and roofing squares.";
+
+const related = getRelatedCalculators('roof-pitch-calculator', 4).map(c => ({
+  title: c.shortTitle + ' Calculator',
+  href: `/${c.slug}/`,
+  desc: c.description
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Roof Pitch Calculator",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any (web-based)",
+    "description": description,
+    "url": "https://materialcalc.com/roof-pitch-calculator/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to calculate roof pitch",
+    "step": [
+      { "@type": "HowToStep", "name": "Measure rise and run", "text": "Hold a 12-inch level horizontally against a rafter; measure vertical distance to the rafter at the level's far end." },
+      { "@type": "HowToStep", "name": "Express as ratio", "text": "Write rise as 'X/12' — e.g., 6 inches vertical over 12 inches horizontal = 6/12." },
+      { "@type": "HowToStep", "name": "Convert to angle", "text": "Angle = arctan(rise ÷ 12). A 6/12 pitch = 26.57°." },
+      { "@type": "HowToStep", "name": "Calculate rafter length", "text": "Multiply run by √((rise² + 144) ÷ 144) — or use our pitch multiplier table." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'Structure & Roofing', href: '/calculators/#structure' },
+      { label: 'Roof Pitch Calculator' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Roof Pitch Calculator</h1>
+      <p class="intro">
+        Convert between roof pitch (x/12), angle in degrees, slope percentage, and rafter length —
+        in any direction. Calculate actual roof surface area from footprint dimensions and pitch,
+        plus roofing squares for material estimation.
+      </p>
+    </header>
+
+    <RoofPitchCalculator />
+
+    <article class="content">
+      <h2>How to Calculate Roof Pitch</h2>
+      <p>
+        Roof pitch is the steepness of a roof, expressed as the vertical rise per 12 inches of
+        horizontal run. A "6/12 pitch" means the roof rises 6 inches for every 12 inches of horizontal
+        distance — a 26.57° angle. Roof pitch directly affects rafter length, material quantities,
+        and construction difficulty.
+      </p>
+
+      <div class="formula">
+        Pitch ratio = Rise ÷ 12 (over 12 inches of run)<br>
+        Angle (degrees) = arctan(Rise ÷ 12)<br>
+        Slope (%) = (Rise ÷ 12) × 100<br>
+        Rafter multiplier = √((Rise² + 144) ÷ 144)
+      </div>
+
+      <p>
+        The "12-inch run" convention is uniquely American — most of the world uses degrees directly.
+        For US construction, framing plans, and building codes, pitch over 12 is standard. Our
+        calculator converts between all four notations: pitch, degrees, slope %, and rise/run.
+      </p>
+
+      <h3>Worked example: typical residential roof</h3>
+      <p>
+        You measure your existing roof at 6 inches of rise per 12 inches of run:
+      </p>
+      <ul>
+        <li><strong>Pitch:</strong> 6/12</li>
+        <li><strong>Angle:</strong> arctan(6 ÷ 12) = 26.57°</li>
+        <li><strong>Slope %:</strong> (6 ÷ 12) × 100 = 50%</li>
+        <li><strong>Rafter multiplier:</strong> √(36 + 144) ÷ 12 = 1.118</li>
+        <li><strong>For a 40 × 30 ft footprint:</strong> Surface area = 1,200 × 1.118 = 1,342 sq ft = 13.4 roofing squares</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">Why 12 inches?</div>
+        The 12-inch reference comes from carpentry tradition — a foot is divisible into convenient
+        inch increments. A 6/12 pitch is the same shape regardless of unit; it's just easier to
+        measure rise over a 12-inch horizontal span using a level than over arbitrary distances.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="rp-mid-1" />
+
+      <h2>Understanding Roof Pitch Categories</h2>
+      <p>
+        Roof pitches fall into categories that determine roofing material options, building code
+        requirements, and construction methods.
+      </p>
+
+      <h3>Flat (0/12 to 1/12)</h3>
+      <p>
+        Technically not flat — even "flat" roofs slope at least 1/4 inch per foot (1/48) for
+        drainage. Use only membrane roofing: TPO, EPDM rubber, modified bitumen, or built-up roofing.
+        Cannot use shingles or tile. Common on commercial buildings and modern residential.
+      </p>
+
+      <h3>Low slope (2/12 to 3/12)</h3>
+      <p>
+        Angle: 9.5° to 14°. Asphalt shingles can be used with special double-overlap installation
+        and ice-and-water shield underlayment. More commonly: metal roofing, rubber membrane, or
+        rolled roofing. Common on additions, porches, and ranch-style homes.
+      </p>
+
+      <h3>Conventional (4/12 to 9/12)</h3>
+      <p>
+        Angle: 18° to 37°. The standard for residential construction. All standard roofing materials
+        work: asphalt shingles, metal, tile, slate. Walkable for measurement and maintenance with
+        proper footwear (rubber sole). Most cost-efficient pitch range.
+      </p>
+
+      <h3>Steep slope (10/12 to 12/12)</h3>
+      <p>
+        Angle: 40° to 45°. Requires safety equipment for work (roof jacks, harness). Materials cost
+        more due to greater surface area and labor cost rises significantly. Common in northern
+        climates for snow shed, and in traditional steep-roof architectural styles.
+      </p>
+
+      <h3>Extreme slope (over 12/12)</h3>
+      <p>
+        Angle: over 45°. Found in Gothic, Tudor, Victorian, and mansard-style architecture. Specialty
+        construction work — requires scaffolding rather than roof access. Limited roofing material
+        choices and significantly higher labor costs. Steep roofs are exceptional architectural
+        features, not standard construction.
+      </p>
+
+      <h2>Pitch Conversion Reference Table</h2>
+      <p>
+        The most common pitches with all four notations and the rafter multiplier needed for material
+        calculations:
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Pitch</th>
+              <th>Angle</th>
+              <th>Slope %</th>
+              <th>Rafter multiplier</th>
+              <th>Common use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1/12</td><td>4.76°</td><td>8.3%</td><td>1.003</td><td>Flat / drainage only</td></tr>
+            <tr><td>2/12</td><td>9.46°</td><td>16.7%</td><td>1.014</td><td>Low slope; membrane only</td></tr>
+            <tr><td>3/12</td><td>14.04°</td><td>25.0%</td><td>1.031</td><td>Low slope; special shingles</td></tr>
+            <tr><td>4/12</td><td>18.43°</td><td>33.3%</td><td>1.054</td><td>Minimum for standard shingles</td></tr>
+            <tr><td>5/12</td><td>22.62°</td><td>41.7%</td><td>1.083</td><td>Conventional</td></tr>
+            <tr><td>6/12</td><td>26.57°</td><td>50.0%</td><td>1.118</td><td>Most common residential</td></tr>
+            <tr><td>7/12</td><td>30.26°</td><td>58.3%</td><td>1.158</td><td>Conventional steep</td></tr>
+            <tr><td>8/12</td><td>33.69°</td><td>66.7%</td><td>1.202</td><td>Snow country</td></tr>
+            <tr><td>9/12</td><td>36.87°</td><td>75.0%</td><td>1.250</td><td>Walkable limit</td></tr>
+            <tr><td>10/12</td><td>39.81°</td><td>83.3%</td><td>1.302</td><td>Steep; safety gear needed</td></tr>
+            <tr><td>11/12</td><td>42.51°</td><td>91.7%</td><td>1.357</td><td>Steep</td></tr>
+            <tr><td>12/12</td><td>45.00°</td><td>100.0%</td><td>1.414</td><td>45° corner</td></tr>
+            <tr><td>14/12</td><td>49.40°</td><td>116.7%</td><td>1.537</td><td>Very steep</td></tr>
+            <tr><td>16/12</td><td>53.13°</td><td>133.3%</td><td>1.667</td><td>Extreme; Gothic style</td></tr>
+            <tr><td>18/12</td><td>56.31°</td><td>150.0%</td><td>1.803</td><td>Mansard upper section</td></tr>
+            <tr><td>24/12</td><td>63.43°</td><td>200.0%</td><td>2.236</td><td>Mansard / steeple</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        The rafter multiplier converts horizontal run to rafter length. For a 15-foot run at 8/12
+        pitch, rafter length = 15 × 1.202 = 18.03 feet (excluding overhang). This same multiplier
+        gives roof surface area from footprint area.
+      </p>
+
+      <h2>How to Measure Roof Pitch in Practice</h2>
+      <p>
+        There are four practical methods to measure roof pitch, each with different accuracy and
+        safety profiles:
+      </p>
+
+      <h3>Method 1: From the attic (safest, recommended)</h3>
+      <ol>
+        <li>Climb into the attic with a 12-inch level and tape measure.</li>
+        <li>Hold the level horizontally against the vertical face of a rafter.</li>
+        <li>Measure vertically from the far end of the level up to the rafter.</li>
+        <li>That measurement is your rise over 12 inches of run.</li>
+      </ol>
+      <p>
+        Pros: completely safe, accurate, takes 5 minutes. Cons: requires attic access; cathedral
+        ceilings don't have accessible rafters.
+      </p>
+
+      <h3>Method 2: From the gable end</h3>
+      <ol>
+        <li>Use a 12-inch level held horizontally against the outside gable trim where it meets the roof line.</li>
+        <li>Measure vertically from the far end of the level up to the roof line.</li>
+        <li>Repeat at multiple points to confirm consistency.</li>
+      </ol>
+      <p>
+        Pros: no roof access needed, no attic needed. Cons: requires a ladder and steady hands;
+        accuracy depends on trim alignment.
+      </p>
+
+      <h3>Method 3: Smartphone app</h3>
+      <p>
+        Modern smartphones have built-in clinometers (level apps). Place the phone flat on the roof
+        surface to read the angle directly. Convert to pitch using our calculator. Accuracy: ±0.5°
+        which translates to about ±0.1 on the pitch ratio. Very fast for accessible roofs.
+      </p>
+
+      <h3>Method 4: Pitch gauge / speed square</h3>
+      <p>
+        Carpentry tool with marked pitch increments. Hold it against the rafter at the gable end
+        and read the pitch directly. Accuracy depends on tool quality. Speed squares have a "pitch"
+        feature that works the same way.
+      </p>
+
+      <AdSlot label="AdSense in-content #2" slotId="rp-mid-2" />
+
+      <h2>Calculating Roof Surface Area from Pitch</h2>
+      <p>
+        Roof surface area is always larger than the footprint area below — and the steeper the pitch,
+        the larger the difference. This matters because roofing materials (shingles, metal, tile)
+        are sold based on surface area, not footprint.
+      </p>
+
+      <h3>The math</h3>
+      <div class="formula">
+        Roof surface area = Footprint area × Rafter multiplier<br>
+        Or: Footprint × √((rise² + 144) ÷ 144) for rise per 12 inches
+      </div>
+
+      <h3>Examples by pitch</h3>
+      <p>For a 1,000 sq ft building footprint with a standard gable roof:</p>
+      <ul>
+        <li><strong>3/12 pitch:</strong> 1,000 × 1.031 = 1,031 sq ft surface (10.3 squares)</li>
+        <li><strong>4/12 pitch:</strong> 1,054 sq ft (10.5 squares)</li>
+        <li><strong>6/12 pitch:</strong> 1,118 sq ft (11.2 squares)</li>
+        <li><strong>8/12 pitch:</strong> 1,202 sq ft (12.0 squares)</li>
+        <li><strong>10/12 pitch:</strong> 1,302 sq ft (13.0 squares)</li>
+        <li><strong>12/12 pitch:</strong> 1,414 sq ft (14.1 squares)</li>
+      </ul>
+
+      <p>
+        Note: this assumes a simple gable roof. Hip roofs, mansards, and complex multi-pitch roofs
+        require breaking the roof into planes and calculating each separately. For complex roofs,
+        an aerial measurement service (drone or GIS-based) is more accurate than hand measurement.
+      </p>
+
+      <h2>Why Roof Pitch Matters</h2>
+
+      <h3>Material requirements</h3>
+      <p>
+        Pitch determines what roofing materials you can use. Below 2/12: membrane only. 2/12 to 4/12:
+        special shingles or membrane. 4/12+: standard asphalt shingles, metal, tile, slate. Steeper
+        than 18/12: limited specialty materials only.
+      </p>
+
+      <h3>Cost impact</h3>
+      <p>
+        Higher pitches multiply project costs in three ways: (1) more surface area to cover,
+        (2) more labor due to safety equipment and slower work, (3) more waste from cuts at hip/valley
+        intersections. A 12/12 roof costs about 50-70% more to install than a 4/12 roof for the same
+        building footprint.
+      </p>
+
+      <h3>Climate appropriateness</h3>
+      <p>
+        Snow regions (US Northeast, Midwest, mountain states): 8/12+ preferred for snow shed. Hot
+        dry climates (Southwest): 4-6/12 typical, often with tile for thermal mass. Hurricane regions
+        (Gulf, Florida): 6-7/12 best for wind performance — too low catches wind under shingles, too
+        steep catches sail force.
+      </p>
+
+      <h3>Attic space</h3>
+      <p>
+        Steeper roofs create more usable attic space. A 12/12 pitch on a 32-foot wide house gives
+        a full second story; a 4/12 pitch gives barely 4 feet of headroom at the peak. Bonus rooms
+        and attic conversions need 7/12 minimum for practical headroom under standard codes.
+      </p>
+
+      <h3>Aesthetic and architectural style</h3>
+      <p>
+        Modern/contemporary: 1/12 to 3/12 low slope. Traditional ranch: 4/12 to 6/12. Cape Cod /
+        colonial: 8/12 to 10/12. Victorian / Gothic: 12/12 to 24/12. Tudor: 10/12 to 14/12. Pitch
+        is one of the most defining architectural features of a house.
+      </p>
+
+      <h2>Common Roof Pitch Mistakes</h2>
+      <ul>
+        <li><strong>Using nominal lumber pitch in real measurements:</strong> "Built for 6/12" might be 5.8/12 actual. Measure your specific roof.</li>
+        <li><strong>Forgetting overhang in rafter length:</strong> Total rafter = run × multiplier + overhang length. Common 1-2 ft overhang adds significantly.</li>
+        <li><strong>Confusing pitch (x/12) with grade (%):</strong> 6/12 pitch is 50% slope, not 6% slope. Different references.</li>
+        <li><strong>Using wrong pitch for shingles:</strong> Standard asphalt shingles fail below 4/12. Check manufacturer specs.</li>
+        <li><strong>Calculating wrong area for complex roofs:</strong> Hip roofs, valleys, and dormers require plane-by-plane calculation, not single multiplier.</li>
+        <li><strong>Ignoring local snow load codes:</strong> Some regions require 8/12+ for residential. Check before designing.</li>
+        <li><strong>Assuming pitch consistency:</strong> Old houses often have inconsistent pitches between sections. Measure each plane separately.</li>
+      </ul>
+    </article>
+
+    <FAQ items={roofPitchFAQ} />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} />
+
+    <EmbedCTA calculator="roof-pitch" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>

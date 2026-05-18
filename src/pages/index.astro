@@ -1,0 +1,243 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { CALCULATORS, CLUSTERS, getCalculatorsByCluster, getLiveCalculators } from '@data/calculators';
+
+const liveCalcs = getLiveCalculators();
+const liveCount = liveCalcs.length;
+const featured = liveCalcs.filter(c => c.priority === 1).slice(0, 5);
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "MaterialCalc",
+  "url": "https://materialcalc.com",
+  "description": "Free, accurate calculators for every construction and landscaping material."
+};
+---
+
+<BaseLayout
+  title="Free Material Calculators for Construction & Landscaping | MaterialCalc"
+  description="Estimate gravel, mulch, concrete, lumber and more. Free, accurate, mobile-friendly calculators for any project."
+  schema={schema}
+>
+  <div class="container">
+    <!-- HERO -->
+    <section class="hero">
+      <span class="eyebrow">● {liveCount} FREE CALCULATORS</span>
+      <h1>Material Calculators for Every Project</h1>
+      <p class="hero-sub">
+        Estimate the exact amount of material you need — by volume, weight, bag count, and total
+        cost. Free, no signup, mobile-friendly, and accurate to within professional supplier tolerances.
+      </p>
+      <div class="hero-cta">
+        <a href="/calculators/" class="btn btn-primary">Browse all calculators →</a>
+        <a href="/gravel-calculator/" class="btn">Try Gravel Calculator</a>
+      </div>
+    </section>
+
+    <!-- FEATURED -->
+    <section class="featured">
+      <h2>Most popular calculators</h2>
+      <div class="cards">
+        {featured.map(calc => (
+          <a href={`/${calc.slug}/`} class="calc-card">
+            <div class="calc-card-title">{calc.title}</div>
+            <div class="calc-card-desc">{calc.description}</div>
+            <span class="calc-card-cta">Open calculator →</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- CLUSTERS — only show clusters that have at least one live calculator -->
+    <section class="clusters">
+      <h2>Browse by category</h2>
+      {CLUSTERS.filter(cl => cl.id !== 'cost').map(cluster => {
+        const liveInCluster = getCalculatorsByCluster(cluster.id).filter(c => c.status === 'live');
+        if (liveInCluster.length === 0) return null;
+        return (
+          <div class="cluster-block">
+            <h3>{cluster.name}</h3>
+            <p class="cluster-desc">{cluster.description}</p>
+            <ul class="cluster-list">
+              {liveInCluster.map(c => (
+                <li>
+                  <a href={`/${c.slug}/`}>{c.title}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+    </section>
+
+    <!-- TRUST -->
+    <section class="trust">
+      <div class="trust-grid">
+        <div>
+          <div class="trust-stat">{liveCount}</div>
+          <div class="trust-label">Calculators live</div>
+        </div>
+        <div>
+          <div class="trust-stat">100%</div>
+          <div class="trust-label">Free, no signup</div>
+        </div>
+        <div>
+          <div class="trust-stat">2k+</div>
+          <div class="trust-label">Words of guidance per page</div>
+        </div>
+        <div>
+          <div class="trust-stat">&lt;1.5s</div>
+          <div class="trust-label">Mobile load time</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding: var(--s-12) 0 var(--s-10);
+    max-width: var(--content-max);
+  }
+  .eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-dark);
+    background: var(--accent-light);
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-bottom: var(--s-4);
+    letter-spacing: 0.5px;
+  }
+  .hero h1 {
+    font-size: 44px;
+    line-height: 1.1;
+    letter-spacing: -1.2px;
+    margin-bottom: var(--s-4);
+  }
+  @media (max-width: 540px) { .hero h1 { font-size: 32px; } }
+  .hero-sub {
+    font-size: 18px;
+    color: var(--n700);
+    margin-bottom: var(--s-6);
+    line-height: 1.55;
+    max-width: 640px;
+  }
+  .hero-cta {
+    display: flex;
+    gap: var(--s-3);
+    flex-wrap: wrap;
+  }
+  .hero-cta .btn { padding: 12px 18px; font-size: 14px; }
+
+  .featured { padding: var(--s-8) 0; }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--s-4);
+    margin-top: var(--s-4);
+  }
+  .calc-card {
+    background: var(--white);
+    border: 1px solid var(--n200);
+    border-radius: var(--r-lg);
+    padding: var(--s-5);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    transition: all var(--t-fast);
+  }
+  .calc-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+  .calc-card-title {
+    font-weight: 700;
+    color: var(--n900);
+    font-size: 16px;
+    margin-bottom: var(--s-2);
+  }
+  .calc-card-desc {
+    color: var(--n600);
+    font-size: 13px;
+    line-height: 1.5;
+    flex: 1;
+  }
+  .calc-card-cta {
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: var(--s-3);
+  }
+
+  .clusters { padding: var(--s-8) 0; }
+  .cluster-block {
+    padding: var(--s-5) 0;
+    border-bottom: 1px solid var(--n200);
+  }
+  .cluster-block:last-child { border-bottom: none; }
+  .cluster-block h3 {
+    font-size: 18px;
+    margin-bottom: 4px;
+    color: var(--n900);
+  }
+  .cluster-desc {
+    color: var(--n500);
+    font-size: 14px;
+    margin-bottom: var(--s-3);
+  }
+  .cluster-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--s-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cluster-list li { margin: 0; }
+  .cluster-list a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: var(--r-sm);
+    color: var(--n700);
+    font-size: 14px;
+    font-weight: 500;
+    transition: background var(--t-fast);
+    text-decoration: none;
+  }
+  .cluster-list a:hover {
+    background: var(--n50);
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .trust {
+    background: var(--n50);
+    border-radius: var(--r-lg);
+    padding: var(--s-8);
+    margin: var(--s-10) 0 var(--s-6);
+  }
+  .trust-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--s-6);
+    text-align: center;
+  }
+  .trust-stat {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -1px;
+  }
+  .trust-label {
+    color: var(--n600);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+</style>

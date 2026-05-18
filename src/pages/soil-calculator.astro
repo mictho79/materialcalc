@@ -1,0 +1,342 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import SoilCalculator from '@components/SoilCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { soilFAQ } from '@data/faqs/soil';
+import { getRelatedCalculators } from '@data/calculators';
+
+const title = "Soil Calculator — Topsoil, Fill Dirt, Garden Soil Volume";
+const description = "Free soil calculator for raised beds, lawns, garden installations, and fill projects. Calculate cubic yards, tons, bags needed, and compare bulk vs bagged pricing.";
+
+const related = getRelatedCalculators('soil-calculator', 4).map(c => ({
+  title: c.shortTitle + ' Calculator',
+  href: `/${c.slug}/`,
+  desc: c.description
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Soil Calculator",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any (web-based)",
+    "description": description,
+    "url": "https://materialcalc.com/soil-calculator/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to calculate how much soil you need",
+    "step": [
+      { "@type": "HowToStep", "name": "Measure area", "text": "Length × width in feet for rectangular beds; π × radius² for round." },
+      { "@type": "HowToStep", "name": "Pick a depth", "text": "4-6 inches for lawns, 12 inches for raised beds, 24 inches for trees." },
+      { "@type": "HowToStep", "name": "Compute volume", "text": "Area × depth in inches ÷ 324 = cubic yards of soil needed." },
+      { "@type": "HowToStep", "name": "Account for settling", "text": "Add 10-20% extra to compensate for compaction over the first 6 months." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'Soil & Garden', href: '/calculators/#soil' },
+      { label: 'Soil Calculator' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Soil Calculator</h1>
+      <p class="intro">
+        Calculate how much soil you need — for raised beds, new lawns, fill projects, or any garden
+        installation. Supports topsoil, fill dirt, garden mixes, compost and clay soil. Compares
+        bulk delivery vs bagged pricing automatically.
+      </p>
+    </header>
+
+    <SoilCalculator />
+
+    <article class="content">
+      <h2>How to Calculate Soil Quantity</h2>
+      <p>
+        Soil quantity calculation is straightforward but trips up beginners because of the mixed-unit
+        problem: areas are typically in square feet (or square yards), depths are in inches, and
+        suppliers sell in cubic yards. The math handles all that for you, but understanding the
+        formula helps verify the result.
+      </p>
+
+      <div class="formula">
+        Cubic yards = (Area in sq ft × Depth in inches) ÷ 324<br>
+        Weight (tons) = Cubic yards × Density factor<br>
+        Bags (1 ft³) = Cubic yards × 27
+      </div>
+
+      <p>
+        The factor 324 combines 12 (inches per foot) × 27 (cubic feet per cubic yard) into a single
+        divisor. Density depends on soil type: 1.30 t/yd³ for dry topsoil, 1.45 for fill dirt, 0.80
+        for light garden mixes, up to 1.60 for clay soil.
+      </p>
+
+      <h3>Worked example: filling a 4x8 raised bed</h3>
+      <p>
+        For a standard 4 ft × 8 ft raised garden bed at 12 inches deep:
+      </p>
+      <ul>
+        <li><strong>Volume:</strong> (4 × 8 × 12) ÷ 324 = <strong>1.19 cubic yards</strong></li>
+        <li><strong>In cubic feet:</strong> 32 ft³</li>
+        <li><strong>In bags (1 ft³):</strong> 32 bags</li>
+        <li><strong>Weight (garden mix at 0.80 t/yd³):</strong> 0.95 tons (≈ 1,900 lb)</li>
+        <li><strong>Bulk cost (at $35/yd³):</strong> $42</li>
+        <li><strong>Bagged cost (at $5/bag):</strong> $160</li>
+        <li><strong>Savings with bulk:</strong> $118</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">Always order 10-20% extra for settling</div>
+        Fresh soil compresses significantly over the first 6 months as air gaps close and organic
+        matter decomposes. For raised beds, overfill by 2-3 inches initially or plan to top up
+        after a season. For lawn installation, return at 4-6 weeks to level any depressions before
+        final seeding.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="soil-mid-1" />
+
+      <h2>Choosing the Right Type of Soil</h2>
+      <p>
+        Not all soil is the same — and using the wrong type ruins projects. Here's the practical
+        breakdown of soil types you'll encounter at any landscape supplier.
+      </p>
+
+      <h3>Topsoil</h3>
+      <p>
+        The dark, organic-rich layer of natural soil (the top 4-8 inches in a healthy field).
+        Used for lawn installation, garden bed prep, and grade adjustment where you want plants to
+        grow. Density: 1.30 t/yd³ dry, 1.50 wet. Cost: $20-50/yd³ bulk. Best quality is "screened
+        topsoil" — sifted to remove rocks and debris.
+      </p>
+
+      <h3>Fill dirt</h3>
+      <p>
+        Subsoil from below the topsoil layer — heavier, denser, low in organic matter. Used for
+        raising grade, filling holes, building up areas before final topsoil layer. Will compact
+        well but plants won't thrive in it directly. Density: 1.45 t/yd³. Cost: $15-30/yd³ —
+        cheapest soil category. Often available free from construction sites if you can haul.
+      </p>
+
+      <h3>Garden soil (planting mix)</h3>
+      <p>
+        Topsoil pre-mixed with compost, peat moss, and sometimes vermiculite or perlite. Ready to
+        use in raised beds and container gardens. Density: 0.80-0.95 t/yd³ (lighter than pure topsoil
+        due to organic content). Cost: $40-80/yd³ bulk, $5-8 per 1 ft³ bag.
+      </p>
+
+      <h3>Compost</h3>
+      <p>
+        Decomposed organic matter — primarily a soil amendment, not a base soil. Mix at 25-30%
+        with topsoil for vegetable beds. Don't plant directly in pure compost (too rich, holds too
+        much water). Density: 1.10 t/yd³. Cost: $25-50/yd³.
+      </p>
+
+      <h3>Clay soil</h3>
+      <p>
+        Heavy, fine-particle soil. Holds water and nutrients well but compacts under pressure and
+        drains poorly. Improve with sand and compost rather than removing entirely. Density:
+        1.60 t/yd³ — heaviest common soil. Free in many regions (your existing yard may be it).
+      </p>
+
+      <h3>Loam (premium soil)</h3>
+      <p>
+        The ideal soil mix: roughly 40% sand, 40% silt, 20% clay with organic matter. Drains well
+        but holds nutrients. Sold as "premium loam" or "screened loam" at $40-70/yd³. The gold
+        standard for vegetable gardens, lawns, and most plantings.
+      </p>
+
+      <h2>Soil Needs by Project Type</h2>
+      <p>
+        Different projects use different soil amounts and types. Quick guide to common scenarios:
+      </p>
+
+      <h3>Raised garden beds</h3>
+      <ul>
+        <li><strong>4x4 bed at 12":</strong> 0.59 yd³ (16 ft³ / 16 bags)</li>
+        <li><strong>4x8 bed at 12":</strong> 1.19 yd³ (32 ft³ / 32 bags)</li>
+        <li><strong>4x8 bed at 18":</strong> 1.78 yd³ (48 ft³)</li>
+        <li><strong>3x6 bed at 12":</strong> 0.67 yd³ (18 ft³)</li>
+      </ul>
+      <p>
+        Use garden soil mix (premixed with compost) or build your own from 60% topsoil + 30% compost
+        + 10% amendment. For deep-rooted vegetables (tomatoes, root crops) use 18+ inch beds.
+      </p>
+
+      <h3>New lawn installation</h3>
+      <ul>
+        <li><strong>500 sq ft at 4":</strong> 6.2 yd³ topsoil</li>
+        <li><strong>1,000 sq ft at 4":</strong> 12.3 yd³</li>
+        <li><strong>1,000 sq ft at 6":</strong> 18.5 yd³</li>
+        <li><strong>2,500 sq ft at 4":</strong> 30.9 yd³</li>
+      </ul>
+      <p>
+        Till new topsoil into the top 6-12 inches of existing soil — don't just layer. Pure topsoil
+        layers create a drainage barrier where roots can't penetrate downward. Mix thoroughly with
+        a rototiller before seeding.
+      </p>
+
+      <h3>Tree planting</h3>
+      <ul>
+        <li><strong>Small tree (1-2" caliper):</strong> 1-2 yd³ topsoil amendment in hole 3x rootball width</li>
+        <li><strong>Medium tree (3-4" caliper):</strong> 3-5 yd³ topsoil + compost mix</li>
+        <li><strong>Large tree (5"+ caliper):</strong> 7-15 yd³ (consider professional planting)</li>
+      </ul>
+
+      <h3>Grade leveling / fill projects</h3>
+      <ul>
+        <li><strong>Small low spot (6x6 ft at 6"):</strong> 0.33 yd³ fill dirt</li>
+        <li><strong>Driveway prep (200 sq ft at 6"):</strong> 3.7 yd³</li>
+        <li><strong>Major yard regrade (1,000 sq ft at 8"):</strong> 24.7 yd³</li>
+      </ul>
+
+      <h2>Soil Weight Reference Table</h2>
+      <p>
+        How much different soil types weigh per cubic yard — important for delivery weight limits
+        and DIY hauling capacity:
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Soil type</th>
+              <th>Density (lb/yd³)</th>
+              <th>Density (tons/yd³)</th>
+              <th>Density (kg/m³)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Garden soil mix (light)</td><td>1,600 lb</td><td>0.80 t</td><td>949</td></tr>
+            <tr><td>Peat / amended mix</td><td>1,900 lb</td><td>0.95 t</td><td>1,128</td></tr>
+            <tr><td>Compost (finished)</td><td>2,200 lb</td><td>1.10 t</td><td>1,306</td></tr>
+            <tr><td>Topsoil (dry)</td><td>2,600 lb</td><td>1.30 t</td><td>1,543</td></tr>
+            <tr><td>Loam (mixed)</td><td>2,800 lb</td><td>1.40 t</td><td>1,662</td></tr>
+            <tr><td>Fill dirt (dry)</td><td>2,900 lb</td><td>1.45 t</td><td>1,721</td></tr>
+            <tr><td>Topsoil (wet)</td><td>3,000 lb</td><td>1.50 t</td><td>1,780</td></tr>
+            <tr><td>Clay soil (dry)</td><td>3,200 lb</td><td>1.60 t</td><td>1,899</td></tr>
+            <tr><td>Wet clay</td><td>3,600+ lb</td><td>1.80+ t</td><td>2,135+</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Pickup trucks have payload limits typically 1,000-2,000 lb. A standard 1/2-ton pickup
+        legally hauls about 1 cubic yard of topsoil. Larger 3/4-ton trucks: 1.5 yards. Hauling
+        more invites suspension damage and traffic stops.
+      </p>
+
+      <AdSlot label="AdSense in-content #2" slotId="soil-mid-2" />
+
+      <h2>Bulk vs Bagged Soil: When to Switch</h2>
+      <p>
+        For small projects bagged soil is convenient. For anything substantial, bulk delivery
+        dominates on cost:
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Project size</th>
+              <th>Bags needed (1 ft³)</th>
+              <th>Bulk equivalent</th>
+              <th>Cost comparison</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 small raised bed (4x4)</td><td>16 bags</td><td>0.6 yd³</td><td>$80 vs $21 ($59 saved)</td></tr>
+            <tr><td>1 raised bed (4x8)</td><td>32 bags</td><td>1.2 yd³</td><td>$160 vs $42 ($118 saved)</td></tr>
+            <tr><td>2 raised beds (4x8 ea)</td><td>64 bags</td><td>2.4 yd³</td><td>$320 vs $84 ($236 saved)</td></tr>
+            <tr><td>Lawn 500 sq ft @ 4"</td><td>167 bags</td><td>6.2 yd³</td><td>$835 vs $217 ($618 saved)</td></tr>
+            <tr><td>Lawn 1,000 sq ft @ 4"</td><td>333 bags</td><td>12.3 yd³</td><td>$1,665 vs $430 ($1,235 saved)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Even accounting for $50-150 delivery fees, bulk wins decisively above 0.5 cubic yards.
+        The breakeven is even lower for premium garden mixes — bagged "garden soil" at home
+        improvement stores is the most expensive way to buy soil per cubic foot.
+      </p>
+
+      <h2>Best Soil Mixes for Common Projects</h2>
+      <p>
+        Pre-blended mixes save effort. Make-your-own saves money. Recipes for the most common
+        applications:
+      </p>
+
+      <h3>Mel's mix (Square Foot Gardening — vegetables)</h3>
+      <ul>
+        <li>1/3 compost (mix multiple sources for best results)</li>
+        <li>1/3 peat moss or coco coir</li>
+        <li>1/3 vermiculite</li>
+        <li>Cost: ~$80/yd³ DIY, vs $120+ premixed</li>
+      </ul>
+
+      <h3>Vegetable garden raised bed</h3>
+      <ul>
+        <li>60% quality topsoil</li>
+        <li>30% finished compost</li>
+        <li>10% peat moss or aged manure</li>
+        <li>Cost: ~$35-50/yd³ DIY</li>
+      </ul>
+
+      <h3>Container / pot mix</h3>
+      <ul>
+        <li>40% peat moss or coco coir</li>
+        <li>30% compost</li>
+        <li>20% perlite or vermiculite</li>
+        <li>10% topsoil (optional, adds weight for stability)</li>
+      </ul>
+
+      <h3>Lawn / sod base</h3>
+      <ul>
+        <li>80% screened topsoil</li>
+        <li>20% compost</li>
+        <li>Tilled into existing soil at 4-6 inch depth</li>
+      </ul>
+
+      <h2>Common Soil Mistakes</h2>
+      <ul>
+        <li><strong>Using fill dirt where you want plants:</strong> Fill dirt is for raising grade only. Plants won't thrive without topsoil + organic amendment.</li>
+        <li><strong>Layering instead of mixing:</strong> Pure topsoil over compacted subsoil creates a drainage barrier. Always till new soil into existing 6-12 inches.</li>
+        <li><strong>Ignoring drainage:</strong> Soil without drainage = waterlogged, dead plants. Slope grades 1-2% away from buildings and toward drains.</li>
+        <li><strong>Over-amending:</strong> 100% compost beds drown plants from too much moisture. Stick to 30% compost max in planting beds.</li>
+        <li><strong>Buying bagged for large projects:</strong> The single biggest waste in landscape budgeting. Switch to bulk above 0.5 yd³ — always.</li>
+        <li><strong>Forgetting settling:</strong> A "filled" bed will be 2-3 inches lower in 6 months. Overfill or plan a top-up at 4-6 weeks.</li>
+      </ul>
+    </article>
+
+    <FAQ items={soilFAQ} />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} />
+
+    <EmbedCTA calculator="soil" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>

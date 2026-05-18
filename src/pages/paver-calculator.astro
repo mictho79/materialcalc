@@ -1,0 +1,325 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import PaverCalculator from '@components/PaverCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { paverFAQ } from '@data/faqs/paver';
+import { getRelatedCalculators } from '@data/calculators';
+
+const title = "Paver Calculator — Count Pavers, Base & Sand for Patios";
+const description = "Free paver calculator for patios, walkways and driveways. Estimate exact paver count, base crushed stone, bedding sand, and total cost — supports all standard sizes.";
+
+const related = getRelatedCalculators('paver-calculator', 4).map(c => ({
+  title: c.shortTitle + ' Calculator',
+  href: `/${c.slug}/`,
+  desc: c.description
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Paver Calculator",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any (web-based)",
+    "description": description,
+    "url": "https://materialcalc.com/paver-calculator/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to calculate paver quantity",
+    "step": [
+      { "@type": "HowToStep", "name": "Measure patio area", "text": "Length × width in square feet (or square meters)." },
+      { "@type": "HowToStep", "name": "Choose paver size", "text": "Select from standard sizes or enter custom dimensions." },
+      { "@type": "HowToStep", "name": "Compute paver count", "text": "Patio area ÷ single paver area = pieces needed; add 10% waste." },
+      { "@type": "HowToStep", "name": "Add base materials", "text": "4 inches crushed stone base + 1 inch paver sand bedding." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'Surfaces & Paving', href: '/calculators/#surfaces' },
+      { label: 'Paver Calculator' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Paver Calculator</h1>
+      <p class="intro">
+        Calculate exactly how many pavers, how much crushed stone base, and how much bedding sand
+        you need for your patio, walkway, or driveway. Supports all standard sizes (4×8, 6×6, 12×12,
+        16×16, 24×24) plus custom dimensions, with cost estimates for the full installation.
+      </p>
+    </header>
+
+    <PaverCalculator />
+
+    <article class="content">
+      <h2>How to Calculate Paver Quantity</h2>
+      <p>
+        Paver calculation differs from other materials because you're counting discrete pieces,
+        not measuring bulk volume. The math: total area divided by single paver area gives raw
+        count, then waste factor handles the cuts and breakage that happen during installation.
+      </p>
+
+      <div class="formula">
+        Pavers needed = (Patio area in sq in ÷ Paver area in sq in) × (1 + Waste %)<br>
+        Or: (Patio sq ft × 144) ÷ (Paver L × W in inches) × 1.10<br>
+        Base material = Patio area × 4 inches base depth ÷ 324 = cubic yards<br>
+        Bedding sand = Patio area × 1 inch depth ÷ 324 = cubic yards
+      </div>
+
+      <p>
+        The 144 factor converts square feet to square inches (12 × 12). The 324 factor for base
+        materials combines 12 (inches to feet) × 27 (cubic feet to cubic yards). Waste factors
+        depend on pattern complexity — straightforward patterns waste less, curved or angular
+        patterns waste more.
+      </p>
+
+      <h3>Worked example: 200 sq ft backyard patio</h3>
+      <p>
+        Suppose you're building a 200 sq ft patio (10 × 20 ft) with standard 4 × 8 inch brick
+        pavers in a running bond pattern:
+      </p>
+      <ul>
+        <li><strong>Patio area in sq in:</strong> 200 × 144 = 28,800 sq in</li>
+        <li><strong>Single paver area:</strong> 4 × 8 = 32 sq in</li>
+        <li><strong>Raw paver count:</strong> 28,800 ÷ 32 = 900 pavers</li>
+        <li><strong>With 10% waste:</strong> 900 × 1.10 = <strong>990 pavers</strong></li>
+        <li><strong>Crushed stone base (4 inches):</strong> 200 × 4 ÷ 324 = <strong>2.47 cubic yards</strong></li>
+        <li><strong>Paver sand (1 inch):</strong> 200 × 1 ÷ 324 = <strong>0.62 cubic yards</strong></li>
+        <li><strong>Total cost at $3.50/paver, $45/yd³ base, $40/yd³ sand:</strong> $3,465 + $111 + $25 = <strong>$3,601 materials</strong></li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">Order pavers from a single production batch</div>
+        Concrete and clay pavers vary slightly in color between manufacturing batches. Order all
+        pavers at once — including the waste — so they all come from the same batch. Mismatched
+        colors stand out for the life of the patio.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="pv-mid-1" />
+
+      <h2>Choosing the Right Paver Size and Pattern</h2>
+      <p>
+        Size and pattern affect appearance, install difficulty, cost, and waste percentage. Pick
+        based on your application and skill level.
+      </p>
+
+      <h3>Standard brick (4×8 inch)</h3>
+      <p>
+        Classic appearance, widely available. Best for: traditional patios, driveways (with proper
+        base), formal walkways. Strength against vehicle loads when laid in herringbone pattern.
+        Higher install labor due to small piece count. Cost: $2-5 per paver.
+      </p>
+
+      <h3>Medium (6×9, 6×12)</h3>
+      <p>
+        Common in modern landscape design. Good balance of size and visual texture. Best for:
+        patios, walkways, casual driveways. Easier and faster install than 4×8. Cost: $3-7 per
+        paver. Many premium colored and textured options.
+      </p>
+
+      <h3>Square (12×12, 16×16, 18×18)</h3>
+      <p>
+        Clean, modern appearance. Fastest to install. Best for: patios, formal walkways. Waste
+        slightly higher than rectangular due to grid layout. Cost: $4-12 per paver depending on
+        material. Limited pattern options compared to rectangular pavers.
+      </p>
+
+      <h3>Large format (12×24, 24×24)</h3>
+      <p>
+        Contemporary look. Premium pricing reflected in fewer joints visible. Best for: modern
+        patios and outdoor living rooms. Requires perfectly level base — uneven base shows badly
+        with large pieces. Cost: $8-25 per paver. Skill-intensive install.
+      </p>
+
+      <h3>Patterns and their waste factors</h3>
+      <ul>
+        <li><strong>Running bond (offset rows):</strong> 5-10% waste. Strongest pattern for vehicle traffic.</li>
+        <li><strong>Stack bond (grid):</strong> 5-10% waste. Most formal appearance.</li>
+        <li><strong>Herringbone (45° or 90°):</strong> 10-15% waste. Strongest against shifting; classic appearance.</li>
+        <li><strong>Basketweave:</strong> 10-15% waste. Traditional and decorative.</li>
+        <li><strong>Pinwheel:</strong> 15-20% waste. Complex visual but lots of cuts.</li>
+        <li><strong>Random / mixed sizes:</strong> 15-20% waste. Modern look with mixed paver sizes.</li>
+      </ul>
+
+      <h2>How Many Pavers by Patio Size</h2>
+      <p>
+        Quick reference for the most common patio sizes and paver dimensions:
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Patio size</th>
+              <th>4×8 brick</th>
+              <th>6×9</th>
+              <th>12×12</th>
+              <th>16×16</th>
+              <th>24×24</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>50 sq ft</td><td>248</td><td>147</td><td>55</td><td>32</td><td>14</td></tr>
+            <tr><td>100 sq ft</td><td>495</td><td>294</td><td>110</td><td>62</td><td>28</td></tr>
+            <tr><td>150 sq ft</td><td>743</td><td>440</td><td>165</td><td>93</td><td>42</td></tr>
+            <tr><td>200 sq ft</td><td>990</td><td>587</td><td>220</td><td>124</td><td>55</td></tr>
+            <tr><td>300 sq ft</td><td>1,485</td><td>880</td><td>330</td><td>186</td><td>83</td></tr>
+            <tr><td>500 sq ft</td><td>2,475</td><td>1,467</td><td>550</td><td>309</td><td>138</td></tr>
+            <tr><td>1,000 sq ft</td><td>4,950</td><td>2,933</td><td>1,100</td><td>619</td><td>275</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Figures include 10% waste factor. Add 5% more for diagonal patterns or curves. Round up
+        to bundle quantities — pavers ship by the pallet typically (50-100 pavers per pallet
+        depending on size).
+      </p>
+
+      <h2>Base and Sub-Materials</h2>
+      <p>
+        Pavers themselves are usually 30-50% of project cost. Base materials and labor are the rest.
+        For every patio, you need:
+      </p>
+
+      <h3>Crushed stone base (4 inches)</h3>
+      <p>
+        Compacted crushed stone (#411 dense-grade or DGA preferred) at 4 inches deep is the
+        structural foundation. For 200 sq ft patio: 2.47 cubic yards (~3.5 tons). Cost: $35-55/ton.
+        For driveways with vehicles: increase to 6-8 inches of base.
+      </p>
+
+      <h3>Bedding sand (1 inch)</h3>
+      <p>
+        Sharp paver sand (NOT play sand) at exactly 1 inch depth between base and pavers. For 200
+        sq ft: 0.62 cubic yards. Cost: $40-60/yard delivered. This 1-inch layer must be perfectly
+        screeded level for proper paver installation.
+      </p>
+
+      <h3>Joint sand</h3>
+      <p>
+        Fills the gaps between pavers after installation. Use polymeric joint sand for established
+        installations — locks pavers in place and prevents weed growth. For 200 sq ft patio: 1-2
+        bags of 50 lb polymeric sand at $25-40/bag, or 0.1 cubic yards of regular paver sand for
+        smaller projects.
+      </p>
+
+      <h3>Edge restraint</h3>
+      <p>
+        Plastic, metal, or concrete edging around the perimeter prevents paver migration. Plastic
+        edging: $15-25 per 10-ft section. Metal/aluminum: $25-40 per section. Concrete curbing
+        (best for driveways): $5-10 per linear foot installed. Calculate perimeter × cost.
+      </p>
+
+      <AdSlot label="AdSense in-content #2" slotId="pv-mid-2" />
+
+      <h2>Paver Installation: The Professional Process</h2>
+      <p>
+        Proper installation is what makes pavers last 25-50 years. Cut corners and they shift and
+        sink within 5 years. The full process:
+      </p>
+
+      <ol>
+        <li><strong>Plan and mark.</strong> Stakes and string mark perimeter. Verify 1-2% slope away from buildings for drainage.</li>
+        <li><strong>Excavate.</strong> Remove sod and topsoil to total depth: paver thickness + 5 inches (for base and sand). Typical excavation: 7-8 inches deep.</li>
+        <li><strong>Compact subgrade.</strong> Run plate compactor over exposed soil. Soft spots must be undercut and replaced with crushed stone.</li>
+        <li><strong>Install geotextile fabric (optional).</strong> Adds longevity in poor soil conditions. Cost: $0.30-0.50/sq ft. Worth it for permanent installations.</li>
+        <li><strong>Add crushed stone base.</strong> 4 inches of #411 or DGA, in 2-inch lifts, plate-compacted between lifts. Critical step — under-compacted base causes pavers to settle unevenly.</li>
+        <li><strong>Install edge restraint.</strong> Before sand or pavers. Sets the perimeter that holds everything in place.</li>
+        <li><strong>Lay bedding sand.</strong> Exactly 1 inch of sharp paver sand, screeded perfectly level using PVC pipes as guides. Don't compact this layer.</li>
+        <li><strong>Place pavers.</strong> Start from a corner, work outward. Don't walk on the sand — work from already-placed pavers. Keep joints consistent (typically 1/8 inch).</li>
+        <li><strong>Cut perimeter pavers.</strong> Wet saw with diamond blade for clean cuts. Mark each cut individually for best fit.</li>
+        <li><strong>Compact paver surface.</strong> Run plate compactor with rubber mat over installed pavers to settle them into the sand bed.</li>
+        <li><strong>Sweep joint sand.</strong> Dry polymeric or regular paver sand swept into all joints. Multiple passes — joints need to be completely full.</li>
+        <li><strong>Activate polymeric sand (if used).</strong> Mist with water following manufacturer instructions. Sand hardens within hours, locking pavers in place.</li>
+      </ol>
+
+      <h2>Paver Costs in 2026</h2>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Paver type</th>
+              <th>Per paver</th>
+              <th>Per sq ft material</th>
+              <th>Installed cost</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Basic concrete (4×8 brick)</td><td>$0.50–1.50</td><td>$2–5</td><td>$12–20/sq ft</td></tr>
+            <tr><td>Premium concrete (textured)</td><td>$2–5</td><td>$5–10</td><td>$15–25/sq ft</td></tr>
+            <tr><td>Tumbled concrete (aged look)</td><td>$3–6</td><td>$6–11</td><td>$16–25/sq ft</td></tr>
+            <tr><td>Clay brick (12×4×2.5)</td><td>$1.50–4</td><td>$4–8</td><td>$14–22/sq ft</td></tr>
+            <tr><td>Bluestone (natural)</td><td>$5–15</td><td>$8–20</td><td>$20–40/sq ft</td></tr>
+            <tr><td>Travertine</td><td>$4–10</td><td>$8–18</td><td>$20–35/sq ft</td></tr>
+            <tr><td>Porcelain pavers</td><td>$6–15</td><td>$10–25</td><td>$25–45/sq ft</td></tr>
+            <tr><td>Granite (premium)</td><td>$8–25</td><td>$15–40</td><td>$30–60/sq ft</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Installation labor typically runs $8-15 per sq ft. DIY saves the labor cost but requires
+        physical work and tool rental ($60-100/day for plate compactor + wet saw). For a 200 sq ft
+        patio: $1,000-2,000 DIY materials, $3,000-6,000 professionally installed.
+      </p>
+
+      <h2>Sealing and Long-Term Maintenance</h2>
+      <p>
+        Pavers are remarkably durable but benefit from periodic care:
+      </p>
+      <ul>
+        <li><strong>Initial sealing (after 4-6 weeks cure):</strong> Optional but recommended. Enhances color, prevents efflorescence, locks joint sand. Cost: $0.30-0.60/sq ft.</li>
+        <li><strong>Re-sealing every 3-5 years:</strong> Maintains color and protection. Half the cost of initial application.</li>
+        <li><strong>Joint sand refresh every 3-7 years:</strong> Joint sand washes out gradually. Re-sweep new polymeric sand into joints.</li>
+        <li><strong>Spot cleaning:</strong> Pressure wash debris, stains. Stubborn stains: poultice with degreaser or specialty paver cleaner.</li>
+        <li><strong>Replace damaged pavers:</strong> Individual paver replacement is paver's biggest advantage. Pry up the damaged one, drop in a new one, re-sand joints. Done in 15 minutes.</li>
+        <li><strong>Watch for settling:</strong> Year 1, expect minor settling. Lift settled pavers, add more sand, reset. By year 2, properly installed pavers stay put.</li>
+      </ul>
+
+      <h2>Common Paver Mistakes</h2>
+      <ul>
+        <li><strong>Skipping base preparation:</strong> No 4-inch crushed stone base = pavers sink and shift within 1-2 years. The most expensive mistake possible.</li>
+        <li><strong>Wrong sand:</strong> Play sand or beach sand under pavers fails — too fine, too round. Always sharp paver sand specifically.</li>
+        <li><strong>Sand too deep:</strong> 1 inch maximum. Deeper sand bed allows pavers to rock and shift.</li>
+        <li><strong>No edge restraint:</strong> Pavers migrate outward over time without rigid edging. Hard to add edging retroactively.</li>
+        <li><strong>Insufficient slope:</strong> Less than 1% slope means standing water, weed growth, and discoloration.</li>
+        <li><strong>Mixing batches:</strong> Color variation between manufacturing batches stays visible for the life of the patio. Order all pavers at once.</li>
+        <li><strong>Skimping on waste factor:</strong> Running 2 pavers short on the last row is incredibly frustrating. Always 10%+ waste.</li>
+        <li><strong>Walking on bedding sand:</strong> Footprints in the sand layer translate to lumpy pavers. Work only from placed pavers.</li>
+      </ul>
+    </article>
+
+    <FAQ items={paverFAQ} />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} />
+
+    <EmbedCTA calculator="paver" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>

@@ -1,0 +1,351 @@
+---
+// Self-contained Board Feet Calculator.
+// Formula: BF = (T × W × L_in) / 144  or  (T × W × L_ft) / 12
+// where T and W are inches.
+---
+
+<div class="tool" id="boardfeet-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="length-toggle" role="tablist" aria-label="Length unit">
+      <button type="button" class="active" data-length-unit="ft" aria-pressed="true">Length in feet</button>
+      <button type="button" data-length-unit="in" aria-pressed="false">Length in inches</button>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="bf-thickness">Thickness</label>
+      <div class="field-input">
+        <select id="bf-thickness">
+          <option value="0.75">3/4" (S4S nominal 1")</option>
+          <option value="1">1" (rough)</option>
+          <option value="1.25">1-1/4" (rough)</option>
+          <option value="1.5" selected>1-1/2" (S4S nominal 2")</option>
+          <option value="2">2" (rough)</option>
+          <option value="2.5">2-1/2" (rough)</option>
+          <option value="3">3" (rough)</option>
+          <option value="3.5">3-1/2" (S4S nominal 4")</option>
+          <option value="4">4" (rough)</option>
+          <option value="custom">Custom...</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" id="bf-thickness-custom-wrap" hidden>
+      <label for="bf-thickness-custom">Custom thickness</label>
+      <div class="field-input">
+        <input id="bf-thickness-custom" type="number" value="1.5" min="0" step="0.125" inputmode="decimal" />
+        <span class="suffix">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="bf-width">Width</label>
+      <div class="field-input">
+        <input id="bf-width" type="number" value="6" min="0" step="0.125" inputmode="decimal" />
+        <span class="suffix">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="bf-length">Length per piece</label>
+      <div class="field-input">
+        <input id="bf-length" type="number" value="8" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-suffix="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="bf-quantity">Number of pieces</label>
+      <div class="field-input">
+        <input id="bf-quantity" type="number" value="10" min="1" step="1" inputmode="numeric" />
+        <span class="suffix">pcs</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="bf-price">Price per board foot <span class="optional">(optional)</span></label>
+      <div class="field-input">
+        <input id="bf-price" type="number" value="4.50" min="0" step="0.01" inputmode="decimal" />
+        <span class="suffix">$/bf</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="bf-waste">Waste factor</label>
+      <div class="field-input">
+        <select id="bf-waste">
+          <option value="0">None</option>
+          <option value="0.10" selected>10% (recommended)</option>
+          <option value="0.15">15% (cabinets, complex cuts)</option>
+          <option value="0.20">20% (highly figured wood, rough lumber)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">Total board feet needed</div>
+    <div class="result-main">
+      <span class="number" id="bf-total">66.00</span>
+      <span class="unit">board feet</span>
+    </div>
+    <div class="result-secondary">
+      ≈ <strong id="bf-per-piece">6.00</strong> BF per piece &nbsp;·&nbsp;
+      <strong id="bf-linear">80</strong> linear feet &nbsp;·&nbsp;
+      <strong id="bf-cost">$297</strong> total cost
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="bf-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="bf-btn-share">↗ Share</button>
+      
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool {
+    background: var(--white);
+    border: 1px solid var(--n200);
+    border-radius: var(--r-lg);
+    padding: var(--s-6);
+    margin-bottom: var(--s-4);
+    box-shadow: var(--shadow-xs);
+  }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+
+  .tool-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--s-5);
+    padding-bottom: var(--s-4);
+    border-bottom: 1px solid var(--n200);
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .tool-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--n700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .length-toggle {
+    display: inline-flex;
+    background: var(--n100);
+    border-radius: var(--r-md);
+    padding: 3px;
+  }
+  .length-toggle button {
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--n500);
+    cursor: pointer;
+    border-radius: var(--r-sm);
+  }
+  .length-toggle button.active {
+    background: var(--white);
+    color: var(--primary);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-4);
+    margin-bottom: var(--s-4);
+  }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--n700);
+    margin-bottom: 6px;
+  }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .field input, .field select {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border: 1.5px solid var(--n200);
+    border-radius: var(--r-md);
+    font-size: 15px;
+    color: var(--n900);
+    background: var(--white);
+    transition: all var(--t-fast);
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30,58,95,0.1);
+  }
+  .suffix {
+    position: absolute;
+    right: 12px;
+    color: var(--n500);
+    font-size: 13px;
+    font-weight: 500;
+    pointer-events: none;
+  }
+
+  .result {
+    background: var(--n50);
+    border: 1px solid var(--n200);
+    border-radius: var(--r-md);
+    padding: var(--s-5);
+    margin-top: var(--s-5);
+  }
+  .result-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--n500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--s-2);
+  }
+  .result-main {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-2);
+    flex-wrap: wrap;
+  }
+  .result-main .number {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1.1;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-main .unit {
+    font-size: 18px;
+    color: var(--n700);
+    font-weight: 600;
+  }
+  .result-secondary {
+    font-size: 15px;
+    color: var(--n700);
+    margin-top: var(--s-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .result-secondary strong {
+    color: var(--n900);
+    font-weight: 700;
+  }
+  .result-actions {
+    display: flex;
+    gap: var(--s-2);
+    margin-top: var(--s-4);
+    flex-wrap: wrap;
+  }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('boardfeet-tool');
+  if (!root) return;
+
+  const $ = (sel) => root.querySelector(sel);
+  const thickness = $('#bf-thickness');
+  const thicknessCustom = $('#bf-thickness-custom');
+  const thicknessCustomWrap = $('#bf-thickness-custom-wrap');
+  const width = $('#bf-width');
+  const length = $('#bf-length');
+  const quantity = $('#bf-quantity');
+  const price = $('#bf-price');
+  const waste = $('#bf-waste');
+
+  function getActiveLengthUnit() {
+    return root.querySelector('.length-toggle button.active').dataset.lengthUnit;
+  }
+
+  function getThickness() {
+    if (thickness.value === 'custom') {
+      thicknessCustomWrap.hidden = false;
+      return parseFloat(thicknessCustom.value) || 0;
+    } else {
+      thicknessCustomWrap.hidden = true;
+      return parseFloat(thickness.value) || 0;
+    }
+  }
+
+  function calculate() {
+    const t = getThickness();
+    const w = parseFloat(width.value) || 0;
+    const l = parseFloat(length.value) || 0;
+    const q = parseInt(quantity.value) || 0;
+    const p = parseFloat(price.value) || 0;
+    const wa = parseFloat(waste.value) || 0;
+    const lengthUnit = getActiveLengthUnit();
+
+    // BF per piece = (T × W × L_in_inches) / 144
+    const lengthInches = lengthUnit === 'ft' ? l * 12 : l;
+    const bfPerPiece = (t * w * lengthInches) / 144;
+
+    const subtotal = bfPerPiece * q;
+    const total = subtotal * (1 + wa);
+    const linearFeet = lengthUnit === 'ft' ? l * q : (l / 12) * q;
+    const cost = total * p;
+
+    $('#bf-total').textContent = total.toFixed(2);
+    $('#bf-per-piece').textContent = bfPerPiece.toFixed(2);
+    $('#bf-linear').textContent = linearFeet.toFixed(1);
+    $('#bf-cost').textContent = '$' + Math.round(cost).toLocaleString();
+  }
+
+  root.querySelectorAll('input, select').forEach(el =>
+    el.addEventListener('input', calculate)
+  );
+
+  // Length unit toggle
+  root.querySelectorAll('.length-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.length-toggle button').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const unit = btn.dataset.lengthUnit;
+      root.querySelectorAll('[data-suffix="length"]').forEach(el => el.textContent = unit);
+      calculate();
+    });
+  });
+
+  // Copy result
+  $('#bf-btn-copy').addEventListener('click', () => {
+    const bf = $('#bf-total').textContent;
+    const cost = $('#bf-cost').textContent;
+    const text = `Board feet needed: ${bf} BF. Estimated cost: ${cost}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#bf-btn-copy');
+      const original = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    });
+  });
+
+  // Share
+  $('#bf-btn-share').addEventListener('click', () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Board Feet Calculator',
+        text: 'Calculate board feet for lumber projects',
+        url: location.href
+      });
+    } else {
+      navigator.clipboard?.writeText(location.href);
+    }
+  });
+
+  calculate();
+})();
+</script>

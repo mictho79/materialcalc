@@ -1,0 +1,209 @@
+---
+// Sand Calculator — variant with sand-specific density and bag sizes.
+---
+
+<div class="tool" id="sand-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="shape-row" role="tablist" aria-label="Shape">
+    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Rectangle</button>
+    <button type="button" class="shape-btn" data-shape="circle">● Circle</button>
+    <button type="button" class="shape-btn" data-shape="triangle">▲ Triangle</button>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="s-length"><span data-shape-text="length">Length</span></label>
+      <div class="field-input">
+        <input id="s-length" type="number" value="10" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show-when="rectangle,triangle">
+      <label for="s-width">Width</label>
+      <div class="field-input">
+        <input id="s-width" type="number" value="10" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="s-depth">Depth</label>
+      <div class="field-input">
+        <input id="s-depth" type="number" value="1" min="0" step="0.25" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="s-type">Sand type</label>
+      <div class="field-input">
+        <select id="s-type">
+          <option value="1.35">Mason sand (dry) — 1.35 t/yd³</option>
+          <option value="1.42">Concrete sand — 1.42 t/yd³</option>
+          <option value="1.45">Paver sand (sharp) — 1.45 t/yd³</option>
+          <option value="1.30">Play sand — 1.30 t/yd³</option>
+          <option value="1.50">All-purpose / fill sand — 1.50 t/yd³</option>
+          <option value="1.60">Wet sand — 1.60 t/yd³</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="s-price">Price per ton <span class="optional">(optional)</span></label>
+      <div class="field-input">
+        <input id="s-price" type="number" value="35" min="0" step="1" inputmode="decimal" />
+        <span class="suffix">$/ton</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="s-bag-size">Bag size</label>
+      <div class="field-input">
+        <select id="s-bag-size">
+          <option value="50">50 lb bag</option>
+          <option value="70">70 lb bag (mason)</option>
+          <option value="100">100 lb bag (large)</option>
+          <option value="2000">1 ton bag</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">You need</div>
+    <div class="result-main">
+      <span class="number" id="s-yards">0.31</span>
+      <span class="unit">cubic yards</span>
+    </div>
+    <div class="result-secondary">
+      ≈ <strong id="s-tons">0.42</strong> tons &nbsp;·&nbsp;
+      ≈ <strong id="s-bags">17</strong> bags &nbsp;·&nbsp;
+      <strong id="s-cost">$15</strong> total cost
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="s-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="s-btn-share">↗ Share</button>
+      
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool { background: var(--white); border: 1px solid var(--n200); border-radius: var(--r-lg); padding: var(--s-6); margin-bottom: var(--s-4); box-shadow: var(--shadow-xs); }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+  .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px solid var(--n200); flex-wrap: wrap; gap: var(--s-2); }
+  .tool-title { font-size: 15px; font-weight: 700; color: var(--n700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .unit-toggle { display: inline-flex; background: var(--n100); border-radius: var(--r-md); padding: 3px; }
+  .unit-toggle button { border: none; background: transparent; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--n500); cursor: pointer; border-radius: var(--r-sm); }
+  .unit-toggle button.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .shape-row { display: flex; gap: var(--s-2); margin-bottom: var(--s-5); }
+  .shape-btn { flex: 1; padding: 10px; border: 1.5px solid var(--n200); background: var(--white); border-radius: var(--r-md); font-size: 13px; font-weight: 600; color: var(--n700); cursor: pointer; transition: all var(--t-fast); }
+  .shape-btn:hover { border-color: var(--primary); }
+  .shape-btn.active { border-color: var(--primary); background: var(--primary); color: var(--white); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  [data-show-when][hidden] { display: none; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--n700); margin-bottom: 6px; }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--n200); border-radius: var(--r-md); font-size: 15px; color: var(--n900); background: var(--white); }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+  .suffix { position: absolute; right: 12px; color: var(--n500); font-size: 13px; font-weight: 500; pointer-events: none; }
+  .result { background: var(--n50); border: 1px solid var(--n200); border-radius: var(--r-md); padding: var(--s-5); margin-top: var(--s-5); }
+  .result-label { font-size: 12px; font-weight: 700; color: var(--n500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--s-2); }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('sand-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+  const widthField = $('#s-width').closest('.field');
+  const lengthLabel = root.querySelector('[data-shape-text="length"]');
+
+  function calculate() {
+    const shape = root.querySelector('.shape-btn.active').dataset.shape;
+    const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    const l = parseFloat($('#s-length').value) || 0;
+    const w = parseFloat($('#s-width').value) || 0;
+    const d = parseFloat($('#s-depth').value) || 0;
+    const density = parseFloat($('#s-type').value) || 1.35;
+    const price = parseFloat($('#s-price').value) || 0;
+    const bagSize = parseFloat($('#s-bag-size').value) || 50;
+
+    let area = 0;
+    if (shape === 'rectangle')   area = l * w;
+    else if (shape === 'circle') area = Math.PI * Math.pow(l / 2, 2);
+    else                          area = 0.5 * l * w;
+
+    let cubicYards;
+    if (units === 'imperial') cubicYards = (area * (d / 12)) / 27;
+    else cubicYards = (area * (d / 100)) * 1.30795;
+
+    const tons = cubicYards * density;
+    const pounds = tons * 2000;
+    const bags = pounds / bagSize;
+    const cost = tons * price;
+
+    $('#s-yards').textContent = cubicYards.toFixed(2);
+    $('#s-tons').textContent = tons.toFixed(2);
+    $('#s-bags').textContent = Math.ceil(bags).toLocaleString();
+    $('#s-cost').textContent = '$' + Math.round(cost).toLocaleString();
+  }
+
+  function updateShape(shape) {
+    if (shape === 'circle') {
+      widthField.hidden = true;
+      if (lengthLabel) lengthLabel.textContent = 'Diameter';
+    } else {
+      widthField.hidden = false;
+      if (lengthLabel) lengthLabel.textContent = 'Length';
+    }
+  }
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+  root.querySelectorAll('.shape-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateShape(btn.dataset.shape);
+      calculate();
+    });
+  });
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      root.querySelectorAll('[data-unit="depth"]').forEach(el => el.textContent = metric ? 'cm' : 'in');
+      calculate();
+    });
+  });
+  $('#s-btn-copy').addEventListener('click', () => {
+    const text = `Sand needed: ${$('#s-yards').textContent} yd³ (${$('#s-tons').textContent} tons, ~${$('#s-bags').textContent} bags). Estimated cost: ${$('#s-cost').textContent}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#s-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+  $('#s-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Sand Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+  calculate();
+})();
+</script>

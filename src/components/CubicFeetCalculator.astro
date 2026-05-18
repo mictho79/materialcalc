@@ -1,0 +1,384 @@
+---
+// Cubic Feet Calculator — siblings with cubic-yard but presents ft³ as primary output.
+// Accepts feet, inches, yards, meters, cm as length units.
+---
+
+<div class="tool" id="cf-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Input units">
+      <button type="button" class="active" data-units="ft" aria-pressed="true">Feet</button>
+      <button type="button" data-units="in" aria-pressed="false">Inches</button>
+      <button type="button" data-units="yd" aria-pressed="false">Yards</button>
+      <button type="button" data-units="m" aria-pressed="false">Meters</button>
+      <button type="button" data-units="cm" aria-pressed="false">Centimeters</button>
+    </div>
+  </div>
+
+  <div class="shape-row" role="tablist" aria-label="Shape">
+    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Box / Rectangle</button>
+    <button type="button" class="shape-btn" data-shape="cylinder">⬭ Cylinder</button>
+    <button type="button" class="shape-btn" data-shape="circle">● Circle area</button>
+  </div>
+
+  <div class="form-grid">
+    <div class="field" data-show="rectangle">
+      <label for="cf-length">Length</label>
+      <div class="field-input">
+        <input id="cf-length" type="number" value="8" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="input">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="rectangle">
+      <label for="cf-width">Width</label>
+      <div class="field-input">
+        <input id="cf-width" type="number" value="5" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="input">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="rectangle">
+      <label for="cf-height">Height / Depth</label>
+      <div class="field-input">
+        <input id="cf-height" type="number" value="2" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="input">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="cylinder">
+      <label for="cf-cyl-diameter">Diameter</label>
+      <div class="field-input">
+        <input id="cf-cyl-diameter" type="number" value="3" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="input">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="cylinder">
+      <label for="cf-cyl-height">Height</label>
+      <div class="field-input">
+        <input id="cf-cyl-height" type="number" value="6" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="input">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="circle">
+      <label for="cf-circle-diameter">Diameter</label>
+      <div class="field-input">
+        <input id="cf-circle-diameter" type="number" value="10" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="input">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="circle">
+      <label for="cf-circle-depth">Depth</label>
+      <div class="field-input">
+        <input id="cf-circle-depth" type="number" value="0.5" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="input">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="cf-quantity">Number of items</label>
+      <div class="field-input">
+        <input id="cf-quantity" type="number" value="1" min="1" step="1" inputmode="numeric" />
+        <span class="suffix">pcs</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="cf-price">Price per ft³ <span class="optional">(optional)</span></label>
+      <div class="field-input">
+        <input id="cf-price" type="number" value="0" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix">$/ft³</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">Total volume</div>
+    <div class="result-main">
+      <span class="number" id="cf-feet">80.00</span>
+      <span class="unit">cubic feet</span>
+    </div>
+    <div class="result-secondary">
+      = <strong id="cf-yards">2.96</strong> yd³ &nbsp;·&nbsp;
+      <strong id="cf-meters">2.27</strong> m³ &nbsp;·&nbsp;
+      <strong id="cf-gallons">598</strong> US gallons &nbsp;·&nbsp;
+      <strong id="cf-liters">2,264</strong> L
+    </div>
+    <div class="result-cost" id="cf-cost-row" hidden>
+      Total cost: <strong id="cf-cost">$0</strong>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="cf-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="cf-btn-share">↗ Share</button>
+      
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool {
+    background: var(--white);
+    border: 1px solid var(--n200);
+    border-radius: var(--r-lg);
+    padding: var(--s-6);
+    margin-bottom: var(--s-4);
+    box-shadow: var(--shadow-xs);
+  }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+
+  .tool-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--s-5);
+    padding-bottom: var(--s-4);
+    border-bottom: 1px solid var(--n200);
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .tool-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--n700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .unit-toggle {
+    display: inline-flex;
+    background: var(--n100);
+    border-radius: var(--r-md);
+    padding: 3px;
+    flex-wrap: wrap;
+  }
+  .unit-toggle button {
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--n500);
+    cursor: pointer;
+    border-radius: var(--r-sm);
+  }
+  .unit-toggle button.active {
+    background: var(--white);
+    color: var(--primary);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .shape-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-2);
+    margin-bottom: var(--s-5);
+  }
+  @media (max-width: 540px) { .shape-row { grid-template-columns: 1fr; } }
+  .shape-btn {
+    padding: 10px;
+    border: 1.5px solid var(--n200);
+    background: var(--white);
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--n700);
+    cursor: pointer;
+    transition: all var(--t-fast);
+  }
+  .shape-btn:hover { border-color: var(--primary); }
+  .shape-btn.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--white);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-4);
+    margin-bottom: var(--s-4);
+  }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  [data-show][hidden] { display: none; }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--n700);
+    margin-bottom: 6px;
+  }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border: 1.5px solid var(--n200);
+    border-radius: var(--r-md);
+    font-size: 15px;
+    color: var(--n900);
+    background: var(--white);
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30,58,95,0.1);
+  }
+  .suffix {
+    position: absolute;
+    right: 12px;
+    color: var(--n500);
+    font-size: 13px;
+    font-weight: 500;
+    pointer-events: none;
+  }
+
+  .result {
+    background: var(--n50);
+    border: 1px solid var(--n200);
+    border-radius: var(--r-md);
+    padding: var(--s-5);
+    margin-top: var(--s-5);
+  }
+  .result-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--n500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--s-2);
+  }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1.1;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-cost {
+    margin-top: var(--s-2);
+    padding-top: var(--s-3);
+    border-top: 1px solid var(--n200);
+    font-size: 14px;
+    color: var(--n700);
+  }
+  .result-cost strong { color: var(--accent-dark); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('cf-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  // Convert any input unit to feet
+  function toFeet(value, unit) {
+    switch (unit) {
+      case 'ft': return value;
+      case 'in': return value / 12;
+      case 'yd': return value * 3;
+      case 'm':  return value * 3.28084;
+      case 'cm': return value * 0.0328084;
+      default:   return value;
+    }
+  }
+
+  function calculate() {
+    const shape = root.querySelector('.shape-btn.active').dataset.shape;
+    const unit = root.querySelector('.unit-toggle button.active').dataset.units;
+    const qty = parseInt($('#cf-quantity').value) || 1;
+    const price = parseFloat($('#cf-price').value) || 0;
+
+    let cubicFeet = 0;
+    if (shape === 'rectangle') {
+      const l = toFeet(parseFloat($('#cf-length').value) || 0, unit);
+      const w = toFeet(parseFloat($('#cf-width').value) || 0, unit);
+      const h = toFeet(parseFloat($('#cf-height').value) || 0, unit);
+      cubicFeet = l * w * h;
+    } else if (shape === 'cylinder') {
+      const d = toFeet(parseFloat($('#cf-cyl-diameter').value) || 0, unit);
+      const h = toFeet(parseFloat($('#cf-cyl-height').value) || 0, unit);
+      cubicFeet = Math.PI * Math.pow(d / 2, 2) * h;
+    } else if (shape === 'circle') {
+      const d = toFeet(parseFloat($('#cf-circle-diameter').value) || 0, unit);
+      const depth = toFeet(parseFloat($('#cf-circle-depth').value) || 0, unit);
+      cubicFeet = Math.PI * Math.pow(d / 2, 2) * depth;
+    }
+
+    cubicFeet *= qty;
+    const cubicYards = cubicFeet / 27;
+    const cubicMeters = cubicFeet * 0.0283168;
+    const gallons = cubicFeet * 7.4805;
+    const liters = cubicFeet * 28.3168;
+    const cost = cubicFeet * price;
+
+    $('#cf-feet').textContent = cubicFeet.toFixed(2);
+    $('#cf-yards').textContent = cubicYards.toFixed(2);
+    $('#cf-meters').textContent = cubicMeters.toFixed(2);
+    $('#cf-gallons').textContent = Math.round(gallons).toLocaleString();
+    $('#cf-liters').textContent = Math.round(liters).toLocaleString();
+
+    if (price > 0) {
+      $('#cf-cost').textContent = '$' + cost.toFixed(2);
+      $('#cf-cost-row').hidden = false;
+    } else {
+      $('#cf-cost-row').hidden = true;
+    }
+  }
+
+  function updateShape(shape) {
+    root.querySelectorAll('[data-show]').forEach(el => {
+      el.hidden = !el.dataset.show.split(',').includes(shape);
+    });
+  }
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+
+  root.querySelectorAll('.shape-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateShape(btn.dataset.shape);
+      calculate();
+    });
+  });
+
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const unit = btn.dataset.units;
+      root.querySelectorAll('[data-unit="input"]').forEach(el => el.textContent = unit);
+      calculate();
+    });
+  });
+
+  $('#cf-btn-copy').addEventListener('click', () => {
+    const text = `Volume: ${$('#cf-feet').textContent} ft³ (${$('#cf-yards').textContent} yd³, ${$('#cf-meters').textContent} m³).`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#cf-btn-copy');
+      const original = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    });
+  });
+
+  $('#cf-btn-share').addEventListener('click', () => {
+    if (navigator.share) {
+      navigator.share({ title: 'Cubic Feet Calculator', url: location.href });
+    } else {
+      navigator.clipboard?.writeText(location.href);
+    }
+  });
+
+  updateShape('rectangle');
+  calculate();
+})();
+</script>

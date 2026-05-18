@@ -1,0 +1,227 @@
+---
+// Stair Calculator — total rise to step rise/run + stringer length + code check.
+---
+
+<div class="tool" id="stair-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="st-total-rise">Total rise <span class="optional">(floor to floor)</span></label>
+      <div class="field-input">
+        <input id="st-total-rise" type="number" value="108" min="0" step="0.25" inputmode="decimal" />
+        <span class="suffix" data-unit="small">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="st-target-rise">Target rise per step</label>
+      <div class="field-input">
+        <input id="st-target-rise" type="number" value="7.5" min="4" max="8" step="0.25" inputmode="decimal" />
+        <span class="suffix" data-unit="small">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="st-tread">Tread depth (run)</label>
+      <div class="field-input">
+        <input id="st-tread" type="number" value="10" min="9" step="0.25" inputmode="decimal" />
+        <span class="suffix" data-unit="small">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="st-nosing">Nosing overhang</label>
+      <div class="field-input">
+        <input id="st-nosing" type="number" value="1" min="0" max="1.25" step="0.125" inputmode="decimal" />
+        <span class="suffix" data-unit="small">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="st-headroom">Required headroom <span class="optional">(IRC: 80 in)</span></label>
+      <div class="field-input">
+        <input id="st-headroom" type="number" value="80" min="72" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="small">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="st-width">Stair width</label>
+      <div class="field-input">
+        <input id="st-width" type="number" value="36" min="0" step="1" inputmode="decimal" />
+        <span class="suffix" data-unit="small">in</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">Stair design</div>
+    <div class="result-main">
+      <span class="number" id="st-num-steps">14</span>
+      <span class="unit">steps</span>
+      <span class="aux">at <strong id="st-rise-display">7.71</strong> in rise each</span>
+    </div>
+    <div class="result-secondary">
+      Total run: <strong id="st-total-run">130</strong> in &nbsp;·&nbsp;
+      Stringer length: <strong id="st-stringer">14 ft 7 in</strong> &nbsp;·&nbsp;
+      Angle: <strong id="st-angle">37.6°</strong>
+    </div>
+    <div class="result-cost-row">
+      <span class="check-row" id="st-code-check">
+        <span id="st-code-status">✓ Meets IRC code (rise ≤ 7.75", tread ≥ 10")</span>
+      </span>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="st-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="st-btn-share">↗ Share</button>
+    </div>
+  </div>
+
+  <div class="diagram" aria-hidden="true">
+    <strong>Stair anatomy:</strong>
+    Rise = vertical height of one step ·
+    Run / Tread = horizontal depth of one step ·
+    Total rise = floor-to-floor height ·
+    Stringer = the diagonal board supporting the steps
+  </div>
+</div>
+
+<style>
+  .tool { background: var(--white); border: 1px solid var(--n200); border-radius: var(--r-lg); padding: var(--s-6); margin-bottom: var(--s-4); box-shadow: var(--shadow-xs); }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+  .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px solid var(--n200); flex-wrap: wrap; gap: var(--s-2); }
+  .tool-title { font-size: 15px; font-weight: 700; color: var(--n700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .unit-toggle { display: inline-flex; background: var(--n100); border-radius: var(--r-md); padding: 3px; }
+  .unit-toggle button { border: none; background: transparent; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--n500); cursor: pointer; border-radius: var(--r-sm); }
+  .unit-toggle button.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--n700); margin-bottom: 6px; }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--n200); border-radius: var(--r-md); font-size: 15px; color: var(--n900); background: var(--white); }
+  .field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+  .suffix { position: absolute; right: 12px; color: var(--n500); font-size: 13px; font-weight: 500; pointer-events: none; }
+  .result { background: var(--n50); border: 1px solid var(--n200); border-radius: var(--r-md); padding: var(--s-5); margin-top: var(--s-5); }
+  .result-label { font-size: 12px; font-weight: 700; color: var(--n500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--s-2); }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-main .aux { font-size: 14px; color: var(--n600); font-weight: 500; margin-left: 6px; }
+  .result-main .aux strong { color: var(--n900); font-weight: 700; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-cost-row { margin-top: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--n200); font-size: 14px; }
+  .check-row.ok #st-code-status { color: #15803d; }
+  .check-row.warn #st-code-status { color: #c2410c; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+  .diagram { margin-top: var(--s-4); padding: var(--s-4); background: var(--n50); border: 1px dashed var(--n300); border-radius: var(--r-md); font-size: 13px; color: var(--n600); line-height: 1.6; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('stair-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  function formatFeetInches(inches) {
+    const ft = Math.floor(inches / 12);
+    const inRem = inches - (ft * 12);
+    const inWhole = Math.floor(inRem);
+    const frac = Math.round((inRem - inWhole) * 16) / 16;
+    let inStr = inWhole.toString();
+    if (frac > 0) inStr += ' ' + frac.toString().replace(/^0\./, '').padStart(2, '0') + '/16';
+    return `${ft} ft ${inStr} in`;
+  }
+
+  function calculate() {
+    const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    let totalRise = parseFloat($('#st-total-rise').value) || 0;
+    let targetRise = parseFloat($('#st-target-rise').value) || 7.5;
+    let tread = parseFloat($('#st-tread').value) || 10;
+    let nosing = parseFloat($('#st-nosing').value) || 0;
+    let width = parseFloat($('#st-width').value) || 36;
+
+    // If metric (cm), normalize to inches for code-check display
+    if (units === 'metric') {
+      totalRise = totalRise / 2.54;
+      targetRise = targetRise / 2.54;
+      tread = tread / 2.54;
+      nosing = nosing / 2.54;
+    }
+
+    if (totalRise <= 0 || targetRise <= 0) return;
+
+    // Number of risers — round to nearest whole that gives rise close to target
+    const numRisers = Math.max(1, Math.round(totalRise / targetRise));
+    const actualRise = totalRise / numRisers;
+    const numTreads = numRisers - 1; // top is the landing
+    const totalRun = numTreads * tread;
+    const stringerLength = Math.sqrt(totalRise * totalRise + totalRun * totalRun);
+    const angle = Math.atan2(totalRise, totalRun) * 180 / Math.PI;
+
+    $('#st-num-steps').textContent = numRisers.toString();
+    $('#st-rise-display').textContent = actualRise.toFixed(2);
+    $('#st-total-run').textContent = totalRun.toFixed(1);
+    $('#st-stringer').textContent = formatFeetInches(stringerLength);
+    $('#st-angle').textContent = angle.toFixed(1) + '°';
+
+    // IRC code check: rise ≤ 7.75", tread ≥ 10", rise + run = 17-18" (rule of thumb)
+    const riseOk = actualRise <= 7.75 && actualRise >= 4;
+    const treadOk = tread >= 10;
+    const widthOk = width >= 36;
+    const rule = actualRise + tread;
+    const rulesOk = rule >= 17 && rule <= 18;
+    const codeRow = $('#st-code-check');
+    const codeStatus = $('#st-code-status');
+
+    if (riseOk && treadOk && widthOk) {
+      codeRow.className = 'check-row ok';
+      codeStatus.textContent = `✓ Meets IRC code (rise ${actualRise.toFixed(2)}", tread ${tread}", width ${width}")`;
+    } else {
+      codeRow.className = 'check-row warn';
+      const issues = [];
+      if (!riseOk) issues.push(`rise ${actualRise.toFixed(2)}" (max 7.75")`);
+      if (!treadOk) issues.push(`tread ${tread}" (min 10")`);
+      if (!widthOk) issues.push(`width ${width}" (min 36")`);
+      codeStatus.textContent = `⚠ Check IRC code: ${issues.join(', ')}`;
+    }
+  }
+
+  root.querySelectorAll('input').forEach(el => el.addEventListener('input', calculate));
+
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="small"]').forEach(el => el.textContent = metric ? 'cm' : 'in');
+      calculate();
+    });
+  });
+
+  $('#st-btn-copy').addEventListener('click', () => {
+    const text = `Stair design: ${$('#st-num-steps').textContent} steps × ${$('#st-rise-display').textContent} in rise. Total run: ${$('#st-total-run').textContent} in. Stringer: ${$('#st-stringer').textContent}. Angle: ${$('#st-angle').textContent}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#st-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+
+  $('#st-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Stair Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+
+  calculate();
+})();
+</script>

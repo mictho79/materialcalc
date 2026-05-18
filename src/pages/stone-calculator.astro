@@ -1,0 +1,319 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import StoneCalculator from '@components/StoneCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { stoneFAQ } from '@data/faqs/stone';
+import { getRelatedCalculators } from '@data/calculators';
+
+const title = "Stone Calculator — Crushed, Decorative & Landscape Stone";
+const description = "Free stone calculator for landscape and construction projects. Estimate volume, weight and cost for crushed stone, river rock, limestone, marble chips and decorative stones.";
+
+const related = getRelatedCalculators('stone-calculator', 4).map(c => ({
+  title: c.shortTitle + ' Calculator',
+  href: `/${c.slug}/`,
+  desc: c.description
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Stone Calculator",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any (web-based)",
+    "description": description,
+    "url": "https://materialcalc.com/stone-calculator/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to calculate how much stone you need",
+    "step": [
+      { "@type": "HowToStep", "name": "Measure the area",       "text": "Length × width in feet for rectangles, π × r² for circles." },
+      { "@type": "HowToStep", "name": "Choose your depth",      "text": "2-3 inches for decorative beds, 3-4 inches for paths, 6 inches total for driveways." },
+      { "@type": "HowToStep", "name": "Pick your stone type",   "text": "Density varies: crushed stone 1.42, river rock 1.60, limestone 1.45 tons per cubic yard." },
+      { "@type": "HowToStep", "name": "Calculate quantity",     "text": "Volume × density = tons. Add 5-10% for waste and compaction." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'Aggregates & Stone', href: '/calculators/#aggregates' },
+      { label: 'Stone Calculator' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Stone Calculator</h1>
+      <p class="intro">
+        Estimate the exact amount of stone you need for landscaping, drainage, walkways, driveways
+        or decorative projects — by volume, weight and cost. Supports crushed stone, river rock,
+        limestone, marble chips, lava rock and more.
+      </p>
+    </header>
+
+    <StoneCalculator />
+
+    <article class="content">
+      <h2>How to Calculate Stone Quantity</h2>
+      <p>
+        Stone quantity calculation follows the same fundamental math as gravel or any bulk material:
+        you measure area, choose a depth, and convert to volume. The complication with stone is
+        density — there's a huge range across stone types, from feather-light lava rock (0.55 t/yd³)
+        to dense river rock (1.60 t/yd³). Picking the right density for your specific stone matters.
+      </p>
+
+      <div class="formula">
+        Volume (cubic yards) = (Area in sq ft × Depth in inches) ÷ 324<br>
+        Weight (tons) = Volume × Stone density factor<br>
+        Cost = Weight × Price per ton
+      </div>
+
+      <h3>Worked example</h3>
+      <p>
+        Say you're filling a 200 sq ft decorative landscape bed with river rock at 3 inches deep:
+      </p>
+      <ul>
+        <li><strong>Volume:</strong> (200 × 3) ÷ 324 = <strong>1.85 cubic yards</strong></li>
+        <li><strong>Weight (river rock at 1.60 t/yd³):</strong> 1.85 × 1.60 = <strong>2.96 tons</strong></li>
+        <li><strong>Cost (at $90/ton):</strong> 2.96 × $90 = <strong>$266</strong></li>
+        <li><strong>With 5% waste:</strong> Order <strong>3.1 tons</strong> (~$280)</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">Density matters — don't guess</div>
+        Using the wrong stone density can throw your order off by 20–60%. Light decorative stones
+        (1.30 t/yd³) versus heavy river rock (1.60 t/yd³) is a 23% difference. Lava rock is 60%
+        lighter than river rock by volume. Always pick the specific stone type from the dropdown.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="stone-mid-1" />
+
+      <h2>Types of Stone for Landscaping</h2>
+      <p>
+        Picking the right stone matters as much as calculating the right amount. Each type has
+        ideal applications and tradeoffs in cost, weight and appearance.
+      </p>
+
+      <h3>Crushed stone</h3>
+      <p>
+        Angular pieces produced by mechanical crushing. The most versatile and least expensive
+        stone for utility purposes. The ASTM number describes the size: #57 (1/2 to 1 inch) is
+        the most common for drainage and base courses; #411 is a dense graded mix with fines
+        that compacts hard, ideal for driveway tops. Density: 1.42 t/yd³. Cost: $30–55/ton.
+      </p>
+
+      <h3>River rock</h3>
+      <p>
+        Naturally smooth, rounded stones formed by water tumbling. Sold in size grades: small
+        (1–2 inch), medium (2–4 inch), large (3–5 inch), and boulder (5+ inch). Decorative use
+        in landscape beds, dry creek beds, water features and around downspouts. Doesn't compact
+        — stays loose. Density: 1.55–1.60 t/yd³. Cost: $60–130/ton.
+      </p>
+
+      <h3>Limestone</h3>
+      <p>
+        Crushed sedimentary stone with high calcium content. Slightly cheaper than granite-based
+        crushed stone in regions where limestone is locally quarried. Compacts tightly and develops
+        a hard surface over time. Good driveway material in dry climates; can leach calcium and
+        raise soil pH in beds. Density: 1.45 t/yd³. Cost: $35–55/ton.
+      </p>
+
+      <h3>Marble chips</h3>
+      <p>
+        Crushed white or colored marble, typically 3/8 to 3/4 inch. Premium decorative use for
+        formal beds, around statues, and high-end landscaping. Reflects light brightly — adds
+        visual impact. Can yellow slightly over years from acid rain. Density: 1.50 t/yd³.
+        Cost: $80–150/ton.
+      </p>
+
+      <h3>Lava rock</h3>
+      <p>
+        Volcanic stone — porous, lightweight, usually red or black. Excellent for fire pits
+        (heat-resistant), green roofs (lightweight), and decorative beds. Density just 0.55 t/yd³
+        — about 60% lighter than river rock by volume. Cost: $90–180/ton.
+      </p>
+
+      <h3>Flagstone</h3>
+      <p>
+        Large flat stones used for patios, walkways and stepping stones rather than as fill material.
+        Sold by ton (for irregular pieces) or by the pallet (for cut squares). Calculate by area
+        coverage rather than volume: 1 ton typically covers 80–120 sq ft as a single-layer surface.
+      </p>
+
+      <h2>How Much Stone Do You Need by Project Type</h2>
+      <p>
+        Different projects use stone differently. Here are real-world quantities for the most
+        common applications.
+      </p>
+
+      <h3>Decorative landscape beds</h3>
+      <p>
+        Cover with 2–3 inches of stone over landscape fabric. A 300 sq ft bed at 2.5 inches deep
+        of river rock needs <strong>2.3 cubic yards (3.7 tons)</strong>. Going deeper than 3
+        inches looks artificial in most residential settings and wastes material.
+      </p>
+
+      <h3>Around the house foundation (drainage strip)</h3>
+      <p>
+        A 2-foot wide strip of #57 crushed stone around a typical 1,500 sq ft house perimeter
+        (~160 linear feet) at 3 inches deep: <strong>1.5 cubic yards (2.1 tons)</strong>. Add
+        landscape fabric beneath to prevent settling into soil.
+      </p>
+
+      <h3>Stone walkways</h3>
+      <p>
+        A 3 ft wide × 30 ft path with 3 inches of crushed stone over a 2-inch base: total 5 inches
+        of stone. Quantity: <strong>1.4 cubic yards (2.0 tons)</strong>. Steel or stone edging
+        keeps stone in place — without it, expect significant migration into adjacent lawn.
+      </p>
+
+      <h3>Driveways</h3>
+      <p>
+        For a 20 × 10 ft residential driveway at 6 inches total depth (4-inch base of #411
+        + 2-inch top of #57): <strong>3.7 cubic yards (5.3 tons)</strong>. Use a plate compactor
+        on the base layer. Edge restraint dramatically extends driveway lifespan.
+      </p>
+
+      <h3>Fire pit areas</h3>
+      <p>
+        A 6-foot diameter circular fire pit base at 4 inches of stone needs
+        <strong>0.35 cubic yards (0.5 tons)</strong>. Use lava rock or pea gravel — never use
+        limestone, river rock or sandstone in fire pits as they can crack or even pop when heated.
+      </p>
+
+      <h3>Dry creek beds</h3>
+      <p>
+        A 3 ft wide × 25 ft long dry creek with mixed stones (large boulders, medium river rock,
+        smaller stones) typically uses a layered approach. Plan on roughly <strong>1.5 cubic yards
+        of mixed stones (2.4 tons)</strong> — about 60% medium-large river rock, 30% smaller fill
+        stones, 10% accent boulders.
+      </p>
+
+      <h2>Stone Coverage Reference Table</h2>
+      <p>How many square feet one ton of typical landscape stone covers at common depths:</p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Stone type</th>
+              <th>1" depth</th>
+              <th>2" depth</th>
+              <th>3" depth</th>
+              <th>4" depth</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Crushed stone (1.42 t/yd³)</td><td>228 sq ft</td><td>114 sq ft</td><td>76 sq ft</td><td>57 sq ft</td></tr>
+            <tr><td>Landscape stone (1.30 t/yd³)</td><td>250 sq ft</td><td>125 sq ft</td><td>83 sq ft</td><td>62 sq ft</td></tr>
+            <tr><td>River rock (1.60 t/yd³)</td><td>203 sq ft</td><td>101 sq ft</td><td>68 sq ft</td><td>51 sq ft</td></tr>
+            <tr><td>Limestone (1.45 t/yd³)</td><td>224 sq ft</td><td>112 sq ft</td><td>75 sq ft</td><td>56 sq ft</td></tr>
+            <tr><td>Marble chips (1.50 t/yd³)</td><td>216 sq ft</td><td>108 sq ft</td><td>72 sq ft</td><td>54 sq ft</td></tr>
+            <tr><td>Lava rock (0.55 t/yd³)</td><td>590 sq ft</td><td>295 sq ft</td><td>197 sq ft</td><td>148 sq ft</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Stone Cost: What to Budget</h2>
+      <p>
+        Stone pricing varies dramatically by type, quality, and distance from quarry. National
+        averages in the United States in 2026:
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Per ton (bulk)</th>
+              <th>Per yard</th>
+              <th>Per 50 lb bag</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Crushed stone</td><td>$30–55</td><td>$40–75</td><td>$4–6</td></tr>
+            <tr><td>Limestone</td><td>$35–55</td><td>$50–75</td><td>$4–6</td></tr>
+            <tr><td>Pea gravel / small landscape</td><td>$45–90</td><td>$60–120</td><td>$5–8</td></tr>
+            <tr><td>River rock (small)</td><td>$60–110</td><td>$80–160</td><td>$6–10</td></tr>
+            <tr><td>River rock (large/boulders)</td><td>$80–180</td><td>$100–250</td><td>—</td></tr>
+            <tr><td>Marble chips</td><td>$80–150</td><td>$120–225</td><td>$8–12</td></tr>
+            <tr><td>Lava rock</td><td>$90–180</td><td>$50–100</td><td>$6–10</td></tr>
+            <tr><td>Mexican beach pebbles</td><td>$200–400</td><td>$300–600</td><td>$15–25</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Delivery typically adds $50–200, with a 1-ton or 1-yard minimum. Many decorative stones
+        are only available bagged, especially exotic types like beach pebbles or polished river
+        rock — and bagged is 3–5× more expensive per ton than bulk.
+      </p>
+
+      <AdSlot label="AdSense in-content #2" slotId="stone-mid-2" />
+
+      <h2>Installing Landscape Stone: Best Practices</h2>
+      <p>
+        Whether for decorative beds or functional drainage, the install process matters more than
+        the stone choice for long-term results.
+      </p>
+      <ol>
+        <li><strong>Excavate properly.</strong> Remove all sod and topsoil to a depth of stone thickness plus 1–2 inches for base fabric and grading. Stone laid directly on grass disappears within a year.</li>
+        <li><strong>Grade for drainage.</strong> The surface should slope away from buildings at 1–2% minimum. Standing water causes stone to migrate, weeds to thrive, and beds to look dirty.</li>
+        <li><strong>Install landscape fabric.</strong> Non-woven geotextile fabric (not plastic sheeting). Overlap seams 6 inches and pin every 2 feet with fabric staples.</li>
+        <li><strong>Add edge restraint.</strong> Steel, stone, or composite edging. Without it, stone wanders into lawn within a season. Plastic edging is cheap but fails within 3–5 years.</li>
+        <li><strong>Lay stone in layers.</strong> For thick applications (over 3"), spread in 2-inch lifts and rake level. Helps achieve consistent depth.</li>
+        <li><strong>Don't compact decorative stone.</strong> River rock, marble chips and lava rock should stay loose. Only compact crushed stone driveway bases.</li>
+      </ol>
+
+      <h2>Maintenance and Refresh</h2>
+      <p>
+        Landscape stone is one of the lowest-maintenance hardscaping options, but it does need
+        attention:
+      </p>
+      <ul>
+        <li><strong>Annual top-up:</strong> Add about 1/2 inch of fresh stone every 1–2 years to maintain appearance. For a 200 sq ft bed, that's about 0.3 cubic yards / 0.4 tons.</li>
+        <li><strong>Rake annually:</strong> Once per spring, rake to redistribute stones and refresh the look. Pull out any debris (leaves, twigs) that has accumulated.</li>
+        <li><strong>Weed control:</strong> With landscape fabric installed properly, weeds should be minimal. Spot-treat with horticultural vinegar or pull by hand (carefully, to avoid disturbing fabric).</li>
+        <li><strong>Edging maintenance:</strong> Check edging annually. Reset or replace sections that have shifted or sunk. This is where most stone migration starts.</li>
+      </ul>
+
+      <h2>Common Mistakes to Avoid</h2>
+      <ul>
+        <li><strong>Skipping landscape fabric:</strong> Without fabric, stone sinks into soil over 2–5 years. You'll wonder where it went.</li>
+        <li><strong>Wrong depth:</strong> Too shallow (under 2") looks sparse and exposes fabric; too deep (over 4") is wasteful and looks artificial.</li>
+        <li><strong>Mismatched stone type:</strong> Pea gravel as a driveway top, river rock in a fire pit, marble chips around acid-loving plants — all common errors.</li>
+        <li><strong>Forgetting edge restraint:</strong> Stone migrates outward from any unconfined edge. Edging adds 10% to project cost but doubles longevity.</li>
+        <li><strong>Buying bagged for large projects:</strong> Anything over 0.5 cubic yards is cheaper delivered bulk. Bags are convenient but expensive.</li>
+      </ul>
+    </article>
+
+    <FAQ items={stoneFAQ} />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} />
+
+    <EmbedCTA calculator="stone" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>

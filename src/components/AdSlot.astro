@@ -1,0 +1,12 @@
+---
+export interface Props {
+  label?: string;
+  slotId?: string;
+}
+const { slotId } = Astro.props;
+---
+
+<div class="ad-slot" data-slot={slotId} aria-hidden="true">
+  <!-- AdSense slot will be injected here when monetization is enabled -->
+  Advertisement
+</div>

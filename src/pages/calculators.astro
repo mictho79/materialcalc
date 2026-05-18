@@ -1,0 +1,131 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import { CLUSTERS, getCalculatorsByCluster, getLiveCalculators } from '@data/calculators';
+
+const liveCount = getLiveCalculators().length;
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "All Material Calculators",
+  "description": "Complete list of free material and construction calculators."
+};
+---
+
+<BaseLayout
+  title={`All ${liveCount} Calculators — Free Material Estimators | MaterialCalc`}
+  description={`Browse all ${liveCount} free material calculators: gravel, mulch, concrete, lumber, paint, and more.`}
+  schema={schema}
+>
+  <div class="container">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'All Calculators' }
+    ]} />
+
+    <header class="hub-header">
+      <h1>All Calculators</h1>
+      <p class="intro">
+        Every calculator on MaterialCalc, organized by category. Free, mobile-friendly,
+        and accurate to within professional supplier tolerances.
+      </p>
+      <div class="hub-meta">
+        <span class="meta-chip">{liveCount} calculators available</span>
+        <span class="meta-chip">No signup</span>
+        <span class="meta-chip">No paywall</span>
+      </div>
+    </header>
+
+    {CLUSTERS.filter(cl => cl.id !== 'cost').map(cluster => {
+      const liveInCluster = getCalculatorsByCluster(cluster.id).filter(c => c.status === 'live');
+      if (liveInCluster.length === 0) return null;
+      return (
+        <section class="cluster" id={cluster.id}>
+          <header class="cluster-head">
+            <h2>{cluster.name}</h2>
+            <p>{cluster.description}</p>
+          </header>
+          <div class="cluster-grid">
+            {liveInCluster.map(c => (
+              <a href={`/${c.slug}/`} class="calc-tile">
+                <div class="tile-title">{c.title}</div>
+                <div class="tile-desc">{c.description}</div>
+              </a>
+            ))}
+          </div>
+        </section>
+      );
+    })}
+  </div>
+</BaseLayout>
+
+<style>
+  .hub-header { padding: var(--s-6) 0 var(--s-8); }
+  .hub-header h1 { font-size: 36px; }
+  .hub-meta {
+    display: flex;
+    gap: var(--s-2);
+    margin-top: var(--s-4);
+    flex-wrap: wrap;
+  }
+  .meta-chip {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--n600);
+    background: var(--n100);
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+
+  .cluster {
+    padding: var(--s-6) 0;
+    border-top: 1px solid var(--n200);
+    scroll-margin-top: 80px;
+  }
+  .cluster-head { margin-bottom: var(--s-4); }
+  .cluster-head h2 {
+    border: none;
+    padding: 0;
+    margin: 0 0 4px;
+    font-size: 22px;
+  }
+  .cluster-head p {
+    color: var(--n500);
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .cluster-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--s-3);
+  }
+
+  .calc-tile {
+    background: var(--white);
+    border: 1px solid var(--n200);
+    border-radius: var(--r-md);
+    padding: var(--s-4);
+    text-decoration: none;
+    transition: all var(--t-fast);
+  }
+  .calc-tile:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    transform: translateY(-2px);
+  }
+
+  .tile-title {
+    font-weight: 700;
+    color: var(--n900);
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .tile-desc {
+    color: var(--n600);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+</style>

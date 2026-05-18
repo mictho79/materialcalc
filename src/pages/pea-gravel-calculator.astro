@@ -1,0 +1,283 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import PeaGravelCalculator from '@components/PeaGravelCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { peaGravelFAQ } from '@data/faqs/pea-gravel';
+import { getRelatedCalculators } from '@data/calculators';
+
+const title = "Pea Gravel Calculator — Tons, Yards & Bag Count";
+const description = "Free pea gravel calculator for patios, paths, fire pits and decorative beds. Estimate cubic yards, weight in tons, bags needed, and total cost.";
+
+const related = getRelatedCalculators('pea-gravel-calculator', 4).map(c => ({
+  title: c.shortTitle + ' Calculator',
+  href: `/${c.slug}/`,
+  desc: c.description
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Pea Gravel Calculator",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any (web-based)",
+    "description": description,
+    "url": "https://materialcalc.com/pea-gravel-calculator/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to calculate pea gravel quantity",
+    "step": [
+      { "@type": "HowToStep", "name": "Measure area", "text": "Length × width in feet for rectangles; π × radius² for round areas." },
+      { "@type": "HowToStep", "name": "Pick depth", "text": "2-3 inches for decorative beds, 3-4 inches for patios with edging." },
+      { "@type": "HowToStep", "name": "Calculate volume", "text": "Area × depth in inches ÷ 324 = cubic yards needed." },
+      { "@type": "HowToStep", "name": "Convert to weight", "text": "Multiply cubic yards by 1.50 (pea gravel density) for tons." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'Aggregates & Stone', href: '/calculators/#aggregates' },
+      { label: 'Pea Gravel Calculator' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Pea Gravel Calculator</h1>
+      <p class="intro">
+        Calculate the exact amount of pea gravel needed for your patio, walkway, fire pit, or
+        decorative bed — in cubic yards, tons, bags, and total cost. Supports multiple sizes
+        (1/4", 3/8", 1/2") and density variations.
+      </p>
+    </header>
+
+    <PeaGravelCalculator />
+
+    <article class="content">
+      <h2>How to Calculate Pea Gravel Quantity</h2>
+      <p>
+        Pea gravel is one of the most popular decorative landscape materials in the US — easy to
+        install, comfortable to walk on, and inexpensive compared to pavers or concrete. Estimating
+        the right amount uses the same volume math as any bulk material, with one key difference:
+        pea gravel is denser than standard gravel because the small uniform stones pack tightly.
+      </p>
+
+      <div class="formula">
+        Cubic yards = (Length × Width × Depth in inches) ÷ 324<br>
+        Weight (tons) = Cubic yards × 1.50<br>
+        Bags (50 lb) = Weight in tons × 40
+      </div>
+
+      <p>
+        The density factor of 1.50 tons per cubic yard reflects standard 3/8 inch pea gravel.
+        Smaller 1/4 inch pea gravel runs slightly lighter (1.45 t/yd³); larger 1/2 inch is denser
+        still (1.55 t/yd³). The calculator lets you pick the specific size.
+      </p>
+
+      <h3>Worked example</h3>
+      <p>
+        Say you're building a 15 ft × 8 ft pea gravel patio at 3 inches deep:
+      </p>
+      <ul>
+        <li><strong>Volume:</strong> (15 × 8 × 3) ÷ 324 = <strong>1.11 cubic yards</strong></li>
+        <li><strong>Weight (3/8" pea gravel at 1.50 t/yd³):</strong> 1.11 × 1.50 = <strong>1.67 tons</strong></li>
+        <li><strong>Cost (at $60/ton):</strong> 1.67 × $60 = <strong>$100</strong></li>
+        <li><strong>With 5% waste:</strong> Order <strong>1.75 tons</strong> (≈ $105)</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">Pea gravel is heavier per yard than you'd think</div>
+        The small rounded stones pack much more densely than larger angular gravel. A cubic yard of
+        pea gravel weighs about 3,000 lb (1.5 tons), versus 2,700 lb for standard crushed gravel.
+        Plan delivery weight limits accordingly — a tandem-axle truck holds roughly 8 tons of pea
+        gravel before hitting weight caps.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="pg-mid-1" />
+
+      <h2>Best Uses for Pea Gravel</h2>
+      <p>
+        Pea gravel works beautifully for some applications and terribly for others. Knowing the
+        difference saves money and frustration.
+      </p>
+
+      <h3>✓ Patios and seating areas</h3>
+      <p>
+        Comfortable underfoot, easy to install, and looks great with outdoor furniture. Excavate
+        4-6 inches, install fabric, compacted crushed stone base, then 2-3 inches of pea gravel.
+        With proper edging, a pea gravel patio lasts 15-20 years with annual refresh.
+      </p>
+
+      <h3>✓ Walkways and garden paths</h3>
+      <p>
+        2-3 inches of pea gravel over fabric creates an attractive, drainable path. Steel or
+        natural stone edging keeps the gravel contained. Standard depth is enough for foot
+        traffic but not for wheeled cart use (rakes ruts).
+      </p>
+
+      <h3>✓ Decorative landscape beds</h3>
+      <p>
+        Around trees, between stepping stones, in rock gardens, and replacing mulch in low-water
+        landscaping. Use 2-3 inches over fabric. Doesn't decompose like mulch, so it's lower
+        maintenance long-term.
+      </p>
+
+      <h3>✓ Fire pit aprons and bases</h3>
+      <p>
+        Heat-resistant (won't crack or pop like limestone) and provides a non-flammable surrounding
+        surface. Use 4 inches deep around fire pits. Pea gravel itself is fine inside fire pits;
+        many designs alternate lava rock (inside) and pea gravel (apron) for visual contrast.
+      </p>
+
+      <h3>✓ Drainage applications</h3>
+      <p>
+        Pea gravel works for shallow surface drainage (around downspouts, dry creek beds for
+        runoff). For deeper French drains or foundation drainage, use angular #57 crushed stone
+        instead — it provides more void space and doesn't pack as tight.
+      </p>
+
+      <h3>✗ Driveways (avoid)</h3>
+      <p>
+        Smooth round stones shift under vehicle weight. You'll spend every weekend raking material
+        back into place, and the gravel migrates into your lawn and street. Use angular crushed
+        stone for driveways. Pea gravel as a TOP layer over compacted crushed stone can work for
+        very low-traffic driveways but isn't recommended.
+      </p>
+
+      <h3>✗ Playgrounds (better alternatives)</h3>
+      <p>
+        Pea gravel was historically used for playground surfaces, but most modern playground
+        standards (ASTM F1292) require certified engineered wood fiber or rubber mulch for fall
+        attenuation. Pea gravel doesn't compress enough to absorb falls from elevated equipment.
+      </p>
+
+      <h2>Pea Gravel Sizes and What They Mean</h2>
+      <p>
+        "Pea gravel" technically refers to gravel sized 1/8" to 3/8" — about the size of a pea, hence
+        the name. In practice, suppliers sell several gradations:
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Size</th>
+              <th>Density</th>
+              <th>Best for</th>
+              <th>Cost ($/ton)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1/4 inch (small)</td><td>1.45 t/yd³</td><td>Walkways, fine decorative beds</td><td>$50–80</td></tr>
+            <tr><td>3/8 inch (standard)</td><td>1.50 t/yd³</td><td>Patios, paths, all-purpose</td><td>$45–75</td></tr>
+            <tr><td>1/2 inch (large)</td><td>1.55 t/yd³</td><td>Drainage, French drains, structural</td><td>$45–70</td></tr>
+            <tr><td>Mixed (decorative)</td><td>1.50 t/yd³</td><td>Visual interest, contemporary landscapes</td><td>$60–120</td></tr>
+            <tr><td>River-washed (premium)</td><td>1.50 t/yd³</td><td>High-end decorative work</td><td>$80–150</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Coverage Reference Table</h2>
+      <p>How many square feet 1 cubic yard or 1 ton of pea gravel covers at common depths:</p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Depth</th>
+              <th>Per cubic yard</th>
+              <th>Per ton</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 inch</td><td>324 sq ft</td><td>216 sq ft</td></tr>
+            <tr><td>2 inches</td><td>162 sq ft</td><td>108 sq ft</td></tr>
+            <tr><td>3 inches</td><td>108 sq ft</td><td>72 sq ft</td></tr>
+            <tr><td>4 inches</td><td>81 sq ft</td><td>54 sq ft</td></tr>
+            <tr><td>6 inches</td><td>54 sq ft</td><td>36 sq ft</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>How to Install a Pea Gravel Surface</h2>
+      <p>
+        The difference between a pea gravel patio that lasts 15 years and one that looks bad in 6
+        months is the installation. Cut no corners on these steps:
+      </p>
+      <ol>
+        <li><strong>Plan and mark.</strong> Use stakes and string to outline the area. Verify it's sloped 1-2% away from buildings (1/4 inch per foot minimum) for drainage.</li>
+        <li><strong>Excavate 6 inches deep.</strong> Remove sod, topsoil and any soft material. Stockpile soil for use elsewhere (don't haul it away — you'll want it eventually).</li>
+        <li><strong>Install landscape fabric.</strong> Non-woven geotextile (not woven plastic). Overlap seams 6 inches and pin every 2 feet with fabric staples.</li>
+        <li><strong>Install rigid edging.</strong> Steel, natural stone, or composite. Plastic edging will fail in 3-5 years. The edging should extend 4-6 inches into soil and stand 1-2 inches above the gravel surface.</li>
+        <li><strong>Add 3 inches of crushed stone base.</strong> Use #57 or smaller. Compact with a plate compactor in 1.5-inch lifts. This base prevents pea gravel from sinking into soft soil.</li>
+        <li><strong>Add 2-3 inches of pea gravel.</strong> Spread with a metal rake. Level it but don't compact — pea gravel should stay loose so it cushions footsteps.</li>
+        <li><strong>Light water spray.</strong> Helps settle the stones and reveals any low spots for touch-up.</li>
+      </ol>
+
+      <h3>Total cost for a 200 sq ft pea gravel patio (DIY)</h3>
+      <ul>
+        <li>Landscape fabric (300 sq ft roll): $30-50</li>
+        <li>Steel edging (60 linear ft): $80-120</li>
+        <li>Crushed stone base (2 yd³ at $40/yd³): $80</li>
+        <li>Pea gravel (1.5 yd³ at $60/yd³): $90</li>
+        <li>Delivery for stone and gravel: $100-150</li>
+        <li>Plate compactor rental (1 day): $40-60</li>
+        <li><strong>Total: $420-550</strong> (vs $2,000-3,500 for the same in pavers professionally installed)</li>
+      </ul>
+
+      <AdSlot label="AdSense in-content #2" slotId="pg-mid-2" />
+
+      <h2>Pea Gravel Maintenance</h2>
+      <p>
+        Properly installed pea gravel is one of the lowest-maintenance landscape surfaces. Annual
+        tasks:
+      </p>
+      <ul>
+        <li><strong>Spring rake-out:</strong> Once per year, rake the surface to redistribute stones and remove debris (leaves, twigs). Takes 30 minutes per 200 sq ft.</li>
+        <li><strong>Top-up every 2-3 years:</strong> Add 1/2 inch of fresh stone. For 200 sq ft, that's about 0.3 yd³ / 0.4 tons / $25-30 of material.</li>
+        <li><strong>Weed spot-treatment:</strong> Any weeds that pop through fabric should be sprayed with vinegar or selective herbicide promptly — pulling them disturbs the fabric.</li>
+        <li><strong>Edge check:</strong> Inspect edging annually. Reset or replace sections that have shifted or sunk.</li>
+        <li><strong>Cleanup after big storms:</strong> Heavy rain can wash stones out of low areas. Rake them back from the edges within a week.</li>
+      </ul>
+
+      <h2>Common Pea Gravel Mistakes</h2>
+      <ul>
+        <li><strong>No edging:</strong> Pea gravel migrates 6+ inches per year without rigid edging. By year 3, your patio looks like a vague suggestion of a patio.</li>
+        <li><strong>Skipping landscape fabric:</strong> Stones sink into soil over 3-5 years. You'll order a fresh ton wondering where the original went.</li>
+        <li><strong>Too deep:</strong> More than 4 inches feels unstable underfoot and is wasteful. Stick to 2-3 inches.</li>
+        <li><strong>Using on driveways:</strong> Stones shift under tires. Period. Don't do it.</li>
+        <li><strong>Skimping on base:</strong> Pea gravel directly on soft soil sinks unevenly and looks terrible. Always include compacted crushed stone base.</li>
+        <li><strong>Buying bagged for large projects:</strong> 1 cubic yard in bags costs $150-200 versus $60-80 bulk. Bulk pays off above 0.3 cubic yards.</li>
+      </ul>
+    </article>
+
+    <FAQ items={peaGravelFAQ} />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} />
+
+    <EmbedCTA calculator="pea-gravel" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>

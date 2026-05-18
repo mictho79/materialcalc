@@ -1,0 +1,206 @@
+---
+// Pea Gravel Calculator — clone of Gravel with pea-gravel-specific density default.
+---
+
+<div class="tool" id="pg-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="shape-row" role="tablist" aria-label="Shape">
+    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Rectangle</button>
+    <button type="button" class="shape-btn" data-shape="circle">● Circle</button>
+    <button type="button" class="shape-btn" data-shape="triangle">▲ Triangle</button>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="pg-length"><span data-shape-text="length">Length</span></label>
+      <div class="field-input">
+        <input id="pg-length" type="number" value="15" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show-when="rectangle,triangle">
+      <label for="pg-width">Width</label>
+      <div class="field-input">
+        <input id="pg-width" type="number" value="8" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="pg-depth">Depth</label>
+      <div class="field-input">
+        <input id="pg-depth" type="number" value="2" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="pg-size">Pea gravel size</label>
+      <div class="field-input">
+        <select id="pg-size">
+          <option value="1.50">Standard (3/8") — 1.50 t/yd³</option>
+          <option value="1.45">Small (1/4") — 1.45 t/yd³</option>
+          <option value="1.55">Large (1/2") — 1.55 t/yd³</option>
+          <option value="1.50">Decorative (mixed) — 1.50 t/yd³</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="pg-price">Price per ton <span class="optional">(optional)</span></label>
+      <div class="field-input">
+        <input id="pg-price" type="number" value="60" min="0" step="1" inputmode="decimal" />
+        <span class="suffix">$/ton</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="pg-waste">Waste factor</label>
+      <div class="field-input">
+        <select id="pg-waste">
+          <option value="0">None</option>
+          <option value="0.05" selected>5% (recommended)</option>
+          <option value="0.10">10% (irregular shapes)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">You need</div>
+    <div class="result-main">
+      <span class="number" id="pg-yards">0.78</span>
+      <span class="unit">cubic yards</span>
+    </div>
+    <div class="result-secondary">
+      ≈ <strong id="pg-tons">1.17</strong> tons &nbsp;·&nbsp;
+      ≈ <strong id="pg-bags">42</strong> bags (50 lb) &nbsp;·&nbsp;
+      <strong id="pg-cost">$70</strong> total cost
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="pg-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="pg-btn-share">↗ Share</button>
+      
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool { background: var(--white); border: 1px solid var(--n200); border-radius: var(--r-lg); padding: var(--s-6); margin-bottom: var(--s-4); box-shadow: var(--shadow-xs); }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+  .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px solid var(--n200); flex-wrap: wrap; gap: var(--s-2); }
+  .tool-title { font-size: 15px; font-weight: 700; color: var(--n700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .unit-toggle { display: inline-flex; background: var(--n100); border-radius: var(--r-md); padding: 3px; }
+  .unit-toggle button { border: none; background: transparent; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--n500); cursor: pointer; border-radius: var(--r-sm); }
+  .unit-toggle button.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .shape-row { display: flex; gap: var(--s-2); margin-bottom: var(--s-5); }
+  .shape-btn { flex: 1; padding: 10px; border: 1.5px solid var(--n200); background: var(--white); border-radius: var(--r-md); font-size: 13px; font-weight: 600; color: var(--n700); cursor: pointer; transition: all var(--t-fast); }
+  .shape-btn:hover { border-color: var(--primary); }
+  .shape-btn.active { border-color: var(--primary); background: var(--primary); color: var(--white); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  [data-show-when][hidden] { display: none; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--n700); margin-bottom: 6px; }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--n200); border-radius: var(--r-md); font-size: 15px; color: var(--n900); background: var(--white); }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+  .suffix { position: absolute; right: 12px; color: var(--n500); font-size: 13px; font-weight: 500; pointer-events: none; }
+  .result { background: var(--n50); border: 1px solid var(--n200); border-radius: var(--r-md); padding: var(--s-5); margin-top: var(--s-5); }
+  .result-label { font-size: 12px; font-weight: 700; color: var(--n500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--s-2); }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('pg-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+  const widthField = $('#pg-width').closest('.field');
+  const lengthLabel = root.querySelector('[data-shape-text="length"]');
+
+  function calculate() {
+    const shape = root.querySelector('.shape-btn.active').dataset.shape;
+    const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    const l = parseFloat($('#pg-length').value) || 0;
+    const w = parseFloat($('#pg-width').value) || 0;
+    const d = parseFloat($('#pg-depth').value) || 0;
+    const density = parseFloat($('#pg-size').value) || 1.50;
+    const price = parseFloat($('#pg-price').value) || 0;
+    const waste = parseFloat($('#pg-waste').value) || 0;
+
+    let area = 0;
+    if (shape === 'rectangle')   area = l * w;
+    else if (shape === 'circle') area = Math.PI * Math.pow(l / 2, 2);
+    else                          area = 0.5 * l * w;
+
+    let cubicYards;
+    if (units === 'imperial') cubicYards = (area * (d / 12)) / 27;
+    else cubicYards = (area * (d / 100)) * 1.30795;
+
+    cubicYards *= (1 + waste);
+    const tons = cubicYards * density;
+    const bags = (tons * 2000) / 50;
+    const cost = tons * price;
+
+    $('#pg-yards').textContent = cubicYards.toFixed(2);
+    $('#pg-tons').textContent = tons.toFixed(2);
+    $('#pg-bags').textContent = Math.ceil(bags).toLocaleString();
+    $('#pg-cost').textContent = '$' + Math.round(cost).toLocaleString();
+  }
+
+  function updateShape(shape) {
+    if (shape === 'circle') {
+      widthField.hidden = true;
+      if (lengthLabel) lengthLabel.textContent = 'Diameter';
+    } else {
+      widthField.hidden = false;
+      if (lengthLabel) lengthLabel.textContent = 'Length';
+    }
+  }
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+  root.querySelectorAll('.shape-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateShape(btn.dataset.shape);
+      calculate();
+    });
+  });
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      root.querySelectorAll('[data-unit="depth"]').forEach(el => el.textContent = metric ? 'cm' : 'in');
+      calculate();
+    });
+  });
+  $('#pg-btn-copy').addEventListener('click', () => {
+    const text = `Pea gravel needed: ${$('#pg-yards').textContent} yd³ (${$('#pg-tons').textContent} tons). Estimated cost: ${$('#pg-cost').textContent}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#pg-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+  $('#pg-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Pea Gravel Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+  calculate();
+})();
+</script>

@@ -1,0 +1,240 @@
+---
+// Asphalt Calculator — tons-focused output since asphalt is sold by weight, not volume.
+---
+
+<div class="tool" id="asphalt-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="shape-row" role="tablist" aria-label="Shape">
+    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Rectangle</button>
+    <button type="button" class="shape-btn" data-shape="circle">● Circle</button>
+    <button type="button" class="shape-btn" data-shape="trapezoid">⬢ Trapezoid (driveway widening)</button>
+  </div>
+
+  <div class="form-grid">
+    <div class="field" data-show="rectangle,trapezoid">
+      <label for="as-length">Length</label>
+      <div class="field-input">
+        <input id="as-length" type="number" value="40" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="rectangle">
+      <label for="as-width">Width</label>
+      <div class="field-input">
+        <input id="as-width" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="circle">
+      <label for="as-diameter">Diameter</label>
+      <div class="field-input">
+        <input id="as-diameter" type="number" value="20" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="trapezoid">
+      <label for="as-width-a">Width A (narrow)</label>
+      <div class="field-input">
+        <input id="as-width-a" type="number" value="10" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="trapezoid">
+      <label for="as-width-b">Width B (wide)</label>
+      <div class="field-input">
+        <input id="as-width-b" type="number" value="16" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="as-thickness">Asphalt thickness</label>
+      <div class="field-input">
+        <input id="as-thickness" type="number" value="3" min="0" step="0.25" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="as-type">Asphalt type</label>
+      <div class="field-input">
+        <select id="as-type">
+          <option value="2.03">Hot mix asphalt — 2.03 t/yd³</option>
+          <option value="1.95">Cold mix asphalt — 1.95 t/yd³</option>
+          <option value="2.10">Dense-graded (D mix) — 2.10 t/yd³</option>
+          <option value="2.00">SMA / OGFC — 2.00 t/yd³</option>
+          <option value="1.85">Recycled asphalt (RAP) — 1.85 t/yd³</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="as-price">Price per ton</label>
+      <div class="field-input">
+        <input id="as-price" type="number" value="125" min="0" step="5" inputmode="decimal" />
+        <span class="suffix">$/ton</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="as-waste">Waste / compaction factor</label>
+      <div class="field-input">
+        <select id="as-waste">
+          <option value="0.05">5% (small simple jobs)</option>
+          <option value="0.10" selected>10% (recommended)</option>
+          <option value="0.15">15% (irregular shapes or repairs)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">You need</div>
+    <div class="result-main">
+      <span class="number" id="as-tons">10.97</span>
+      <span class="unit">tons</span>
+    </div>
+    <div class="result-secondary">
+      = <strong id="as-yards">5.41</strong> yd³ &nbsp;·&nbsp;
+      <strong id="as-feet">146</strong> ft³ &nbsp;·&nbsp;
+      area <strong id="as-area">480</strong> sq ft
+    </div>
+    <div class="result-cost-row">
+      Material cost: <strong id="as-cost">$1,371</strong>
+      <span class="note">(excluding installation labor and base prep)</span>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="as-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="as-btn-share">↗ Share</button>
+      
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool { background: var(--white); border: 1px solid var(--n200); border-radius: var(--r-lg); padding: var(--s-6); margin-bottom: var(--s-4); box-shadow: var(--shadow-xs); }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+  .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px solid var(--n200); flex-wrap: wrap; gap: var(--s-2); }
+  .tool-title { font-size: 15px; font-weight: 700; color: var(--n700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .unit-toggle { display: inline-flex; background: var(--n100); border-radius: var(--r-md); padding: 3px; }
+  .unit-toggle button { border: none; background: transparent; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--n500); cursor: pointer; border-radius: var(--r-sm); }
+  .unit-toggle button.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .shape-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2); margin-bottom: var(--s-5); }
+  @media (max-width: 540px) { .shape-row { grid-template-columns: 1fr; } }
+  .shape-btn { padding: 10px; border: 1.5px solid var(--n200); background: var(--white); border-radius: var(--r-md); font-size: 13px; font-weight: 600; color: var(--n700); cursor: pointer; transition: all var(--t-fast); }
+  .shape-btn:hover { border-color: var(--primary); }
+  .shape-btn.active { border-color: var(--primary); background: var(--primary); color: var(--white); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  [data-show][hidden] { display: none; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--n700); margin-bottom: 6px; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--n200); border-radius: var(--r-md); font-size: 15px; color: var(--n900); background: var(--white); }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+  .suffix { position: absolute; right: 12px; color: var(--n500); font-size: 13px; font-weight: 500; pointer-events: none; }
+  .result { background: var(--n50); border: 1px solid var(--n200); border-radius: var(--r-md); padding: var(--s-5); margin-top: var(--s-5); }
+  .result-label { font-size: 12px; font-weight: 700; color: var(--n500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--s-2); }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-cost-row { margin-top: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--n200); font-size: 14px; color: var(--n700); font-variant-numeric: tabular-nums; }
+  .result-cost-row strong { color: var(--n900); font-weight: 700; }
+  .note { color: var(--n500); font-weight: 400; font-size: 12px; margin-left: 4px; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('asphalt-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  function calculate() {
+    const shape = root.querySelector('.shape-btn.active').dataset.shape;
+    const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    const isMetric = units === 'metric';
+    const lengthMul = isMetric ? 3.28084 : 1;
+    const depthMul = isMetric ? 0.0328084 : (1 / 12);
+
+    let area = 0;
+    if (shape === 'rectangle') {
+      area = (parseFloat($('#as-length').value) || 0) * (parseFloat($('#as-width').value) || 0);
+    } else if (shape === 'circle') {
+      const r = (parseFloat($('#as-diameter').value) || 0) / 2;
+      area = Math.PI * r * r;
+    } else if (shape === 'trapezoid') {
+      const a = parseFloat($('#as-width-a').value) || 0;
+      const b = parseFloat($('#as-width-b').value) || 0;
+      const l = parseFloat($('#as-length').value) || 0;
+      area = ((a + b) / 2) * l;
+    }
+    // area is in user units squared; convert to sq ft
+    area = area * lengthMul * lengthMul;
+
+    const thickness = (parseFloat($('#as-thickness').value) || 0) * depthMul; // → ft
+    const density = parseFloat($('#as-type').value) || 2.03;
+    const price = parseFloat($('#as-price').value) || 0;
+    const waste = parseFloat($('#as-waste').value) || 0.10;
+
+    let cubicFeet = area * thickness;
+    cubicFeet *= (1 + waste);
+    const cubicYards = cubicFeet / 27;
+    const tons = cubicYards * density;
+    const cost = tons * price;
+
+    $('#as-tons').textContent = tons.toFixed(2);
+    $('#as-yards').textContent = cubicYards.toFixed(2);
+    $('#as-feet').textContent = Math.round(cubicFeet).toLocaleString();
+    $('#as-area').textContent = Math.round(area).toLocaleString();
+    $('#as-cost').textContent = '$' + Math.round(cost).toLocaleString();
+  }
+
+  function updateShape(shape) {
+    root.querySelectorAll('[data-show]').forEach(el => {
+      el.hidden = !el.dataset.show.split(',').includes(shape);
+    });
+  }
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+  root.querySelectorAll('.shape-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateShape(btn.dataset.shape);
+      calculate();
+    });
+  });
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      root.querySelectorAll('[data-unit="depth"]').forEach(el => el.textContent = metric ? 'cm' : 'in');
+      calculate();
+    });
+  });
+  $('#as-btn-copy').addEventListener('click', () => {
+    const text = `Asphalt needed: ${$('#as-tons').textContent} tons (${$('#as-yards').textContent} yd³). Material cost: ${$('#as-cost').textContent}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#as-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+  $('#as-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Asphalt Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+  updateShape('rectangle');
+  calculate();
+})();
+</script>

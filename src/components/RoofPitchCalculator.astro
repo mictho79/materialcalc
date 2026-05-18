@@ -1,0 +1,227 @@
+---
+// Roof Pitch Calculator — converts between pitch (x:12), angle, slope %, and rise/run.
+---
+
+<div class="tool" id="roof-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="input-mode" role="tablist" aria-label="Input method">
+      <button type="button" class="mode-btn active" data-mode="rise-run">Rise & Run</button>
+      <button type="button" class="mode-btn" data-mode="pitch">Pitch (x/12)</button>
+      <button type="button" class="mode-btn" data-mode="angle">Angle (°)</button>
+      <button type="button" class="mode-btn" data-mode="slope">Slope (%)</button>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="field" data-show="rise-run">
+      <label for="rp-rise">Rise (vertical)</label>
+      <div class="field-input">
+        <input id="rp-rise" type="number" value="6" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix">in / 12 in run</span>
+      </div>
+    </div>
+    <div class="field" data-show="rise-run">
+      <label for="rp-run">Run (horizontal)</label>
+      <div class="field-input">
+        <input id="rp-run" type="number" value="12" min="0.1" step="0.5" inputmode="decimal" />
+        <span class="suffix">in</span>
+      </div>
+    </div>
+    <div class="field" data-show="pitch">
+      <label for="rp-pitch">Pitch (rise over 12 inches of run)</label>
+      <div class="field-input">
+        <select id="rp-pitch">
+          <option value="1">1/12 (very low slope)</option>
+          <option value="2">2/12 (low slope)</option>
+          <option value="3">3/12 (low slope)</option>
+          <option value="4">4/12 (medium-low)</option>
+          <option value="5">5/12 (medium)</option>
+          <option value="6" selected>6/12 (medium / typical residential)</option>
+          <option value="7">7/12 (medium-steep)</option>
+          <option value="8">8/12 (steep)</option>
+          <option value="9">9/12 (steep)</option>
+          <option value="10">10/12 (very steep)</option>
+          <option value="12">12/12 (45° steep)</option>
+          <option value="14">14/12 (very steep)</option>
+          <option value="16">16/12 (extremely steep)</option>
+          <option value="18">18/12 (gothic / mansard)</option>
+          <option value="24">24/12 (mansard)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" data-show="angle">
+      <label for="rp-angle">Roof angle</label>
+      <div class="field-input">
+        <input id="rp-angle" type="number" value="26.57" min="0" max="89" step="0.1" inputmode="decimal" />
+        <span class="suffix">degrees</span>
+      </div>
+    </div>
+    <div class="field" data-show="slope">
+      <label for="rp-slope">Slope</label>
+      <div class="field-input">
+        <input id="rp-slope" type="number" value="50" min="0" step="1" inputmode="decimal" />
+        <span class="suffix">%</span>
+      </div>
+    </div>
+
+    <!-- Optional: roof base dimensions for area calculation -->
+    <div class="field">
+      <label for="rp-roof-length">Roof base length <span class="optional">(optional, for area)</span></label>
+      <div class="field-input">
+        <input id="rp-roof-length" type="number" value="40" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="rp-roof-width">Roof base width <span class="optional">(optional, for area)</span></label>
+      <div class="field-input">
+        <input id="rp-roof-width" type="number" value="30" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix">ft</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">Roof pitch / slope</div>
+    <div class="result-main">
+      <span class="number" id="rp-pitch-display">6/12</span>
+      <span class="unit">pitch</span>
+    </div>
+    <div class="result-secondary">
+      Angle: <strong id="rp-angle-out">26.57°</strong> &nbsp;·&nbsp;
+      Slope: <strong id="rp-slope-out">50.0%</strong> &nbsp;·&nbsp;
+      Rafter multiplier: <strong id="rp-multiplier">1.118</strong>
+    </div>
+    <div class="result-cost-row">
+      Roof surface area: <strong id="rp-surface">1,342</strong> sq ft (≈ <strong id="rp-squares">13.4</strong> roofing squares)
+      <span class="note">vs <strong id="rp-footprint">1,200</strong> sq ft footprint</span>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="rp-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="rp-btn-share">↗ Share</button>
+      
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool { background: var(--white); border: 1px solid var(--n200); border-radius: var(--r-lg); padding: var(--s-6); margin-bottom: var(--s-4); box-shadow: var(--shadow-xs); }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+  .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px solid var(--n200); flex-wrap: wrap; gap: var(--s-2); }
+  .tool-title { font-size: 15px; font-weight: 700; color: var(--n700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .input-mode { display: inline-flex; background: var(--n100); border-radius: var(--r-md); padding: 3px; flex-wrap: wrap; }
+  .mode-btn { border: none; background: transparent; padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--n500); cursor: pointer; border-radius: var(--r-sm); }
+  .mode-btn.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  [data-show][hidden] { display: none; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--n700); margin-bottom: 6px; }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--n200); border-radius: var(--r-md); font-size: 15px; color: var(--n900); background: var(--white); }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+  .suffix { position: absolute; right: 12px; color: var(--n500); font-size: 12px; font-weight: 500; pointer-events: none; }
+  .result { background: var(--n50); border: 1px solid var(--n200); border-radius: var(--r-md); padding: var(--s-5); margin-top: var(--s-5); }
+  .result-label { font-size: 12px; font-weight: 700; color: var(--n500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--s-2); }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-cost-row { margin-top: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--n200); font-size: 14px; color: var(--n700); font-variant-numeric: tabular-nums; }
+  .result-cost-row strong { color: var(--n900); font-weight: 700; }
+  .note { color: var(--n500); font-weight: 400; font-size: 12px; margin-left: 8px; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('roof-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  function formatPitch(rise) {
+    // Display as "X/12" where rise is over 12 inches of run
+    const r = Math.round(rise * 100) / 100;
+    if (Math.abs(r - Math.round(r)) < 0.01) return `${Math.round(r)}/12`;
+    return `${r.toFixed(2)}/12`;
+  }
+
+  function calculate() {
+    const mode = root.querySelector('.mode-btn.active').dataset.mode;
+    let riseOver12 = 0;  // Normalized: rise per 12 inches of run
+
+    if (mode === 'rise-run') {
+      const rise = parseFloat($('#rp-rise').value) || 0;
+      const run = parseFloat($('#rp-run').value) || 12;
+      riseOver12 = run > 0 ? (rise / run) * 12 : 0;
+    } else if (mode === 'pitch') {
+      riseOver12 = parseFloat($('#rp-pitch').value) || 0;
+    } else if (mode === 'angle') {
+      const angle = parseFloat($('#rp-angle').value) || 0;
+      riseOver12 = Math.tan(angle * Math.PI / 180) * 12;
+    } else if (mode === 'slope') {
+      const slope = parseFloat($('#rp-slope').value) || 0;
+      riseOver12 = (slope / 100) * 12;
+    }
+
+    // Convert to other measurements
+    const angle = Math.atan(riseOver12 / 12) * 180 / Math.PI;
+    const slope = (riseOver12 / 12) * 100;
+
+    // Rafter multiplier: hypotenuse / run (for sloped surface area)
+    const multiplier = Math.sqrt(12 * 12 + riseOver12 * riseOver12) / 12;
+
+    // Roof surface area (optional)
+    const roofL = parseFloat($('#rp-roof-length').value) || 0;
+    const roofW = parseFloat($('#rp-roof-width').value) || 0;
+    const footprint = roofL * roofW;
+    const surface = footprint * multiplier;
+    const squares = surface / 100;  // 1 roofing square = 100 sq ft
+
+    $('#rp-pitch-display').textContent = formatPitch(riseOver12);
+    $('#rp-angle-out').textContent = angle.toFixed(2) + '°';
+    $('#rp-slope-out').textContent = slope.toFixed(1) + '%';
+    $('#rp-multiplier').textContent = multiplier.toFixed(3);
+    $('#rp-surface').textContent = Math.round(surface).toLocaleString();
+    $('#rp-squares').textContent = squares.toFixed(1);
+    $('#rp-footprint').textContent = Math.round(footprint).toLocaleString();
+  }
+
+  function setMode(mode) {
+    root.querySelectorAll('.mode-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.mode === mode);
+    });
+    root.querySelectorAll('[data-show]').forEach(el => {
+      el.hidden = el.dataset.show !== mode;
+    });
+  }
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+  root.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setMode(btn.dataset.mode);
+      calculate();
+    });
+  });
+
+  $('#rp-btn-copy').addEventListener('click', () => {
+    const text = `Roof pitch: ${$('#rp-pitch-display').textContent} (${$('#rp-angle-out').textContent}, ${$('#rp-slope-out').textContent}). Rafter multiplier: ${$('#rp-multiplier').textContent}. Surface: ${$('#rp-surface').textContent} sq ft.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#rp-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+  $('#rp-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Roof Pitch Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+
+  setMode('rise-run');
+  calculate();
+})();
+</script>

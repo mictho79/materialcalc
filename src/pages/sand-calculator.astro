@@ -1,0 +1,300 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import SandCalculator from '@components/SandCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { sandFAQ } from '@data/faqs/sand';
+import { getRelatedCalculators } from '@data/calculators';
+
+const title = "Sand Calculator — Tons, Yards, and Bag Count";
+const description = "Free sand calculator for paver base, mason sand, play sand, and fill sand. Estimate volume, weight, and number of bags or bulk delivery needed.";
+
+const related = getRelatedCalculators('sand-calculator', 4).map(c => ({
+  title: c.shortTitle + ' Calculator',
+  href: `/${c.slug}/`,
+  desc: c.description
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Sand Calculator",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any (web-based)",
+    "description": description,
+    "url": "https://materialcalc.com/sand-calculator/",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to calculate sand quantity",
+    "step": [
+      { "@type": "HowToStep", "name": "Measure area", "text": "Length × width in feet, or π × radius² for round." },
+      { "@type": "HowToStep", "name": "Choose depth", "text": "1 inch for paver bedding, 4-6 inches for sandbox, 2 inches for masonry base." },
+      { "@type": "HowToStep", "name": "Select sand type", "text": "Mason 1.35 t/yd³, concrete 1.42 t/yd³, paver 1.45 t/yd³, fill 1.50 t/yd³." },
+      { "@type": "HowToStep", "name": "Compute volume and bags", "text": "Volume in cubic yards × density gives tons. Convert to bags by bag size." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'Calculators', href: '/calculators/' },
+      { label: 'Aggregates & Stone', href: '/calculators/#aggregates' },
+      { label: 'Sand Calculator' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Sand Calculator</h1>
+      <p class="intro">
+        Calculate exactly how much sand you need — for paver patios, masonry work, sandboxes,
+        play areas, fill, or any other project. Supports mason sand, concrete sand, paver sand,
+        and play sand, with bag count and bulk delivery cost estimates.
+      </p>
+    </header>
+
+    <SandCalculator />
+
+    <article class="content">
+      <h2>How to Calculate Sand Quantity</h2>
+      <p>
+        Sand quantity calculation follows the same volume math as any bulk material — area times
+        depth gives you cubic feet, which converts to cubic yards by dividing by 27. The catch
+        with sand is that different types have meaningfully different densities, and bag sizes
+        vary widely (50 lb, 70 lb, 100 lb, 1 ton supersacks).
+      </p>
+
+      <div class="formula">
+        Cubic yards = (Length × Width × Depth in inches) ÷ 324<br>
+        Weight (tons) = Cubic yards × Sand density<br>
+        Bag count = (Weight in lb) ÷ (Bag size in lb)
+      </div>
+
+      <h3>Worked example: paver patio bedding</h3>
+      <p>
+        Suppose you're installing a 200 sq ft paver patio with the standard 1 inch of paver sand bedding:
+      </p>
+      <ul>
+        <li><strong>Volume:</strong> (200 × 1) ÷ 324 = <strong>0.62 cubic yards</strong></li>
+        <li><strong>Weight (paver sand 1.45 t/yd³):</strong> 0.62 × 1.45 = <strong>0.90 tons (1,800 lb)</strong></li>
+        <li><strong>Bags (50 lb):</strong> 1,800 ÷ 50 = <strong>36 bags</strong></li>
+        <li><strong>Cost bulk (at $40/ton):</strong> 0.90 × $40 = <strong>$36</strong></li>
+        <li><strong>Cost bagged (at $5/50 lb bag):</strong> 36 × $5 = <strong>$180</strong></li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">Sand bag pricing favors bulk dramatically</div>
+        Bagged sand costs roughly 5× more per ton than bulk delivery. For any sand project over
+        about 0.3 cubic yards (10-12 bags), bulk delivery is significantly cheaper even with the
+        delivery fee. The breakeven point is lower than for mulch or gravel because sand is denser.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="sand-mid-1" />
+
+      <h2>Types of Sand and Their Uses</h2>
+      <p>
+        Sand types differ in grain size, shape, and intended use. Using the wrong type can ruin
+        a project. Here's the practical guide.
+      </p>
+
+      <h3>Paver sand (sharp sand)</h3>
+      <p>
+        Coarse, angular grains that interlock when compacted under load. Essential for paver patio
+        bedding (the 1-inch layer between base course and paver) and for joint filling. Density:
+        1.45 tons/yd³. Cost: $35-50/yard bulk. Never substitute play sand here — pavers will
+        sink and shift.
+      </p>
+
+      <h3>Mason sand</h3>
+      <p>
+        Fine, uniform sand for mixing mortar in masonry work. Smooth, consistent grain size makes
+        for workable mortar that adheres properly to brick and stone. Density: 1.35 tons/yd³.
+        Cost: $25-40/yard bulk. Also used for sandboxes (safer than construction sand for skin contact).
+      </p>
+
+      <h3>Concrete sand</h3>
+      <p>
+        Coarser than mason sand with more angular grains. The "aggregate fine" component of structural
+        concrete mixes. Density: 1.42 tons/yd³. Cost: $30-45/yard. Don't use for mortar — too coarse,
+        produces weak joints. Don't use for paver bedding — wrong angularity.
+      </p>
+
+      <h3>Play sand</h3>
+      <p>
+        Washed, screened, fine sand designed specifically for sandboxes and play areas. Free of silica
+        dust (important — silica is a respiratory hazard) and rounded for skin safety. Density:
+        1.30 tons/yd³. Cost: $4-6 per 50 lb bag retail (usually only sold bagged for residential use).
+      </p>
+
+      <h3>Fill sand (all-purpose)</h3>
+      <p>
+        Generic graded sand for filling holes, low spots, leveling, or as a base material for
+        non-structural use. Density: 1.50 tons/yd³ (more compactable). Cost: $20-35/yard. Cheapest
+        sand type — useful for filling but not for precision work.
+      </p>
+
+      <h3>Polymeric joint sand</h3>
+      <p>
+        Special sand mixed with polymers that activate with water and harden. Used between paver
+        joints to lock them in place and prevent weed growth. Sold only in bags (typically 50 lb).
+        Cost: $25-40/bag. Apply dry, sweep into joints, mist with water to activate.
+      </p>
+
+      <h2>How Much Sand by Project</h2>
+      <p>
+        Sand application varies enormously by use case. Here are typical quantities for common projects:
+      </p>
+
+      <h3>Paver patios and walkways</h3>
+      <p>
+        Paver bedding is 1 inch of sharp sand over compacted gravel base. A 200 sq ft patio needs
+        <strong>0.62 cubic yards (about 0.85 tons)</strong> of bedding sand, plus 0.1-0.15 yd³ of
+        joint sand to fill between pavers. Larger 500 sq ft installation: 1.5 yd³ + 0.3 yd³ joint sand.
+      </p>
+
+      <h3>Sandboxes and play areas</h3>
+      <p>
+        A standard 4x4 ft sandbox at 6 inches deep needs <strong>0.30 cubic yards (16 bags of 50 lb
+        play sand)</strong>. Commercial-rated 6x6 ft sandboxes at 6 inches deep: 0.67 cubic yards
+        (36 bags). Always use commercial play sand — construction sand can contain silica dust.
+      </p>
+
+      <h3>Horseshoe pits and bocce courts</h3>
+      <p>
+        Regulation horseshoe pit (6 ft × 4 ft × 6 inches): <strong>0.44 cubic yards (24 bags or
+        about 0.6 tons)</strong>. Use mason sand or coarse play sand. Bocce courts (60-90 ft long)
+        require considerably more — typically 1-2 yards of crushed stone base topped with 1-2 inches
+        of fine sand.
+      </p>
+
+      <h3>Masonry mortar mixing</h3>
+      <p>
+        A typical mortar mix is 1 part Portland cement, 1 part lime, 6 parts mason sand. For
+        100 sq ft of brick wall (8" thick), you'll need approximately <strong>3 cubic feet of mortar</strong>,
+        which requires 2.5 cubic feet of mason sand (about 1 bag of 50 lb mason sand).
+      </p>
+
+      <h3>Concrete mixing (small batches)</h3>
+      <p>
+        A standard concrete mix is 1 part Portland cement, 2 parts concrete sand, 3 parts gravel,
+        by volume. For 1 cubic yard of concrete, you need about <strong>9 cubic feet of concrete
+        sand</strong> (≈ 0.33 yd³). For large pours, order ready-mix concrete delivery instead.
+      </p>
+
+      <h3>Above-ground pool base</h3>
+      <p>
+        An above-ground pool requires a level sand base of about 2 inches. For a 24 ft round pool
+        (452 sq ft of footprint): <strong>2.8 cubic yards (≈ 3.8 tons)</strong> of mason sand.
+        Critical that this is perfectly level — pools fail at sand-base imperfections.
+      </p>
+
+      <AdSlot label="AdSense in-content #2" slotId="sand-mid-2" />
+
+      <h2>Sand Coverage Reference Table</h2>
+      <p>How much area one cubic yard of sand covers at different depths:</p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Depth</th>
+              <th>Coverage (sq ft per yd³)</th>
+              <th>Tons per 100 sq ft</th>
+              <th>Bags (50 lb) per 100 sq ft</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 inch</td><td>324 sq ft</td><td>0.42 tons</td><td>17 bags</td></tr>
+            <tr><td>2 inches</td><td>162 sq ft</td><td>0.83 tons</td><td>33 bags</td></tr>
+            <tr><td>3 inches</td><td>108 sq ft</td><td>1.25 tons</td><td>50 bags</td></tr>
+            <tr><td>4 inches</td><td>81 sq ft</td><td>1.67 tons</td><td>67 bags</td></tr>
+            <tr><td>6 inches</td><td>54 sq ft</td><td>2.50 tons</td><td>100 bags</td></tr>
+            <tr><td>12 inches</td><td>27 sq ft</td><td>5.00 tons</td><td>200 bags</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        These figures use mason sand density (1.35 t/yd³). Heavier sand types add 5-12% to weight
+        figures; lighter types subtract similarly.
+      </p>
+
+      <h2>Sand Pricing in 2026</h2>
+      <p>
+        US national average pricing for the 2026 season:
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Sand type</th>
+              <th>Per ton (bulk)</th>
+              <th>Per cubic yard</th>
+              <th>Per 50 lb bag</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Mason sand</td><td>$25–40</td><td>$30–55</td><td>$4–6</td></tr>
+            <tr><td>Concrete sand</td><td>$30–45</td><td>$40–60</td><td>$4–7</td></tr>
+            <tr><td>Paver sand (sharp)</td><td>$35–50</td><td>$45–70</td><td>$5–8</td></tr>
+            <tr><td>Fill sand</td><td>$20–35</td><td>$25–45</td><td>$3–5</td></tr>
+            <tr><td>Play sand (commercial)</td><td>$60–100</td><td>$80–135</td><td>$4–6</td></tr>
+            <tr><td>Polymeric joint sand</td><td>—</td><td>—</td><td>$25–40 / 50 lb</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Delivery typically adds $50-150 for 1-ton minimum orders. For projects over 1 cubic yard,
+        bulk delivery is always cheaper than buying bagged. Bagged sand makes sense for sandboxes,
+        small repairs, or projects where you can't accept a bulk delivery.
+      </p>
+
+      <h2>Installation Tips</h2>
+      <ol>
+        <li><strong>Match sand type to project.</strong> The single biggest cause of sand-related failures is using the wrong type — playground sand under pavers, concrete sand in mortar, beach sand anywhere structural.</li>
+        <li><strong>Compact in layers.</strong> For thick sand applications (over 4"), spread in 2-inch lifts and compact each layer with a plate compactor before adding the next.</li>
+        <li><strong>Maintain consistent depth.</strong> For paver bedding, the 1-inch sand layer must be screed-leveled to uniform depth using PVC pipes as guides. Uneven sand causes pavers to rock and shift.</li>
+        <li><strong>Don't add water to dry sand before installation.</strong> Wet sand is significantly harder to spread evenly. Compact dry, water lightly after if needed for paver joint settling.</li>
+        <li><strong>Use polymeric joint sand correctly.</strong> Apply on a dry day, sweep into joints, then mist (don't soak) with water. The polymers need water to activate but flood-watering washes them out.</li>
+      </ol>
+
+      <h2>Common Sand Mistakes</h2>
+      <ul>
+        <li><strong>Substituting types:</strong> Play sand under pavers shifts and lets pavers rock. Concrete sand in mortar makes it crumbly. Mason sand for structural concrete weakens it.</li>
+        <li><strong>Too thick paver bedding:</strong> Anything over 1 inch lets pavers settle unevenly. 1.5-2 inches is a common mistake.</li>
+        <li><strong>Using beach sand:</strong> Often contains salt (corrodes metal edging), too rounded for structural use, and may contain marine debris.</li>
+        <li><strong>Forgetting joint sand:</strong> New paver installations need joint sand swept in immediately. Without it, pavers move within weeks.</li>
+        <li><strong>Buying bagged for large projects:</strong> 1 cubic yard of bagged sand costs 4-5× as much as bulk delivered. Plus you have to handle 54 bags by hand.</li>
+      </ul>
+    </article>
+
+    <FAQ items={sandFAQ} />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} />
+
+    <EmbedCTA calculator="sand" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>

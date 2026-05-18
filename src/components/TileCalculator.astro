@@ -1,0 +1,206 @@
+---
+// Tile Calculator — floor/wall area to tile count + grout + thinset estimate.
+---
+
+<div class="tool" id="tile-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="ti-length">Area length</label>
+      <div class="field-input">
+        <input id="ti-length" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="ti-width">Area width</label>
+      <div class="field-input">
+        <input id="ti-width" type="number" value="10" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="ti-tile-size">Tile size</label>
+      <div class="field-input">
+        <select id="ti-tile-size">
+          <option value="4">4x4 in (small mosaic)</option>
+          <option value="6">6x6 in</option>
+          <option value="8">8x8 in</option>
+          <option value="12" selected>12x12 in (1 sq ft)</option>
+          <option value="13">13x13 in</option>
+          <option value="16">16x16 in</option>
+          <option value="18">18x18 in</option>
+          <option value="20">20x20 in</option>
+          <option value="24">24x24 in (large format)</option>
+          <option value="custom">Custom size</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" id="ti-custom-row" hidden>
+      <label for="ti-custom-size">Custom tile size (square)</label>
+      <div class="field-input">
+        <input id="ti-custom-size" type="number" value="12" min="1" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="small">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="ti-tile-price">Price per tile <span class="optional">(or per box)</span></label>
+      <div class="field-input">
+        <input id="ti-tile-price" type="number" value="2.5" min="0" step="0.25" inputmode="decimal" />
+        <span class="suffix">$/tile</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="ti-waste">Waste factor</label>
+      <div class="field-input">
+        <select id="ti-waste">
+          <option value="0.10" selected>10% (straight layout)</option>
+          <option value="0.15">15% (diagonal)</option>
+          <option value="0.20">20% (patterned / herringbone)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">You need</div>
+    <div class="result-main">
+      <span class="number" id="ti-tiles">132</span>
+      <span class="unit">tiles</span>
+      <span class="aux">for <strong id="ti-area">120</strong> sq ft</span>
+    </div>
+    <div class="result-secondary">
+      Grout: <strong id="ti-grout">12</strong> lb &nbsp;·&nbsp;
+      Thinset: <strong id="ti-thinset">2</strong> bags (50 lb) &nbsp;·&nbsp;
+      Total tile cost: <strong id="ti-cost">$330</strong>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="ti-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="ti-btn-share">↗ Share</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool { background: var(--white); border: 1px solid var(--n200); border-radius: var(--r-lg); padding: var(--s-6); margin-bottom: var(--s-4); box-shadow: var(--shadow-xs); }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+  .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px solid var(--n200); flex-wrap: wrap; gap: var(--s-2); }
+  .tool-title { font-size: 15px; font-weight: 700; color: var(--n700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .unit-toggle { display: inline-flex; background: var(--n100); border-radius: var(--r-md); padding: 3px; }
+  .unit-toggle button { border: none; background: transparent; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--n500); cursor: pointer; border-radius: var(--r-sm); }
+  .unit-toggle button.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  [hidden] { display: none; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--n700); margin-bottom: 6px; }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--n200); border-radius: var(--r-md); font-size: 15px; color: var(--n900); background: var(--white); }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+  .suffix { position: absolute; right: 12px; color: var(--n500); font-size: 13px; font-weight: 500; pointer-events: none; }
+  .result { background: var(--n50); border: 1px solid var(--n200); border-radius: var(--r-md); padding: var(--s-5); margin-top: var(--s-5); }
+  .result-label { font-size: 12px; font-weight: 700; color: var(--n500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--s-2); }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-main .aux { font-size: 14px; color: var(--n600); margin-left: 6px; }
+  .result-main .aux strong { color: var(--n900); font-weight: 700; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('tile-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  function calculate() {
+    const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    let l = parseFloat($('#ti-length').value) || 0;
+    let w = parseFloat($('#ti-width').value) || 0;
+    const tileSel = $('#ti-tile-size').value;
+    let tileIn;
+    if (tileSel === 'custom') {
+      tileIn = parseFloat($('#ti-custom-size').value) || 12;
+    } else {
+      tileIn = parseFloat(tileSel) || 12;
+    }
+    const tilePrice = parseFloat($('#ti-tile-price').value) || 0;
+    const waste = parseFloat($('#ti-waste').value) || 0;
+
+    // Convert metric m to ft for area, cm to in for tile if needed
+    if (units === 'metric') {
+      l = l * 3.2808;
+      w = w * 3.2808;
+      // tile values stay in inches via dropdown — but if custom, treat as cm
+      if (tileSel === 'custom') {
+        tileIn = (parseFloat($('#ti-custom-size').value) || 30) / 2.54;
+      }
+    }
+
+    const areaSqFt = l * w;
+    const tileSqFt = (tileIn * tileIn) / 144;
+    const tilesNeeded = Math.ceil((areaSqFt / tileSqFt) * (1 + waste));
+
+    // Rough estimates: grout 0.1 lb/sq ft, thinset 1 bag per 50-75 sq ft
+    const groutLb = Math.ceil(areaSqFt * 0.1);
+    const thinsetBags = Math.ceil(areaSqFt / 60);
+    const cost = tilesNeeded * tilePrice;
+
+    $('#ti-tiles').textContent = tilesNeeded.toLocaleString();
+    $('#ti-area').textContent = Math.round(areaSqFt).toLocaleString();
+    $('#ti-grout').textContent = groutLb.toString();
+    $('#ti-thinset').textContent = thinsetBags.toString();
+    $('#ti-cost').textContent = '$' + Math.round(cost).toLocaleString();
+  }
+
+  $('#ti-tile-size').addEventListener('change', () => {
+    $('#ti-custom-row').hidden = $('#ti-tile-size').value !== 'custom';
+    calculate();
+  });
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      root.querySelectorAll('[data-unit="small"]').forEach(el => el.textContent = metric ? 'cm' : 'in');
+      calculate();
+    });
+  });
+
+  $('#ti-btn-copy').addEventListener('click', () => {
+    const text = `Tile needed: ${$('#ti-tiles').textContent} tiles for ${$('#ti-area').textContent} sq ft. Cost: ${$('#ti-cost').textContent}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#ti-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+
+  $('#ti-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Tile Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+
+  calculate();
+})();
+</script>

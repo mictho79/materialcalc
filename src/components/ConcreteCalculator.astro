@@ -1,0 +1,317 @@
+---
+// Concrete Calculator — supports slab, footing, column, and steps. Outputs cubic yards + bags.
+---
+
+<div class="tool" id="concrete-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="shape-row" role="tablist" aria-label="Project type">
+    <button type="button" class="shape-btn active" data-shape="slab">▭ Slab</button>
+    <button type="button" class="shape-btn" data-shape="footing">▬ Footing</button>
+    <button type="button" class="shape-btn" data-shape="column">● Column</button>
+    <button type="button" class="shape-btn" data-shape="steps">⫘ Steps</button>
+  </div>
+
+  <div class="form-grid">
+    <!-- Slab -->
+    <div class="field" data-show="slab">
+      <label for="cc-slab-length">Length</label>
+      <div class="field-input">
+        <input id="cc-slab-length" type="number" value="20" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="slab">
+      <label for="cc-slab-width">Width</label>
+      <div class="field-input">
+        <input id="cc-slab-width" type="number" value="20" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="slab">
+      <label for="cc-slab-thickness">Thickness</label>
+      <div class="field-input">
+        <input id="cc-slab-thickness" type="number" value="4" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+
+    <!-- Footing -->
+    <div class="field" data-show="footing">
+      <label for="cc-footing-length">Total length</label>
+      <div class="field-input">
+        <input id="cc-footing-length" type="number" value="40" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="footing">
+      <label for="cc-footing-width">Width</label>
+      <div class="field-input">
+        <input id="cc-footing-width" type="number" value="16" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+    <div class="field" data-show="footing">
+      <label for="cc-footing-depth">Depth</label>
+      <div class="field-input">
+        <input id="cc-footing-depth" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+
+    <!-- Column -->
+    <div class="field" data-show="column">
+      <label for="cc-col-diameter">Diameter</label>
+      <div class="field-input">
+        <input id="cc-col-diameter" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+    <div class="field" data-show="column">
+      <label for="cc-col-height">Height</label>
+      <div class="field-input">
+        <input id="cc-col-height" type="number" value="4" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="column">
+      <label for="cc-col-count">Number of columns</label>
+      <div class="field-input">
+        <input id="cc-col-count" type="number" value="4" min="1" step="1" inputmode="numeric" />
+        <span class="suffix">pcs</span>
+      </div>
+    </div>
+
+    <!-- Steps -->
+    <div class="field" data-show="steps">
+      <label for="cc-step-count">Number of steps</label>
+      <div class="field-input">
+        <input id="cc-step-count" type="number" value="3" min="1" step="1" inputmode="numeric" />
+        <span class="suffix">steps</span>
+      </div>
+    </div>
+    <div class="field" data-show="steps">
+      <label for="cc-step-width">Step width</label>
+      <div class="field-input">
+        <input id="cc-step-width" type="number" value="4" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show="steps">
+      <label for="cc-step-tread">Tread depth (run)</label>
+      <div class="field-input">
+        <input id="cc-step-tread" type="number" value="11" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+    <div class="field" data-show="steps">
+      <label for="cc-step-rise">Step rise</label>
+      <div class="field-input">
+        <input id="cc-step-rise" type="number" value="7" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="cc-bag-size">Bag size</label>
+      <div class="field-input">
+        <select id="cc-bag-size">
+          <option value="0.45">60 lb bag (0.45 ft³)</option>
+          <option value="0.60" selected>80 lb bag (0.60 ft³)</option>
+          <option value="0.30">40 lb bag (0.30 ft³)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="cc-waste">Waste factor</label>
+      <div class="field-input">
+        <select id="cc-waste">
+          <option value="0">None</option>
+          <option value="0.05">5%</option>
+          <option value="0.10" selected>10% (recommended)</option>
+          <option value="0.15">15% (irregular forms)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">You need</div>
+    <div class="result-main">
+      <span class="number" id="cc-yards">4.94</span>
+      <span class="unit">cubic yards</span>
+    </div>
+    <div class="result-secondary">
+      = <strong id="cc-feet">133.33</strong> ft³ &nbsp;·&nbsp;
+      <strong id="cc-meters">3.78</strong> m³ &nbsp;·&nbsp;
+      ≈ <strong id="cc-bags">222</strong> bags
+    </div>
+    <div class="result-cost-row">
+      Ready-mix delivered: <strong id="cc-readymix-cost">$815</strong>
+      &nbsp;·&nbsp;
+      Bags retail: <strong id="cc-bag-cost">$1,332</strong>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="cc-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="cc-btn-share">↗ Share</button>
+      
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool { background: var(--white); border: 1px solid var(--n200); border-radius: var(--r-lg); padding: var(--s-6); margin-bottom: var(--s-4); box-shadow: var(--shadow-xs); }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+  .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px solid var(--n200); flex-wrap: wrap; gap: var(--s-2); }
+  .tool-title { font-size: 15px; font-weight: 700; color: var(--n700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .unit-toggle { display: inline-flex; background: var(--n100); border-radius: var(--r-md); padding: 3px; }
+  .unit-toggle button { border: none; background: transparent; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--n500); cursor: pointer; border-radius: var(--r-sm); }
+  .unit-toggle button.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .shape-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); margin-bottom: var(--s-5); }
+  @media (max-width: 540px) { .shape-row { grid-template-columns: 1fr 1fr; } }
+  .shape-btn { padding: 10px; border: 1.5px solid var(--n200); background: var(--white); border-radius: var(--r-md); font-size: 13px; font-weight: 600; color: var(--n700); cursor: pointer; transition: all var(--t-fast); }
+  .shape-btn:hover { border-color: var(--primary); }
+  .shape-btn.active { border-color: var(--primary); background: var(--primary); color: var(--white); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  [data-show][hidden] { display: none; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--n700); margin-bottom: 6px; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--n200); border-radius: var(--r-md); font-size: 15px; color: var(--n900); background: var(--white); }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+  .suffix { position: absolute; right: 12px; color: var(--n500); font-size: 13px; font-weight: 500; pointer-events: none; }
+  .result { background: var(--n50); border: 1px solid var(--n200); border-radius: var(--r-md); padding: var(--s-5); margin-top: var(--s-5); }
+  .result-label { font-size: 12px; font-weight: 700; color: var(--n500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--s-2); }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-cost-row { margin-top: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--n200); font-size: 14px; color: var(--n700); font-variant-numeric: tabular-nums; }
+  .result-cost-row strong { color: var(--n900); font-weight: 700; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('concrete-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  function val(id) { return parseFloat($(id).value) || 0; }
+  function intVal(id) { return parseInt($(id).value) || 1; }
+
+  function calculate() {
+    const shape = root.querySelector('.shape-btn.active').dataset.shape;
+    const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    const bagFt3 = parseFloat($('#cc-bag-size').value) || 0.60;
+    const waste = parseFloat($('#cc-waste').value) || 0;
+    const isMetric = units === 'metric';
+
+    // length unit: ft or m; depth unit: in or cm
+    const lengthToFt = isMetric ? 3.28084 : 1;
+    const depthToFt = isMetric ? 0.0328084 : (1 / 12);  // cm or in → ft
+
+    let cubicFeet = 0;
+
+    if (shape === 'slab') {
+      const L = val('#cc-slab-length') * lengthToFt;
+      const W = val('#cc-slab-width') * lengthToFt;
+      const T = val('#cc-slab-thickness') * depthToFt;
+      cubicFeet = L * W * T;
+    } else if (shape === 'footing') {
+      const L = val('#cc-footing-length') * lengthToFt;
+      const W = val('#cc-footing-width') * depthToFt;
+      const D = val('#cc-footing-depth') * depthToFt;
+      cubicFeet = L * W * D;
+    } else if (shape === 'column') {
+      const d = val('#cc-col-diameter') * depthToFt;
+      const H = val('#cc-col-height') * lengthToFt;
+      const count = intVal('#cc-col-count');
+      cubicFeet = Math.PI * Math.pow(d / 2, 2) * H * count;
+    } else if (shape === 'steps') {
+      const count = intVal('#cc-step-count');
+      const W = val('#cc-step-width') * lengthToFt;
+      const tread = val('#cc-step-tread') * depthToFt;
+      const rise = val('#cc-step-rise') * depthToFt;
+      // Cumulative wedge volume
+      let total = 0;
+      for (let i = 1; i <= count; i++) {
+        total += W * tread * (rise * i);
+      }
+      cubicFeet = total;
+    }
+
+    cubicFeet *= (1 + waste);
+    const cubicYards = cubicFeet / 27;
+    const cubicMeters = cubicFeet * 0.0283168;
+    const bags = cubicFeet / bagFt3;
+
+    // Pricing: ready-mix ~$165/yd³ + delivery; bags ~$6 per 80 lb
+    const readymixPrice = 165;  // approximate per yard
+    const minDelivery = 50;  // typical short-load surcharge for <8 yards
+    const readymixCost = cubicYards * readymixPrice + (cubicYards < 8 ? minDelivery : 0);
+
+    let bagPrice = 6;
+    if (bagFt3 === 0.45) bagPrice = 5;       // 60 lb
+    else if (bagFt3 === 0.30) bagPrice = 3.5; // 40 lb
+    const bagCost = Math.ceil(bags) * bagPrice;
+
+    $('#cc-yards').textContent = cubicYards.toFixed(2);
+    $('#cc-feet').textContent = cubicFeet.toFixed(2);
+    $('#cc-meters').textContent = cubicMeters.toFixed(2);
+    $('#cc-bags').textContent = Math.ceil(bags).toLocaleString();
+    $('#cc-readymix-cost').textContent = '$' + Math.round(readymixCost).toLocaleString();
+    $('#cc-bag-cost').textContent = '$' + Math.round(bagCost).toLocaleString();
+  }
+
+  function updateShape(shape) {
+    root.querySelectorAll('[data-show]').forEach(el => {
+      el.hidden = !el.dataset.show.split(',').includes(shape);
+    });
+  }
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+  root.querySelectorAll('.shape-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateShape(btn.dataset.shape);
+      calculate();
+    });
+  });
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      root.querySelectorAll('[data-unit="depth"]').forEach(el => el.textContent = metric ? 'cm' : 'in');
+      calculate();
+    });
+  });
+  $('#cc-btn-copy').addEventListener('click', () => {
+    const text = `Concrete needed: ${$('#cc-yards').textContent} yd³ (~${$('#cc-bags').textContent} bags). Ready-mix: ${$('#cc-readymix-cost').textContent}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#cc-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+  $('#cc-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Concrete Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+  updateShape('slab');
+  calculate();
+})();
+</script>

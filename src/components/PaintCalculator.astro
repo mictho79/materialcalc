@@ -1,0 +1,252 @@
+---
+// Paint Calculator — wall area, doors/windows subtraction, coats, coverage, cost.
+---
+
+<div class="tool" id="paint-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="mode-row" role="tablist" aria-label="Surface">
+    <button type="button" class="mode-btn active" data-mode="walls">Walls</button>
+    <button type="button" class="mode-btn" data-mode="ceiling">Ceiling</button>
+    <button type="button" class="mode-btn" data-mode="exterior">Exterior</button>
+  </div>
+
+  <div class="form-grid">
+    <div class="field" data-show-mode="walls,exterior">
+      <label for="pt-perimeter"><span data-mode-text="perimeter">Room perimeter</span></label>
+      <div class="field-input">
+        <input id="pt-perimeter" type="number" value="52" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show-mode="walls,exterior">
+      <label for="pt-height">Wall height</label>
+      <div class="field-input">
+        <input id="pt-height" type="number" value="8" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show-mode="ceiling">
+      <label for="pt-length">Length</label>
+      <div class="field-input">
+        <input id="pt-length" type="number" value="14" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show-mode="ceiling">
+      <label for="pt-width">Width</label>
+      <div class="field-input">
+        <input id="pt-width" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show-mode="walls,exterior">
+      <label for="pt-doors">Number of doors</label>
+      <div class="field-input">
+        <input id="pt-doors" type="number" value="1" min="0" step="1" inputmode="decimal" />
+        <span class="suffix">≈ 20 sq ft each</span>
+      </div>
+    </div>
+    <div class="field" data-show-mode="walls,exterior">
+      <label for="pt-windows">Number of windows</label>
+      <div class="field-input">
+        <input id="pt-windows" type="number" value="2" min="0" step="1" inputmode="decimal" />
+        <span class="suffix">≈ 15 sq ft each</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="pt-coats">Number of coats</label>
+      <div class="field-input">
+        <select id="pt-coats">
+          <option value="1">1 coat (refresh, same color)</option>
+          <option value="2" selected>2 coats (standard)</option>
+          <option value="3">3 coats (light over dark / primer)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="pt-coverage">Paint coverage</label>
+      <div class="field-input">
+        <select id="pt-coverage">
+          <option value="400">Smooth walls — 400 sq ft/gal</option>
+          <option value="350" selected>Standard — 350 sq ft/gal</option>
+          <option value="300">Textured / lightly porous — 300 sq ft/gal</option>
+          <option value="250">Heavy texture / stucco — 250 sq ft/gal</option>
+          <option value="200">Bare drywall, masonry — 200 sq ft/gal</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="pt-price">Price per gallon <span class="optional">(optional)</span></label>
+      <div class="field-input">
+        <input id="pt-price" type="number" value="45" min="0" step="1" inputmode="decimal" />
+        <span class="suffix">$/gal</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">Paint needed</div>
+    <div class="result-main">
+      <span class="number" id="pt-gallons">2</span>
+      <span class="unit">gallons</span>
+    </div>
+    <div class="result-secondary">
+      Paintable area: <strong id="pt-area">366</strong> sq ft &nbsp;·&nbsp;
+      With 2 coats: <strong id="pt-area-coats">732</strong> sq ft of coverage
+    </div>
+    <div class="result-cost-row">
+      Estimated paint cost: <strong id="pt-cost">$90</strong>
+      <span class="note">paint only, excludes primer, supplies, labor</span>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="pt-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="pt-btn-share">↗ Share</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool { background: var(--white); border: 1px solid var(--n200); border-radius: var(--r-lg); padding: var(--s-6); margin-bottom: var(--s-4); box-shadow: var(--shadow-xs); }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+  .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px solid var(--n200); flex-wrap: wrap; gap: var(--s-2); }
+  .tool-title { font-size: 15px; font-weight: 700; color: var(--n700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .unit-toggle { display: inline-flex; background: var(--n100); border-radius: var(--r-md); padding: 3px; }
+  .unit-toggle button { border: none; background: transparent; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--n500); cursor: pointer; border-radius: var(--r-sm); }
+  .unit-toggle button.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .mode-row { display: flex; gap: var(--s-2); margin-bottom: var(--s-5); }
+  .mode-btn { flex: 1; padding: 10px; border: 1.5px solid var(--n200); background: var(--white); border-radius: var(--r-md); font-size: 13px; font-weight: 600; color: var(--n700); cursor: pointer; transition: all var(--t-fast); }
+  .mode-btn:hover { border-color: var(--primary); }
+  .mode-btn.active { border-color: var(--primary); background: var(--primary); color: var(--white); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  [data-show-mode][hidden] { display: none; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--n700); margin-bottom: 6px; }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--n200); border-radius: var(--r-md); font-size: 15px; color: var(--n900); background: var(--white); }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+  .suffix { position: absolute; right: 12px; color: var(--n500); font-size: 12px; font-weight: 500; pointer-events: none; }
+  .result { background: var(--n50); border: 1px solid var(--n200); border-radius: var(--r-md); padding: var(--s-5); margin-top: var(--s-5); }
+  .result-label { font-size: 12px; font-weight: 700; color: var(--n500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--s-2); }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-cost-row { margin-top: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--n200); font-size: 14px; color: var(--n700); font-variant-numeric: tabular-nums; }
+  .result-cost-row strong { color: var(--n900); font-weight: 700; }
+  .note { color: var(--n500); font-weight: 400; font-size: 12px; margin-left: 8px; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('paint-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  function getMode() { return root.querySelector('.mode-btn.active').dataset.mode; }
+  function getUnits() { return root.querySelector('.unit-toggle button.active').dataset.units; }
+
+  function calculate() {
+    const mode = getMode();
+    const units = getUnits();
+    const coats = parseInt($('#pt-coats').value) || 2;
+    const coverage = parseFloat($('#pt-coverage').value) || 350;
+    const price = parseFloat($('#pt-price').value) || 0;
+
+    let area = 0;
+
+    if (mode === 'walls' || mode === 'exterior') {
+      const perim = parseFloat($('#pt-perimeter').value) || 0;
+      const height = parseFloat($('#pt-height').value) || 0;
+      const doors = parseInt($('#pt-doors').value) || 0;
+      const windows = parseInt($('#pt-windows').value) || 0;
+      area = perim * height;
+      // Subtract openings (use sq ft regardless of unit input)
+      const doorArea = units === 'metric' ? doors * 1.86 : doors * 20;     // 1.86 m² ≈ 20 sq ft
+      const windowArea = units === 'metric' ? windows * 1.39 : windows * 15;
+      area = Math.max(0, area - doorArea - windowArea);
+    } else {
+      // ceiling
+      const l = parseFloat($('#pt-length').value) || 0;
+      const w = parseFloat($('#pt-width').value) || 0;
+      area = l * w;
+    }
+
+    // Convert m² to sq ft for display consistency
+    let areaSqFt = units === 'metric' ? area * 10.7639 : area;
+    const coatedArea = areaSqFt * coats;
+    const gallons = coatedArea / coverage;
+    const gallonsToBuy = Math.ceil(gallons * 2) / 2; // round up to nearest 0.5 gal
+    const cost = gallonsToBuy * price;
+
+    $('#pt-area').textContent = Math.round(areaSqFt).toLocaleString();
+    $('#pt-area-coats').textContent = Math.round(coatedArea).toLocaleString();
+    $('#pt-gallons').textContent = gallonsToBuy < 1 ? gallonsToBuy.toFixed(1) : gallonsToBuy.toString();
+    $('#pt-cost').textContent = '$' + Math.round(cost).toLocaleString();
+
+    // Update coats text in secondary line
+    const coatsLabel = coats === 1 ? '1 coat' : coats + ' coats';
+    root.querySelector('.result-secondary').innerHTML =
+      `Paintable area: <strong id="pt-area">${Math.round(areaSqFt).toLocaleString()}</strong> sq ft &nbsp;·&nbsp; With ${coatsLabel}: <strong id="pt-area-coats">${Math.round(coatedArea).toLocaleString()}</strong> sq ft of coverage`;
+  }
+
+  function setMode(mode) {
+    root.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+    root.querySelectorAll('[data-show-mode]').forEach(el => {
+      const allowed = el.dataset.showMode.split(',');
+      el.hidden = !allowed.includes(mode);
+    });
+  }
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+
+  root.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setMode(btn.dataset.mode);
+      calculate();
+    });
+  });
+
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      calculate();
+    });
+  });
+
+  $('#pt-btn-copy').addEventListener('click', () => {
+    const text = `Paint needed: ${$('#pt-gallons').textContent} gallons for ${$('#pt-area').textContent} sq ft. Estimated cost: ${$('#pt-cost').textContent}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#pt-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+
+  $('#pt-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Paint Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+
+  setMode('walls');
+  calculate();
+})();
+</script>

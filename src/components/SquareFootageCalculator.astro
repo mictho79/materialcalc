@@ -1,0 +1,239 @@
+---
+// Square Footage Calculator — multi-shape area + optional price per sq ft.
+---
+
+<div class="tool" id="sqft-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="shape-row" role="tablist" aria-label="Shape">
+    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Rectangle</button>
+    <button type="button" class="shape-btn" data-shape="circle">● Circle</button>
+    <button type="button" class="shape-btn" data-shape="triangle">▲ Triangle</button>
+    <button type="button" class="shape-btn" data-shape="trapezoid">⬢ Trapezoid</button>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="sf-a"><span data-shape-text="a">Length</span></label>
+      <div class="field-input">
+        <input id="sf-a" type="number" value="20" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show-when="rectangle,triangle,trapezoid">
+      <label for="sf-b"><span data-shape-text="b">Width</span></label>
+      <div class="field-input">
+        <input id="sf-b" type="number" value="15" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show-when="trapezoid">
+      <label for="sf-c">Second parallel side</label>
+      <div class="field-input">
+        <input id="sf-c" type="number" value="10" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="sf-quantity">Number of areas</label>
+      <div class="field-input">
+        <input id="sf-quantity" type="number" value="1" min="1" step="1" inputmode="decimal" />
+        <span class="suffix">rooms / sections</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="sf-price">Price per sq ft <span class="optional">(optional)</span></label>
+      <div class="field-input">
+        <input id="sf-price" type="number" value="0" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix">$/sq ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="sf-waste">Waste factor</label>
+      <div class="field-input">
+        <select id="sf-waste">
+          <option value="0">None</option>
+          <option value="0.05">5%</option>
+          <option value="0.10" selected>10% (recommended)</option>
+          <option value="0.15">15% (diagonal layouts)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">Total area</div>
+    <div class="result-main">
+      <span class="number" id="sf-area">300</span>
+      <span class="unit">square feet</span>
+    </div>
+    <div class="result-secondary">
+      ≈ <strong id="sf-yards">33.33</strong> sq yd &nbsp;·&nbsp;
+      ≈ <strong id="sf-meters">27.87</strong> sq m &nbsp;·&nbsp;
+      ≈ <strong id="sf-acres">0.0069</strong> acres
+    </div>
+    <div class="result-cost-row">
+      With waste factor: <strong id="sf-area-waste">330</strong> sq ft &nbsp;·&nbsp;
+      Estimated cost: <strong id="sf-cost">$0</strong>
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="sf-btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="sf-btn-share">↗ Share</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool { background: var(--white); border: 1px solid var(--n200); border-radius: var(--r-lg); padding: var(--s-6); margin-bottom: var(--s-4); box-shadow: var(--shadow-xs); }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+  .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-5); padding-bottom: var(--s-4); border-bottom: 1px solid var(--n200); flex-wrap: wrap; gap: var(--s-2); }
+  .tool-title { font-size: 15px; font-weight: 700; color: var(--n700); text-transform: uppercase; letter-spacing: 0.5px; }
+  .unit-toggle { display: inline-flex; background: var(--n100); border-radius: var(--r-md); padding: 3px; }
+  .unit-toggle button { border: none; background: transparent; padding: 6px 14px; font-size: 13px; font-weight: 600; color: var(--n500); cursor: pointer; border-radius: var(--r-sm); }
+  .unit-toggle button.active { background: var(--white); color: var(--primary); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  .shape-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); margin-bottom: var(--s-5); }
+  @media (max-width: 540px) { .shape-row { grid-template-columns: repeat(2, 1fr); } }
+  .shape-btn { padding: 10px; border: 1.5px solid var(--n200); background: var(--white); border-radius: var(--r-md); font-size: 13px; font-weight: 600; color: var(--n700); cursor: pointer; transition: all var(--t-fast); }
+  .shape-btn:hover { border-color: var(--primary); }
+  .shape-btn.active { border-color: var(--primary); background: var(--primary); color: var(--white); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-4); }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+  [data-show-when][hidden] { display: none; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--n700); margin-bottom: 6px; }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input { position: relative; display: flex; align-items: center; }
+  .field input, .field select { width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--n200); border-radius: var(--r-md); font-size: 15px; color: var(--n900); background: var(--white); }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30,58,95,0.1); }
+  .suffix { position: absolute; right: 12px; color: var(--n500); font-size: 13px; font-weight: 500; pointer-events: none; }
+  .result { background: var(--n50); border: 1px solid var(--n200); border-radius: var(--r-md); padding: var(--s-5); margin-top: var(--s-5); }
+  .result-label { font-size: 12px; font-weight: 700; color: var(--n500); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: var(--s-2); }
+  .result-main { display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap; }
+  .result-main .number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .result-main .unit { font-size: 18px; color: var(--n700); font-weight: 600; }
+  .result-secondary { font-size: 15px; color: var(--n700); margin-top: var(--s-2); font-variant-numeric: tabular-nums; }
+  .result-secondary strong { color: var(--n900); font-weight: 700; }
+  .result-cost-row { margin-top: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--n200); font-size: 14px; color: var(--n700); font-variant-numeric: tabular-nums; }
+  .result-cost-row strong { color: var(--n900); font-weight: 700; }
+  .result-actions { display: flex; gap: var(--s-2); margin-top: var(--s-4); flex-wrap: wrap; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('sqft-tool');
+  if (!root) return;
+  const $ = (s) => root.querySelector(s);
+
+  const labels = {
+    rectangle: { a: 'Length', b: 'Width' },
+    circle:    { a: 'Diameter' },
+    triangle:  { a: 'Base', b: 'Height' },
+    trapezoid: { a: 'Height (between parallel sides)', b: 'First parallel side' }
+  };
+
+  function getShape() { return root.querySelector('.shape-btn.active').dataset.shape; }
+  function getUnits() { return root.querySelector('.unit-toggle button.active').dataset.units; }
+
+  function calculate() {
+    const shape = getShape();
+    const units = getUnits();
+    const a = parseFloat($('#sf-a').value) || 0;
+    const b = parseFloat($('#sf-b').value) || 0;
+    const c = parseFloat($('#sf-c').value) || 0;
+    const qty = Math.max(1, parseInt($('#sf-quantity').value) || 1);
+    const price = parseFloat($('#sf-price').value) || 0;
+    const waste = parseFloat($('#sf-waste').value) || 0;
+
+    let area = 0;
+    if (shape === 'rectangle')      area = a * b;
+    else if (shape === 'circle')    area = Math.PI * Math.pow(a / 2, 2);
+    else if (shape === 'triangle')  area = 0.5 * a * b;
+    else if (shape === 'trapezoid') area = 0.5 * (b + c) * a;
+
+    area *= qty;
+
+    // Always normalize display to sq ft
+    let sqft;
+    if (units === 'metric') {
+      // input was in meters; convert m² to ft²
+      sqft = area * 10.7639;
+    } else {
+      sqft = area;
+    }
+    const sqyd = sqft / 9;
+    const sqm  = sqft / 10.7639;
+    const acres = sqft / 43560;
+    const areaWaste = sqft * (1 + waste);
+    const cost = areaWaste * price;
+
+    $('#sf-area').textContent     = sqft.toFixed(sqft < 10 ? 2 : sqft < 100 ? 1 : 0);
+    $('#sf-yards').textContent    = sqyd.toFixed(2);
+    $('#sf-meters').textContent   = sqm.toFixed(2);
+    $('#sf-acres').textContent    = acres.toFixed(4);
+    $('#sf-area-waste').textContent = areaWaste.toFixed(areaWaste < 100 ? 1 : 0);
+    $('#sf-cost').textContent     = '$' + Math.round(cost).toLocaleString();
+  }
+
+  function updateShape() {
+    const shape = getShape();
+    const ls = labels[shape] || labels.rectangle;
+    root.querySelectorAll('[data-shape-text]').forEach(el => {
+      const key = el.dataset.shapeText;
+      if (ls[key]) el.textContent = ls[key];
+    });
+    root.querySelectorAll('[data-show-when]').forEach(el => {
+      const allowed = el.dataset.showWhen.split(',');
+      el.hidden = !allowed.includes(shape);
+    });
+  }
+
+  root.querySelectorAll('input, select').forEach(el => el.addEventListener('input', calculate));
+
+  root.querySelectorAll('.shape-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateShape();
+      calculate();
+    });
+  });
+
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      calculate();
+    });
+  });
+
+  $('#sf-btn-copy').addEventListener('click', () => {
+    const text = `Area: ${$('#sf-area').textContent} sq ft (${$('#sf-yards').textContent} sq yd, ${$('#sf-meters').textContent} sq m). With waste: ${$('#sf-area-waste').textContent} sq ft.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const btn = $('#sf-btn-copy');
+      const o = btn.textContent;
+      btn.textContent = '✓ Copied';
+      setTimeout(() => { btn.textContent = o; }, 1500);
+    });
+  });
+
+  $('#sf-btn-share').addEventListener('click', () => {
+    if (navigator.share) navigator.share({ title: 'Square Footage Calculator', url: location.href });
+    else navigator.clipboard?.writeText(location.href);
+  });
+
+  updateShape();
+  calculate();
+})();
+</script>

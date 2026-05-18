@@ -1,0 +1,146 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+
+const title = "About MaterialCalc";
+const description = "MaterialCalc is a free hub of construction and landscaping material calculators. No signup, no paywall — just useful tools.";
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "About MaterialCalc",
+  "description": description,
+  "url": "https://materialcalc.com/about/"
+};
+---
+
+<BaseLayout title={`${title} | MaterialCalc`} description={description} schema={schema}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'About' }
+    ]} />
+
+    <article class="content">
+      <header class="page-header">
+        <h1>About MaterialCalc</h1>
+        <p class="intro">
+          MaterialCalc is a free hub of construction and landscaping material calculators.
+          We build the tools we wish existed — accurate, fast, ad-light, and free for everyone
+          to use.
+        </p>
+      </header>
+
+      <h2>What We Do</h2>
+      <p>
+        We build free online calculators for estimating construction and landscaping materials —
+        gravel, concrete, mulch, lumber, soil, stone, and more. Every tool gives you the answer
+        in the units suppliers actually use (cubic yards, tons, bags), includes appropriate
+        waste factors, and explains the formula so you can sanity-check the result.
+      </p>
+
+      <h2>Why We Built This</h2>
+      <p>
+        Existing material calculators on the web fall into two categories: ad-cluttered tools
+        buried inside long-form articles, or single-purpose calculators that only work for one
+        specific material at one specific supplier. Neither serves a person planning a real
+        project well.
+      </p>
+      <p>
+        MaterialCalc takes a different approach: one focused hub, one consistent interface, every
+        major material covered. The same calculator that estimates gravel for your driveway
+        also estimates mulch for your garden, concrete for your patio, and lumber for your deck —
+        in the same units, with the same workflow, on the same site.
+      </p>
+
+      <h2>How We Make Sure the Numbers Are Right</h2>
+      <p>
+        Calculators are only useful if they're accurate. Every formula on this site is documented
+        on our <a href="/methodology/">methodology page</a>, along with the density values, source
+        references, and known limitations. The math is verifiable by hand for any project — we
+        show the formula on every calculator page.
+      </p>
+      <p>
+        Density values come from published industry standards: ASTM International for aggregates
+        and construction materials, AAPA for asphalt, NHLA for lumber grading, USDA NRCS for soil,
+        and USGS for natural stone. These are public references anyone can verify. We don't claim
+        proprietary or expert knowledge — we cite the public sources every contractor uses.
+      </p>
+      <p>
+        Pricing references are based on regional supplier surveys and updated semi-annually. They're
+        meant as ballpark figures for budgeting, not quotes. Always get your local supplier's
+        actual price before placing an order.
+      </p>
+
+      <h2>What We Stand For</h2>
+      <ul>
+        <li><strong>Free, no signup, no paywall.</strong> Calculators are a utility, not a lead-gen funnel. You should be able to use any tool on this site without giving us anything.</li>
+        <li><strong>Mobile-first.</strong> Most material orders happen on a job site or at the supplier counter, on a phone. Our tools work for that context — large input fields, clear results, no popups.</li>
+        <li><strong>Real-world numbers.</strong> Every example, every price reference, every density figure is based on actual current market data. We update prices and densities seasonally.</li>
+        <li><strong>Transparent math.</strong> Every calculator page shows the formula. You can verify any result by hand. No black boxes.</li>
+        <li><strong>Honest disclaimers.</strong> We're a calculator site, not a substitute for professional engineering or licensed contractor advice. For projects involving structural integrity, building permits, or significant financial commitment, hire a pro.</li>
+      </ul>
+
+      <h2>How We Make Money</h2>
+      <p>
+        We don't charge for calculators and we never will. The site is supported by:
+      </p>
+      <ul>
+        <li><strong>Display advertising:</strong> Ads from Google AdSense on calculator pages. Ad placements are designed never to interfere with the tool itself — you'll never see an ad before you can see your result.</li>
+        <li><strong>Affiliate links (selective):</strong> When we link to suppliers like Home Depot or Lowe's, those links may be affiliated, meaning we earn a small commission if you order something. Affiliate status doesn't change which suppliers we recommend — we link to them because they're the most common consumer-accessible sources.</li>
+      </ul>
+      <p>
+        We will never accept money to feature inaccurate density values, inflated price estimates,
+        or biased material recommendations. Editorial independence is foundational to a calculator
+        being trustworthy at all.
+      </p>
+
+      <h2>The Site</h2>
+      <p>
+        MaterialCalc launched in early 2026 with a focused roadmap of 30+ calculators across
+        aggregates, soil, volume measurement, surfaces, structure, and outdoor projects. New tools
+        are published roughly every two weeks.
+      </p>
+      <p>
+        The site is built with a static-first architecture (Astro framework, hosted on Cloudflare),
+        which means it loads in under 1.5 seconds on mobile and works even with spotty job-site
+        connectivity. We track no personal data and use only basic anonymous analytics to
+        understand which calculators get used most.
+      </p>
+
+      <h2>Important Disclaimer</h2>
+      <p>
+        MaterialCalc is an estimating tool, not professional advice. Our calculators help you
+        ballpark material quantities and budgets for planning purposes. They are not engineered
+        load calculations, code compliance reviews, or supplier-specific quotes. For projects
+        involving:
+      </p>
+      <ul>
+        <li>Structural elements (foundations, retaining walls, load-bearing concrete)</li>
+        <li>Building permits or code-required engineering</li>
+        <li>Significant financial commitment ($5,000+ in materials)</li>
+        <li>Safety-critical applications (playgrounds, pools, decks)</li>
+      </ul>
+      <p>
+        Consult a licensed engineer, contractor, or architect in your jurisdiction. Our calculators
+        do not replace professional judgment, and we accept no liability for decisions made based
+        solely on calculator results.
+      </p>
+
+      <h2>Feedback Welcome</h2>
+      <p>
+        We update calculators based on real user feedback. If a density value seems wrong, a price
+        range is out of date, or a calculator is missing a feature you need — let us know. We read
+        every email. <a href="/contact/">Contact us here</a>.
+      </p>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-6) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul { font-size: 15px; line-height: 1.7; }
+  .content > ul li { margin-bottom: var(--s-2); }
+</style>

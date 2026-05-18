@@ -1,0 +1,397 @@
+---
+// Self-contained interactive Gravel Calculator island.
+// All state lives in the DOM. Zero framework dependencies.
+---
+
+<div class="tool" id="gravel-tool">
+  <div class="tool-header">
+    <div class="tool-title">Calculator</div>
+    <div class="unit-toggle" role="tablist" aria-label="Units">
+      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
+      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    </div>
+  </div>
+
+  <div class="shape-row" role="tablist" aria-label="Shape">
+    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Rectangle</button>
+    <button type="button" class="shape-btn" data-shape="circle">● Circle</button>
+    <button type="button" class="shape-btn" data-shape="triangle">▲ Triangle</button>
+  </div>
+
+  <div class="form-grid">
+    <div class="field">
+      <label for="g-length"><span data-shape-text="rect-length">Length</span></label>
+      <div class="field-input">
+        <input id="g-length" type="number" value="20" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field" data-show-when="rectangle,triangle">
+      <label for="g-width"><span data-shape-text="rect-width">Width</span></label>
+      <div class="field-input">
+        <input id="g-width" type="number" value="10" min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">ft</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="g-depth">Depth</label>
+      <div class="field-input">
+        <input id="g-depth" type="number" value="4" min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">in</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="g-density">Gravel type</label>
+      <div class="field-input">
+        <select id="g-density">
+          <option value="1.35">Standard gravel (1.35 t/yd³)</option>
+          <option value="1.42">Crushed stone (1.42 t/yd³)</option>
+          <option value="1.50">Pea gravel (1.50 t/yd³)</option>
+          <option value="1.60">River rock (1.60 t/yd³)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="g-price">Price per ton <span class="optional">(optional)</span></label>
+      <div class="field-input">
+        <input id="g-price" type="number" value="40" min="0" step="1" inputmode="decimal" />
+        <span class="suffix">$/ton</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="g-waste">Waste factor</label>
+      <div class="field-input">
+        <select id="g-waste">
+          <option value="0">None</option>
+          <option value="0.05" selected>5% (recommended)</option>
+          <option value="0.10">10% (large project)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" role="status" aria-live="polite">
+    <div class="result-label">You need</div>
+    <div class="result-main">
+      <span class="number" id="r-yards">2.59</span>
+      <span class="unit">cubic yards</span>
+    </div>
+    <div class="result-secondary">
+      ≈ <strong id="r-tons">3.50</strong> tons &nbsp;·&nbsp;
+      ≈ <strong id="r-bags">140</strong> bags (50 lb) &nbsp;·&nbsp;
+      <strong id="r-cost">$140</strong> total cost
+    </div>
+    <div class="result-actions">
+      <button type="button" class="btn" id="btn-copy">📋 Copy result</button>
+      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
+      <button type="button" class="btn" id="btn-share">↗ Share</button>
+      
+    </div>
+  </div>
+</div>
+
+<style>
+  .tool {
+    background: var(--white);
+    border: 1px solid var(--n200);
+    border-radius: var(--r-lg);
+    padding: var(--s-6);
+    margin-bottom: var(--s-4);
+    box-shadow: var(--shadow-xs);
+  }
+  @media (max-width: 540px) { .tool { padding: var(--s-4); } }
+
+  .tool-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--s-5);
+    padding-bottom: var(--s-4);
+    border-bottom: 1px solid var(--n200);
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .tool-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--n700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .unit-toggle {
+    display: inline-flex;
+    background: var(--n100);
+    border-radius: var(--r-md);
+    padding: 3px;
+  }
+  .unit-toggle button {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--n500);
+    cursor: pointer;
+    border-radius: var(--r-sm);
+  }
+  .unit-toggle button.active {
+    background: var(--white);
+    color: var(--primary);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .shape-row {
+    display: flex;
+    gap: var(--s-2);
+    margin-bottom: var(--s-5);
+  }
+  .shape-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1.5px solid var(--n200);
+    background: var(--white);
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--n700);
+    cursor: pointer;
+    transition: all var(--t-fast);
+  }
+  .shape-btn:hover { border-color: var(--primary); }
+  .shape-btn.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--white);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-4);
+    margin-bottom: var(--s-4);
+  }
+  @media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--n700);
+    margin-bottom: 6px;
+  }
+  .optional { color: var(--n400); font-weight: 400; }
+  .field-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .field input, .field select {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border: 1.5px solid var(--n200);
+    border-radius: var(--r-md);
+    font-size: 15px;
+    color: var(--n900);
+    background: var(--white);
+    transition: all var(--t-fast);
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30,58,95,0.1);
+  }
+  .suffix {
+    position: absolute;
+    right: 12px;
+    color: var(--n500);
+    font-size: 13px;
+    font-weight: 500;
+    pointer-events: none;
+  }
+  .field input:focus ~ .suffix { color: var(--primary); }
+
+  .result {
+    background: var(--n50);
+    border: 1px solid var(--n200);
+    border-radius: var(--r-md);
+    padding: var(--s-5);
+    margin-top: var(--s-5);
+  }
+  .result-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--n500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: var(--s-2);
+  }
+  .result-main {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-2);
+    flex-wrap: wrap;
+  }
+  .result-main .number {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1.1;
+    letter-spacing: -1px;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-main .unit {
+    font-size: 18px;
+    color: var(--n700);
+    font-weight: 600;
+  }
+  .result-secondary {
+    font-size: 15px;
+    color: var(--n700);
+    margin-top: var(--s-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .result-secondary strong {
+    color: var(--n900);
+    font-weight: 700;
+  }
+  .result-actions {
+    display: flex;
+    gap: var(--s-2);
+    margin-top: var(--s-4);
+    flex-wrap: wrap;
+  }
+
+  [data-show-when] { display: block; }
+  [data-show-when][hidden] { display: none; }
+</style>
+
+<script is:inline>
+(function() {
+  const root = document.getElementById('gravel-tool');
+  if (!root) return;
+
+  const $ = (sel) => root.querySelector(sel);
+  const length = $('#g-length');
+  const width  = $('#g-width');
+  const depth  = $('#g-depth');
+  const density = $('#g-density');
+  const price  = $('#g-price');
+  const waste  = $('#g-waste');
+  const widthField = width.closest('.field');
+
+  function getActive(selector) {
+    return root.querySelector(selector + '.active');
+  }
+
+  function calculate() {
+    const shape = getActive('.shape-btn').dataset.shape;
+    const units = getActive('.unit-toggle button').dataset.units;
+    const l = parseFloat(length.value) || 0;
+    const w = parseFloat(width.value)  || 0;
+    const d = parseFloat(depth.value)  || 0;
+    const den = parseFloat(density.value) || 1.35;
+    const p = parseFloat(price.value) || 0;
+    const wa = parseFloat(waste.value) || 0;
+
+    // Area
+    let area;
+    if (shape === 'rectangle')     area = l * w;
+    else if (shape === 'circle')   area = Math.PI * Math.pow(l / 2, 2);
+    else /* triangle */            area = 0.5 * l * w;
+
+    // Volume → cubic yards
+    let cubicYards;
+    if (units === 'imperial') {
+      // depth (in) → ft; area (sq ft) → cu ft → cu yd
+      cubicYards = (area * (d / 12)) / 27;
+    } else {
+      // depth (cm) → m; area (m²) → m³ → cu yd
+      cubicYards = (area * (d / 100)) * 1.30795;
+    }
+
+    cubicYards *= (1 + wa);
+    const tons = cubicYards * den;
+    const bags = (cubicYards * 27) / 0.5;  // 50 lb bag ≈ 0.5 ft³
+    const cost = tons * p;
+
+    $('#r-yards').textContent = cubicYards.toFixed(2);
+    $('#r-tons').textContent  = tons.toFixed(2);
+    $('#r-bags').textContent  = Math.ceil(bags).toLocaleString();
+    $('#r-cost').textContent  = '$' + Math.round(cost).toLocaleString();
+  }
+
+  function updateShape(shape) {
+    if (shape === 'circle') {
+      widthField.hidden = true;
+      length.closest('.field').querySelector('label span').textContent = 'Diameter';
+    } else {
+      widthField.hidden = false;
+      length.closest('.field').querySelector('label span').textContent = 'Length';
+    }
+  }
+
+  // Wire up inputs
+  root.querySelectorAll('input, select').forEach(el =>
+    el.addEventListener('input', calculate)
+  );
+
+  // Shape selector
+  root.querySelectorAll('.shape-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateShape(btn.dataset.shape);
+      calculate();
+    });
+  });
+
+  // Unit toggle
+  root.querySelectorAll('.unit-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('.unit-toggle button').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const metric = btn.dataset.units === 'metric';
+      root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      root.querySelectorAll('[data-unit="depth"]').forEach(el => el.textContent  = metric ? 'cm' : 'in');
+      calculate();
+    });
+  });
+
+  // Copy result
+  const btnCopy = $('#btn-copy');
+  btnCopy.addEventListener('click', () => {
+    const yards = $('#r-yards').textContent;
+    const tons  = $('#r-tons').textContent;
+    const bags  = $('#r-bags').textContent;
+    const cost  = $('#r-cost').textContent;
+    const text = `Gravel needed: ${yards} cubic yards (${tons} tons, ~${bags} bags). Estimated cost: ${cost}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      const original = btnCopy.textContent;
+      btnCopy.textContent = '✓ Copied';
+      setTimeout(() => { btnCopy.textContent = original; }, 1500);
+    });
+  });
+
+  // Share
+  $('#btn-share').addEventListener('click', () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Gravel Calculator',
+        text: 'Calculate gravel quantity for your project',
+        url: location.href
+      });
+    } else {
+      navigator.clipboard?.writeText(location.href);
+    }
+  });
+
+  // Initial render
+  calculate();
+})();
+</script>

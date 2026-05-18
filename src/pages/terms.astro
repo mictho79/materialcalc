@@ -1,0 +1,182 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+
+const title = "Terms of Service";
+const description = "MaterialCalc terms of service. Use of the site, calculator disclaimers, intellectual property, and limitation of liability.";
+const lastUpdated = "November 18, 2026";
+---
+
+<BaseLayout title={`${title} | MaterialCalc`} description={description}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Home', href: '/' },
+      { label: 'Terms of Service' }
+    ]} />
+
+    <article class="content legal">
+      <header class="page-header">
+        <h1>Terms of Service</h1>
+        <p class="updated">Last updated: {lastUpdated}</p>
+      </header>
+
+      <p>
+        These Terms of Service ("Terms") govern your use of the MaterialCalc website
+        ("the Site", "we", "us"). By accessing or using the Site, you agree to be bound by these
+        Terms. If you don't agree, please don't use the Site.
+      </p>
+
+      <h2>1. Use of the Site</h2>
+      <p>
+        MaterialCalc provides free online calculators for construction, landscaping, and material
+        estimation. You may use the Site for personal or commercial purposes without registration,
+        subject to these Terms.
+      </p>
+      <p>You agree NOT to:</p>
+      <ul>
+        <li>Use the Site for any illegal purpose or in violation of any laws</li>
+        <li>Attempt to gain unauthorized access to the Site, our servers, or other users' data</li>
+        <li>Use automated tools (bots, scrapers) to extract data beyond what's permitted by our <code>robots.txt</code></li>
+        <li>Interfere with or disrupt the Site, including overloading our servers</li>
+        <li>Misrepresent your affiliation with us or any other entity</li>
+        <li>Copy, reproduce or republish substantial portions of our content without permission (see Intellectual Property below)</li>
+      </ul>
+
+      <h2>2. Calculator Accuracy and Disclaimer</h2>
+      <p>
+        Our calculators are <strong>estimating tools</strong>, not engineering substitutes. They
+        produce theoretical results based on input dimensions and average material density values.
+        Actual material orders should account for:
+      </p>
+      <ul>
+        <li>Local supplier variation in density and grading</li>
+        <li>Moisture content (wet materials weigh significantly more)</li>
+        <li>Compaction and settling during installation</li>
+        <li>Project-specific waste and irregularities</li>
+        <li>Site conditions, drainage, and grading requirements</li>
+      </ul>
+      <p>
+        <strong>For any project involving structural integrity, building permits, or significant
+        financial commitment, consult a licensed professional engineer, contractor, or architect.</strong>
+        Our calculators are not a substitute for professional engineering judgment, code compliance
+        review, or supplier-specific quotes.
+      </p>
+      <p>
+        We make reasonable efforts to ensure formulas, density values and pricing references are
+        accurate and current. However, we make no guarantee of accuracy and accept no liability
+        for decisions made based on calculator results.
+      </p>
+
+      <h2>3. Intellectual Property</h2>
+      <p>
+        All content on the Site — including calculator interfaces, design, text, images, code,
+        formulas presentations, reference tables, and FAQs — is the property of MaterialCalc or
+        our content contributors, protected by copyright and other intellectual property laws.
+      </p>
+      <p>You may:</p>
+      <ul>
+        <li>Use calculator results for personal and commercial projects</li>
+        <li>Reference and quote short excerpts from articles with attribution and a link back to the source page</li>
+        <li>Embed our calculators on your own site using our official embed code (when available)</li>
+      </ul>
+      <p>You may not:</p>
+      <ul>
+        <li>Copy or republish substantial portions of our written content without permission</li>
+        <li>Re-host our calculator code or recreate functionality that's substantially similar</li>
+        <li>Remove or modify attribution when using embed widgets</li>
+        <li>Use our brand name "MaterialCalc" or our logos without written consent</li>
+      </ul>
+      <p>
+        For permission requests, contact <a href="mailto:legal@materialcalc.com">legal@materialcalc.com</a>.
+      </p>
+
+      <h2>4. Third-Party Links</h2>
+      <p>
+        The Site may contain links to third-party websites including affiliate links to suppliers
+        like Home Depot, Lowe's, and Amazon. These third-party sites are not under our control,
+        and we are not responsible for their content, privacy practices, or accuracy.
+      </p>
+      <p>
+        Affiliate links may pay us a small commission if you make a purchase. This does not affect
+        the price you pay. Our editorial recommendations are not influenced by affiliate
+        relationships — we link to commonly accessible suppliers regardless of commission.
+      </p>
+
+      <h2>5. Advertising</h2>
+      <p>
+        The Site displays advertising from Google AdSense and may display additional ads from
+        select partners. We don't control which specific ads appear; placement is automated.
+        If you believe an ad is misleading, illegal, or harmful, please report it to us and we
+        will work with the ad network to address it.
+      </p>
+
+      <h2>6. Limitation of Liability</h2>
+      <p>
+        TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, MATERIALCALC AND ITS OPERATORS SHALL
+        NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE DAMAGES
+        ARISING FROM YOUR USE OF THE SITE, INCLUDING BUT NOT LIMITED TO:
+      </p>
+      <ul>
+        <li>Material under-orders or over-orders based on calculator results</li>
+        <li>Project failures attributed to calculator-based estimates</li>
+        <li>Lost profits, lost data, or business interruption</li>
+        <li>Errors or omissions in calculator formulas, density values, or price references</li>
+        <li>Third-party services linked from the Site</li>
+      </ul>
+      <p>
+        OUR TOTAL CUMULATIVE LIABILITY FOR ANY CLAIM ARISING FROM OR RELATED TO THE SITE SHALL NOT
+        EXCEED $50 USD.
+      </p>
+
+      <h2>7. No Warranty</h2>
+      <p>
+        THE SITE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EXPRESS
+        OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+        PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
+      </p>
+
+      <h2>8. Privacy</h2>
+      <p>
+        Our handling of your information is governed by our <a href="/privacy/">Privacy Policy</a>,
+        which is incorporated into these Terms by reference.
+      </p>
+
+      <h2>9. Modifications</h2>
+      <p>
+        We may revise these Terms at any time. Material changes will be flagged on the Site for
+        30 days before taking effect. Your continued use of the Site after changes constitutes
+        acceptance of the revised Terms. The "Last updated" date reflects the most recent revision.
+      </p>
+
+      <h2>10. Termination</h2>
+      <p>
+        We reserve the right to refuse service, block access, or otherwise restrict use of the
+        Site to any user, at our discretion, for any reason — including violation of these Terms.
+      </p>
+
+      <h2>11. Governing Law</h2>
+      <p>
+        These Terms are governed by the laws of the United States and the State of Delaware,
+        without regard to conflict-of-law principles. Any disputes arising from these Terms
+        shall be resolved in the state or federal courts located in Delaware.
+      </p>
+
+      <h2>12. Contact</h2>
+      <p>
+        Questions about these Terms: <a href="mailto:legal@materialcalc.com">legal@materialcalc.com</a>
+      </p>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-6) 0 var(--s-5); }
+  .updated { color: var(--n500); font-size: 14px; margin-top: 8px; }
+  .legal p { line-height: 1.7; font-size: 15px; }
+  .legal ul { font-size: 15px; line-height: 1.7; }
+  .legal ul li { margin-bottom: var(--s-2); }
+  .legal h2 { font-size: 20px; }
+  .legal h3 { font-size: 16px; margin-top: var(--s-4); }
+  .legal code { background: var(--n100); padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+</style>
