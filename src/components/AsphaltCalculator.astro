@@ -1,116 +1,191 @@
 ---
 // Asphalt Calculator — tons-focused output since asphalt is sold by weight, not volume.
+// Parametrized by lang: ES defaults to metric and shows toneladas + m³ as the result.
+// IMPORTANT: density options are stored per the active unit system —
+//   EN values are t/yd³; ES values are realistic compacted densities in t/m³
+//   (hot mix asphalt ≈ 2.4 t/m³ compacted).
+import { getStrings } from '@i18n/index';
+export interface Props { lang?: 'en' | 'es'; }
+const { lang = 'en' } = Astro.props;
+const t = getStrings(lang).widget;
+const metricDefault = lang === 'es';
+
+const labels = lang === 'es'
+  ? {
+      rectangle: '▭ Rectángulo', circle: '● Círculo', trapezoid: '⬢ Trapecio (ensanche)',
+      length: 'Largo', width: 'Ancho', diameter: 'Diámetro',
+      widthA: 'Ancho A (estrecho)', widthB: 'Ancho B (amplio)',
+      thickness: 'Espesor de la carpeta', asphaltType: 'Tipo de mezcla asfáltica',
+      pricePer: 'Precio por tonelada', priceSuffix: '$/ton',
+      youNeed: 'Necesitas', tons: 'toneladas',
+      area: 'área', materialCost: 'Costo del material',
+      costNote: '(sin incluir mano de obra ni preparación de la base)',
+      copyResult: '📋 Copiar resultado', print: '🖨 Imprimir', share: '↗ Compartir',
+      copied: '✓ Copiado', shareTitle: 'Calculadora de Asfalto',
+    }
+  : {
+      rectangle: '▭ Rectangle', circle: '● Circle', trapezoid: '⬢ Trapezoid (driveway widening)',
+      length: 'Length', width: 'Width', diameter: 'Diameter',
+      widthA: 'Width A (narrow)', widthB: 'Width B (wide)',
+      thickness: 'Asphalt thickness', asphaltType: 'Asphalt type',
+      pricePer: 'Price per ton', priceSuffix: '$/ton',
+      youNeed: 'You need', tons: 'tons',
+      area: 'area', materialCost: 'Material cost',
+      costNote: '(excluding installation labor and base prep)',
+      copyResult: '📋 Copy result', print: '🖨 Print', share: '↗ Share',
+      copied: '✓ Copied', shareTitle: 'Asphalt Calculator',
+    };
+
+// Density options stored per active unit system.
+// ES: realistic compacted densities in t/m³ (hot mix ≈ 2.4 t/m³).
+const typeOptions = lang === 'es'
+  ? [
+      { value: '2.40', label: 'Mezcla asfáltica en caliente — 2.40 t/m³' },
+      { value: '2.30', label: 'Mezcla asfáltica en frío — 2.30 t/m³' },
+      { value: '2.45', label: 'Mezcla densa (granulometría cerrada) — 2.45 t/m³' },
+      { value: '2.35', label: 'SMA / mezcla drenante — 2.35 t/m³' },
+      { value: '2.20', label: 'Asfalto reciclado (RAP) — 2.20 t/m³' },
+    ]
+  : [
+      { value: '2.03', label: 'Hot mix asphalt — 2.03 t/yd³' },
+      { value: '1.95', label: 'Cold mix asphalt — 1.95 t/yd³' },
+      { value: '2.10', label: 'Dense-graded (D mix) — 2.10 t/yd³' },
+      { value: '2.00', label: 'SMA / OGFC — 2.00 t/yd³' },
+      { value: '1.85', label: 'Recycled asphalt (RAP) — 1.85 t/yd³' },
+    ];
+
+const wasteOptions = lang === 'es'
+  ? [
+      { value: '0.05', label: '5% (trabajos chicos y simples)' },
+      { value: '0.10', label: '10% (recomendado)', selected: true },
+      { value: '0.15', label: '15% (formas irregulares o bacheo)' },
+    ]
+  : [
+      { value: '0.05', label: '5% (small simple jobs)' },
+      { value: '0.10', label: '10% (recommended)', selected: true },
+      { value: '0.15', label: '15% (irregular shapes or repairs)' },
+    ];
 ---
 
-<div class="tool" id="asphalt-tool">
+<div class="tool" id="asphalt-tool"
+  data-metric-default={metricDefault.toString()}
+  data-unit-tons={labels.tons}
+  data-label-length={labels.length} data-label-diameter={labels.diameter}
+  data-copied={labels.copied} data-share-title={labels.shareTitle}
+  data-copy-label={lang === 'es' ? 'Asfalto' : 'Asphalt'}
+  data-copy-cost={lang === 'es' ? 'Costo del material' : 'Material cost'}>
   <div class="tool-header">
-    <div class="tool-title">Calculator</div>
-    <div class="unit-toggle" role="tablist" aria-label="Units">
-      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
-      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    <div class="tool-title">{t.calculator}</div>
+    <div class="unit-toggle" role="tablist" aria-label={t.units}>
+      <button type="button" class={metricDefault ? '' : 'active'} data-units="imperial" aria-pressed={(!metricDefault).toString()}>{t.imperial}</button>
+      <button type="button" class={metricDefault ? 'active' : ''} data-units="metric" aria-pressed={metricDefault.toString()}>{t.metric}</button>
     </div>
   </div>
 
-  <div class="shape-row" role="tablist" aria-label="Shape">
-    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Rectangle</button>
-    <button type="button" class="shape-btn" data-shape="circle">● Circle</button>
-    <button type="button" class="shape-btn" data-shape="trapezoid">⬢ Trapezoid (driveway widening)</button>
+  <div class="shape-row" role="tablist" aria-label={t.shape}>
+    <button type="button" class="shape-btn active" data-shape="rectangle">{labels.rectangle}</button>
+    <button type="button" class="shape-btn" data-shape="circle">{labels.circle}</button>
+    <button type="button" class="shape-btn" data-shape="trapezoid">{labels.trapezoid}</button>
   </div>
 
   <div class="form-grid">
     <div class="field" data-show="rectangle,trapezoid">
-      <label for="as-length">Length</label>
+      <label for="as-length">{labels.length}</label>
       <div class="field-input">
-        <input id="as-length" type="number" value="40" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="as-length" type="number" value={metricDefault ? '12' : '40'} min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show="rectangle">
-      <label for="as-width">Width</label>
+      <label for="as-width">{labels.width}</label>
       <div class="field-input">
-        <input id="as-width" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="as-width" type="number" value={metricDefault ? '3.5' : '12'} min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show="circle">
-      <label for="as-diameter">Diameter</label>
+      <label for="as-diameter">{labels.diameter}</label>
       <div class="field-input">
-        <input id="as-diameter" type="number" value="20" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="as-diameter" type="number" value={metricDefault ? '6' : '20'} min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show="trapezoid">
-      <label for="as-width-a">Width A (narrow)</label>
+      <label for="as-width-a">{labels.widthA}</label>
       <div class="field-input">
-        <input id="as-width-a" type="number" value="10" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="as-width-a" type="number" value={metricDefault ? '3' : '10'} min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show="trapezoid">
-      <label for="as-width-b">Width B (wide)</label>
+      <label for="as-width-b">{labels.widthB}</label>
       <div class="field-input">
-        <input id="as-width-b" type="number" value="16" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="as-width-b" type="number" value={metricDefault ? '5' : '16'} min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="as-thickness">Asphalt thickness</label>
+      <label for="as-thickness">{labels.thickness}</label>
       <div class="field-input">
-        <input id="as-thickness" type="number" value="3" min="0" step="0.25" inputmode="decimal" />
-        <span class="suffix" data-unit="depth">in</span>
+        <input id="as-thickness" type="number" value={metricDefault ? '7' : '3'} min="0" step={metricDefault ? '0.5' : '0.25'} inputmode="decimal" />
+        <span class="suffix" data-unit="depth">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="as-type">Asphalt type</label>
+      <label for="as-type">{labels.asphaltType}</label>
       <div class="field-input">
         <select id="as-type">
-          <option value="2.03">Hot mix asphalt — 2.03 t/yd³</option>
-          <option value="1.95">Cold mix asphalt — 1.95 t/yd³</option>
-          <option value="2.10">Dense-graded (D mix) — 2.10 t/yd³</option>
-          <option value="2.00">SMA / OGFC — 2.00 t/yd³</option>
-          <option value="1.85">Recycled asphalt (RAP) — 1.85 t/yd³</option>
+          {typeOptions.map(o => (
+            <option value={o.value}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
     <div class="field">
-      <label for="as-price">Price per ton</label>
+      <label for="as-price">{labels.pricePer}</label>
       <div class="field-input">
-        <input id="as-price" type="number" value="125" min="0" step="5" inputmode="decimal" />
-        <span class="suffix">$/ton</span>
+        <input id="as-price" type="number" value={metricDefault ? '1800' : '125'} min="0" step="5" inputmode="decimal" />
+        <span class="suffix">{labels.priceSuffix}</span>
       </div>
     </div>
     <div class="field">
-      <label for="as-waste">Waste / compaction factor</label>
+      <label for="as-waste">{t.wasteFactor}</label>
       <div class="field-input">
         <select id="as-waste">
-          <option value="0.05">5% (small simple jobs)</option>
-          <option value="0.10" selected>10% (recommended)</option>
-          <option value="0.15">15% (irregular shapes or repairs)</option>
+          {wasteOptions.map(o => (
+            <option value={o.value} selected={o.selected}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
   </div>
 
   <div class="result" role="status" aria-live="polite">
-    <div class="result-label">You need</div>
+    <div class="result-label">{labels.youNeed}</div>
     <div class="result-main">
-      <span class="number" id="as-tons">10.97</span>
-      <span class="unit">tons</span>
+      <span class="number" id="as-tons">{metricDefault ? '7.76' : '10.97'}</span>
+      <span class="unit" id="as-tons-unit">{labels.tons}</span>
     </div>
-    <div class="result-secondary">
-      = <strong id="as-yards">5.41</strong> yd³ &nbsp;·&nbsp;
-      <strong id="as-feet">146</strong> ft³ &nbsp;·&nbsp;
-      area <strong id="as-area">480</strong> sq ft
-    </div>
+    {lang === 'es' ? (
+      <div class="result-secondary">
+        = <strong id="as-vol">3.23</strong> <span id="as-vol-unit">m³</span> &nbsp;·&nbsp;
+        {labels.area} <strong id="as-area">42</strong> <span id="as-area-unit">m²</span>
+      </div>
+    ) : (
+      <div class="result-secondary">
+        = <strong id="as-vol">5.41</strong> <span id="as-vol-unit">yd³</span> &nbsp;·&nbsp;
+        <strong id="as-feet">146</strong> <span id="as-feet-unit">ft³</span> &nbsp;·&nbsp;
+        area <strong id="as-area">480</strong> <span id="as-area-unit">sq ft</span>
+      </div>
+    )}
     <div class="result-cost-row">
-      Material cost: <strong id="as-cost">$1,371</strong>
-      <span class="note">(excluding installation labor and base prep)</span>
+      {labels.materialCost}: <strong id="as-cost">{metricDefault ? '$13,975' : '$1,371'}</strong>
+      <span class="note">{labels.costNote}</span>
     </div>
     <div class="result-actions">
-      <button type="button" class="btn" id="as-btn-copy">📋 Copy result</button>
-      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
-      <button type="button" class="btn" id="as-btn-share">↗ Share</button>
-      
+      <button type="button" class="btn" id="as-btn-copy">{labels.copyResult}</button>
+      <button type="button" class="btn" onclick="window.print()">{labels.print}</button>
+      <button type="button" class="btn" id="as-btn-share">{labels.share}</button>
     </div>
   </div>
 </div>
@@ -155,44 +230,65 @@
   if (!root) return;
   const $ = (s) => root.querySelector(s);
 
-  function calculate() {
-    const shape = root.querySelector('.shape-btn.active').dataset.shape;
-    const units = root.querySelector('.unit-toggle button.active').dataset.units;
-    const isMetric = units === 'metric';
-    const lengthMul = isMetric ? 3.28084 : 1;
-    const depthMul = isMetric ? 0.0328084 : (1 / 12);
+  const isES = root.dataset.metricDefault === 'true';
+  const labelLength = root.dataset.labelLength || 'Length';
 
-    let area = 0;
+  function rawArea(shape) {
     if (shape === 'rectangle') {
-      area = (parseFloat($('#as-length').value) || 0) * (parseFloat($('#as-width').value) || 0);
+      return (parseFloat($('#as-length').value) || 0) * (parseFloat($('#as-width').value) || 0);
     } else if (shape === 'circle') {
       const r = (parseFloat($('#as-diameter').value) || 0) / 2;
-      area = Math.PI * r * r;
+      return Math.PI * r * r;
     } else if (shape === 'trapezoid') {
       const a = parseFloat($('#as-width-a').value) || 0;
       const b = parseFloat($('#as-width-b').value) || 0;
       const l = parseFloat($('#as-length').value) || 0;
-      area = ((a + b) / 2) * l;
+      return ((a + b) / 2) * l;
     }
-    // area is in user units squared; convert to sq ft
-    area = area * lengthMul * lengthMul;
+    return 0;
+  }
 
-    const thickness = (parseFloat($('#as-thickness').value) || 0) * depthMul; // → ft
-    const density = parseFloat($('#as-type').value) || 2.03;
+  function calculate() {
+    const shape = root.querySelector('.shape-btn.active').dataset.shape;
+    const isMetric = root.querySelector('.unit-toggle button.active').dataset.units === 'metric';
     const price = parseFloat($('#as-price').value) || 0;
     const waste = parseFloat($('#as-waste').value) || 0.10;
+    const density = parseFloat($('#as-type').value) || (isES ? 2.40 : 2.03);
 
-    let cubicFeet = area * thickness;
-    cubicFeet *= (1 + waste);
+    if (isES) {
+      // Native metric/imperial output. Density stored per active unit system.
+      const area = rawArea(shape);
+      let volume, tons;
+      if (isMetric) {
+        // thickness (cm) → m; area (m²) → m³; density in t/m³.
+        const thickness = (parseFloat($('#as-thickness').value) || 0) / 100;
+        volume = area * thickness * (1 + waste);
+      } else {
+        // thickness (in) → ft; area (sq ft) → cu ft → cu yd; density in t/yd³.
+        const thickness = (parseFloat($('#as-thickness').value) || 0) / 12;
+        volume = (area * thickness * (1 + waste)) / 27;
+      }
+      tons = volume * density;
+      $('#as-tons').textContent = tons.toFixed(2);
+      $('#as-vol').textContent = volume.toFixed(2);
+      $('#as-area').textContent = Math.round(area).toLocaleString();
+      $('#as-cost').textContent = '$' + Math.round(tons * price).toLocaleString();
+      return;
+    }
+
+    // EN: output is always imperial; metric inputs are converted to feet.
+    const lengthMul = isMetric ? 3.28084 : 1;
+    const depthMul = isMetric ? 0.0328084 : (1 / 12);
+    let area = rawArea(shape) * lengthMul * lengthMul; // → sq ft
+    const thickness = (parseFloat($('#as-thickness').value) || 0) * depthMul; // → ft
+    let cubicFeet = area * thickness * (1 + waste);
     const cubicYards = cubicFeet / 27;
     const tons = cubicYards * density;
-    const cost = tons * price;
-
     $('#as-tons').textContent = tons.toFixed(2);
-    $('#as-yards').textContent = cubicYards.toFixed(2);
+    $('#as-vol').textContent = cubicYards.toFixed(2);
     $('#as-feet').textContent = Math.round(cubicFeet).toLocaleString();
     $('#as-area').textContent = Math.round(area).toLocaleString();
-    $('#as-cost').textContent = '$' + Math.round(cost).toLocaleString();
+    $('#as-cost').textContent = '$' + Math.round(tons * price).toLocaleString();
   }
 
   function updateShape(shape) {
@@ -218,20 +314,32 @@
       const metric = btn.dataset.units === 'metric';
       root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
       root.querySelectorAll('[data-unit="depth"]').forEach(el => el.textContent = metric ? 'cm' : 'in');
+      if (isES) {
+        // ES output follows the active unit system.
+        const volU = $('#as-vol-unit'); if (volU) volU.textContent = metric ? 'm³' : 'yd³';
+        const areaU = $('#as-area-unit'); if (areaU) areaU.textContent = metric ? 'm²' : 'sq ft';
+      }
       calculate();
     });
   });
   $('#as-btn-copy').addEventListener('click', () => {
-    const text = `Asphalt needed: ${$('#as-tons').textContent} tons (${$('#as-yards').textContent} yd³). Material cost: ${$('#as-cost').textContent}.`;
+    const isMetric = root.querySelector('.unit-toggle button.active').dataset.units === 'metric';
+    const tons = $('#as-tons').textContent;
+    const vol = $('#as-vol').textContent;
+    const cost = $('#as-cost').textContent;
+    const tonsLabel = root.dataset.unitTons || 'tons';
+    const text = isES
+      ? `Asfalto: ${tons} ${tonsLabel} (${vol} ${isMetric ? 'm³' : 'yd³'}). Costo del material: ${cost}.`
+      : `Asphalt needed: ${tons} ${tonsLabel} (${vol} yd³). Material cost: ${cost}.`;
     navigator.clipboard?.writeText(text).then(() => {
       const btn = $('#as-btn-copy');
       const o = btn.textContent;
-      btn.textContent = '✓ Copied';
+      btn.textContent = root.dataset.copied || '✓ Copied';
       setTimeout(() => { btn.textContent = o; }, 1500);
     });
   });
   $('#as-btn-share').addEventListener('click', () => {
-    if (navigator.share) navigator.share({ title: 'Asphalt Calculator', url: location.href });
+    if (navigator.share) navigator.share({ title: root.dataset.shareTitle || 'Asphalt Calculator', url: location.href });
     else navigator.clipboard?.writeText(location.href);
   });
   updateShape('rectangle');
