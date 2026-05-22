@@ -1,167 +1,226 @@
 ---
-// Concrete Calculator — supports slab, footing, column, and steps. Outputs cubic yards + bags.
+// Concrete Calculator — supports slab, footing, column, and steps. Outputs cubic yards/meters + bags.
+import { getStrings } from '@i18n/index';
+export interface Props { lang?: 'en' | 'es'; }
+const { lang = 'en' } = Astro.props;
+const t = getStrings(lang).widget;
+const metricDefault = lang === 'es';
+
+const labels = lang === 'es'
+  ? {
+      slab: '▭ Losa', footing: '▬ Zapata', column: '● Columna', steps: '⫘ Escalones',
+      projectType: 'Tipo de proyecto',
+      slabLength: 'Largo', slabWidth: 'Ancho', slabThickness: 'Espesor',
+      footingLength: 'Largo total', footingWidth: 'Ancho', footingDepth: 'Profundidad',
+      colDiameter: 'Diámetro', colHeight: 'Altura', colCount: 'Número de columnas',
+      stepCount: 'Número de escalones', stepWidth: 'Ancho del escalón',
+      stepTread: 'Huella (profundidad)', stepRise: 'Peralte',
+      bagSize: 'Tamaño del saco', readymix: 'Premezclado entregado', bagsRetail: 'En sacos (menudeo)',
+      pcs: 'pzs', stepsSuffix: 'escalones',
+    }
+  : {
+      slab: '▭ Slab', footing: '▬ Footing', column: '● Column', steps: '⫘ Steps',
+      projectType: 'Project type',
+      slabLength: 'Length', slabWidth: 'Width', slabThickness: 'Thickness',
+      footingLength: 'Total length', footingWidth: 'Width', footingDepth: 'Depth',
+      colDiameter: 'Diameter', colHeight: 'Height', colCount: 'Number of columns',
+      stepCount: 'Number of steps', stepWidth: 'Step width',
+      stepTread: 'Tread depth (run)', stepRise: 'Step rise',
+      bagSize: 'Bag size', readymix: 'Ready-mix delivered', bagsRetail: 'Bags retail',
+      pcs: 'pcs', stepsSuffix: 'steps',
+    };
+
+// Bag-size <option> labels: keep lb bag math (ft³ values unchanged) but
+// add kg equivalent in ES for LatAm familiarity. Calculation is identical.
+const bagOptions = lang === 'es'
+  ? [
+      { value: '0.45', label: 'Saco de 27 kg / 60 lb (0.45 ft³)' },
+      { value: '0.60', label: 'Saco de 36 kg / 80 lb (0.60 ft³)', selected: true },
+      { value: '0.30', label: 'Saco de 18 kg / 40 lb (0.30 ft³)' },
+    ]
+  : [
+      { value: '0.45', label: '60 lb bag (0.45 ft³)' },
+      { value: '0.60', label: '80 lb bag (0.60 ft³)', selected: true },
+      { value: '0.30', label: '40 lb bag (0.30 ft³)' },
+    ];
+
+const wasteOptions = lang === 'es'
+  ? [
+      { value: '0', label: 'Ninguno' },
+      { value: '0.05', label: '5%' },
+      { value: '0.10', label: '10% (recomendado)', selected: true },
+      { value: '0.15', label: '15% (formas irregulares)' },
+    ]
+  : [
+      { value: '0', label: 'None' },
+      { value: '0.05', label: '5%' },
+      { value: '0.10', label: '10% (recommended)', selected: true },
+      { value: '0.15', label: '15% (irregular forms)' },
+    ];
 ---
 
-<div class="tool" id="concrete-tool">
+<div class="tool" id="concrete-tool"
+  data-unit-yd={t.cubicYards} data-unit-m3={t.cubicMeters} data-unit-bags={t.bags}
+  data-copied={t.copied} data-copy-label={lang === 'es' ? 'Concreto' : 'Concrete'}
+  data-share-title={lang === 'es' ? 'Calculadora de Concreto' : 'Concrete Calculator'}>
   <div class="tool-header">
-    <div class="tool-title">Calculator</div>
-    <div class="unit-toggle" role="tablist" aria-label="Units">
-      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
-      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    <div class="tool-title">{t.calculator}</div>
+    <div class="unit-toggle" role="tablist" aria-label={t.units}>
+      <button type="button" class={metricDefault ? '' : 'active'} data-units="imperial" aria-pressed={(!metricDefault).toString()}>{t.imperial}</button>
+      <button type="button" class={metricDefault ? 'active' : ''} data-units="metric" aria-pressed={metricDefault.toString()}>{t.metric}</button>
     </div>
   </div>
 
-  <div class="shape-row" role="tablist" aria-label="Project type">
-    <button type="button" class="shape-btn active" data-shape="slab">▭ Slab</button>
-    <button type="button" class="shape-btn" data-shape="footing">▬ Footing</button>
-    <button type="button" class="shape-btn" data-shape="column">● Column</button>
-    <button type="button" class="shape-btn" data-shape="steps">⫘ Steps</button>
+  <div class="shape-row" role="tablist" aria-label={labels.projectType}>
+    <button type="button" class="shape-btn active" data-shape="slab">{labels.slab}</button>
+    <button type="button" class="shape-btn" data-shape="footing">{labels.footing}</button>
+    <button type="button" class="shape-btn" data-shape="column">{labels.column}</button>
+    <button type="button" class="shape-btn" data-shape="steps">{labels.steps}</button>
   </div>
 
   <div class="form-grid">
     <!-- Slab -->
     <div class="field" data-show="slab">
-      <label for="cc-slab-length">Length</label>
+      <label for="cc-slab-length">{labels.slabLength}</label>
       <div class="field-input">
         <input id="cc-slab-length" type="number" value="20" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show="slab">
-      <label for="cc-slab-width">Width</label>
+      <label for="cc-slab-width">{labels.slabWidth}</label>
       <div class="field-input">
         <input id="cc-slab-width" type="number" value="20" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show="slab">
-      <label for="cc-slab-thickness">Thickness</label>
+      <label for="cc-slab-thickness">{labels.slabThickness}</label>
       <div class="field-input">
         <input id="cc-slab-thickness" type="number" value="4" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="depth">in</span>
+        <span class="suffix" data-unit="depth">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
 
     <!-- Footing -->
     <div class="field" data-show="footing">
-      <label for="cc-footing-length">Total length</label>
+      <label for="cc-footing-length">{labels.footingLength}</label>
       <div class="field-input">
         <input id="cc-footing-length" type="number" value="40" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show="footing">
-      <label for="cc-footing-width">Width</label>
+      <label for="cc-footing-width">{labels.footingWidth}</label>
       <div class="field-input">
         <input id="cc-footing-width" type="number" value="16" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="depth">in</span>
+        <span class="suffix" data-unit="depth">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field" data-show="footing">
-      <label for="cc-footing-depth">Depth</label>
+      <label for="cc-footing-depth">{labels.footingDepth}</label>
       <div class="field-input">
         <input id="cc-footing-depth" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="depth">in</span>
+        <span class="suffix" data-unit="depth">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
 
     <!-- Column -->
     <div class="field" data-show="column">
-      <label for="cc-col-diameter">Diameter</label>
+      <label for="cc-col-diameter">{labels.colDiameter}</label>
       <div class="field-input">
         <input id="cc-col-diameter" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="depth">in</span>
+        <span class="suffix" data-unit="depth">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field" data-show="column">
-      <label for="cc-col-height">Height</label>
+      <label for="cc-col-height">{labels.colHeight}</label>
       <div class="field-input">
         <input id="cc-col-height" type="number" value="4" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show="column">
-      <label for="cc-col-count">Number of columns</label>
+      <label for="cc-col-count">{labels.colCount}</label>
       <div class="field-input">
         <input id="cc-col-count" type="number" value="4" min="1" step="1" inputmode="numeric" />
-        <span class="suffix">pcs</span>
+        <span class="suffix">{labels.pcs}</span>
       </div>
     </div>
 
     <!-- Steps -->
     <div class="field" data-show="steps">
-      <label for="cc-step-count">Number of steps</label>
+      <label for="cc-step-count">{labels.stepCount}</label>
       <div class="field-input">
         <input id="cc-step-count" type="number" value="3" min="1" step="1" inputmode="numeric" />
-        <span class="suffix">steps</span>
+        <span class="suffix">{labels.stepsSuffix}</span>
       </div>
     </div>
     <div class="field" data-show="steps">
-      <label for="cc-step-width">Step width</label>
+      <label for="cc-step-width">{labels.stepWidth}</label>
       <div class="field-input">
         <input id="cc-step-width" type="number" value="4" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show="steps">
-      <label for="cc-step-tread">Tread depth (run)</label>
+      <label for="cc-step-tread">{labels.stepTread}</label>
       <div class="field-input">
         <input id="cc-step-tread" type="number" value="11" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="depth">in</span>
+        <span class="suffix" data-unit="depth">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field" data-show="steps">
-      <label for="cc-step-rise">Step rise</label>
+      <label for="cc-step-rise">{labels.stepRise}</label>
       <div class="field-input">
         <input id="cc-step-rise" type="number" value="7" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="depth">in</span>
+        <span class="suffix" data-unit="depth">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
 
     <div class="field">
-      <label for="cc-bag-size">Bag size</label>
+      <label for="cc-bag-size">{labels.bagSize}</label>
       <div class="field-input">
         <select id="cc-bag-size">
-          <option value="0.45">60 lb bag (0.45 ft³)</option>
-          <option value="0.60" selected>80 lb bag (0.60 ft³)</option>
-          <option value="0.30">40 lb bag (0.30 ft³)</option>
+          {bagOptions.map(o => (
+            <option value={o.value} selected={o.selected}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
     <div class="field">
-      <label for="cc-waste">Waste factor</label>
+      <label for="cc-waste">{t.wasteFactor}</label>
       <div class="field-input">
         <select id="cc-waste">
-          <option value="0">None</option>
-          <option value="0.05">5%</option>
-          <option value="0.10" selected>10% (recommended)</option>
-          <option value="0.15">15% (irregular forms)</option>
+          {wasteOptions.map(o => (
+            <option value={o.value} selected={o.selected}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
   </div>
 
   <div class="result" role="status" aria-live="polite">
-    <div class="result-label">You need</div>
+    <div class="result-label">{t.youNeed}</div>
     <div class="result-main">
       <span class="number" id="cc-yards">4.94</span>
-      <span class="unit">cubic yards</span>
+      <span class="unit" id="cc-unit">{metricDefault ? t.cubicMeters : t.cubicYards}</span>
     </div>
     <div class="result-secondary">
       = <strong id="cc-feet">133.33</strong> ft³ &nbsp;·&nbsp;
       <strong id="cc-meters">3.78</strong> m³ &nbsp;·&nbsp;
-      ≈ <strong id="cc-bags">222</strong> bags
+      ≈ <strong id="cc-bags">222</strong> {t.bags}
     </div>
     <div class="result-cost-row">
-      Ready-mix delivered: <strong id="cc-readymix-cost">$815</strong>
+      {labels.readymix}: <strong id="cc-readymix-cost">$815</strong>
       &nbsp;·&nbsp;
-      Bags retail: <strong id="cc-bag-cost">$1,332</strong>
+      {labels.bagsRetail}: <strong id="cc-bag-cost">$1,332</strong>
     </div>
     <div class="result-actions">
-      <button type="button" class="btn" id="cc-btn-copy">📋 Copy result</button>
-      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
-      <button type="button" class="btn" id="cc-btn-share">↗ Share</button>
-      
+      <button type="button" class="btn" id="cc-btn-copy">{t.copyResult}</button>
+      <button type="button" class="btn" onclick="window.print()">{t.print}</button>
+      <button type="button" class="btn" id="cc-btn-share">{t.share}</button>
+
     </div>
   </div>
 </div>
@@ -264,7 +323,12 @@
     else if (bagFt3 === 0.30) bagPrice = 3.5; // 40 lb
     const bagCost = Math.ceil(bags) * bagPrice;
 
-    $('#cc-yards').textContent = cubicYards.toFixed(2);
+    // Main result: show m³ in metric mode, yd³ in imperial mode.
+    const mainVol = isMetric ? cubicMeters : cubicYards;
+    const unitEl = $('#cc-unit');
+    if (unitEl) unitEl.textContent = isMetric ? (root.dataset.unitM3 || 'cubic meters') : (root.dataset.unitYd || 'cubic yards');
+
+    $('#cc-yards').textContent = mainVol.toFixed(2);
     $('#cc-feet').textContent = cubicFeet.toFixed(2);
     $('#cc-meters').textContent = cubicMeters.toFixed(2);
     $('#cc-bags').textContent = Math.ceil(bags).toLocaleString();
@@ -299,16 +363,18 @@
     });
   });
   $('#cc-btn-copy').addEventListener('click', () => {
-    const text = `Concrete needed: ${$('#cc-yards').textContent} yd³ (~${$('#cc-bags').textContent} bags). Ready-mix: ${$('#cc-readymix-cost').textContent}.`;
+    const isMetric = root.querySelector('.unit-toggle button.active').dataset.units === 'metric';
+    const volUnit = isMetric ? 'm³' : 'yd³';
+    const text = `${root.dataset.copyLabel || 'Concrete'}: ${$('#cc-yards').textContent} ${volUnit} (~${$('#cc-bags').textContent} ${root.dataset.unitBags || 'bags'}).`;
     navigator.clipboard?.writeText(text).then(() => {
       const btn = $('#cc-btn-copy');
       const o = btn.textContent;
-      btn.textContent = '✓ Copied';
+      btn.textContent = root.dataset.copied || '✓ Copied';
       setTimeout(() => { btn.textContent = o; }, 1500);
     });
   });
   $('#cc-btn-share').addEventListener('click', () => {
-    if (navigator.share) navigator.share({ title: 'Concrete Calculator', url: location.href });
+    if (navigator.share) navigator.share({ title: root.dataset.shareTitle || 'Concrete Calculator', url: location.href });
     else navigator.clipboard?.writeText(location.href);
   });
   updateShape('slab');
