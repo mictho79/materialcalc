@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getLiveCalculators } from '@data/calculators';
+import { getLiveCalculators, getLiveCalculatorsES } from '@data/calculators';
 
 const SITE = 'https://materialcal.com';
 
@@ -16,6 +16,7 @@ const STATIC_PAGES = [
 export const GET: APIRoute = () => {
   const today = new Date().toISOString().slice(0, 10);
   const calculators = getLiveCalculators();
+  const calculatorsES = getLiveCalculatorsES();
 
   const urls = [
     ...STATIC_PAGES.map(p => ({
@@ -26,6 +27,19 @@ export const GET: APIRoute = () => {
     })),
     ...calculators.map(c => ({
       loc:        `${SITE}/${c.slug}/`,
+      lastmod:    today,
+      changefreq: 'monthly',
+      priority:   '0.8'
+    })),
+    // Spanish (ES) hub + calculators
+    {
+      loc:        `${SITE}/es/`,
+      lastmod:    today,
+      changefreq: 'weekly',
+      priority:   '0.9'
+    },
+    ...calculatorsES.map(c => ({
+      loc:        `${SITE}/es/${c.slug_es}/`,
       lastmod:    today,
       changefreq: 'monthly',
       priority:   '0.8'
