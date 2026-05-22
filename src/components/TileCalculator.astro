@@ -1,90 +1,161 @@
 ---
 // Tile Calculator — floor/wall area to tile count + grout + thinset estimate.
+// Parametrized by lang: ES defaults to metric, shows area in m², tile sizes in cm,
+// and outputs piezas (azulejos) + adhesivo (kg) + boquilla (kg).
+// IMPORTANT: tile-size <option> values are stored as the tile AREA in the active
+//   unit (m² for ES, sq ft for EN) so the count math is unit-consistent.
+import { getStrings } from '@i18n/index';
+export interface Props { lang?: 'en' | 'es'; }
+const { lang = 'en' } = Astro.props;
+const t = getStrings(lang).widget;
+const metricDefault = lang === 'es';
+
+const labels = lang === 'es'
+  ? {
+      length: 'Largo del área', width: 'Ancho del área',
+      tileSize: 'Tamaño del azulejo', customSize: 'Tamaño personalizado (lado)',
+      tilePrice: 'Precio por pieza', tilePriceOpt: '(o por caja)', tilePriceSuffix: '$/pieza',
+      waste: 'Desperdicio',
+      youNeed: 'Necesitas', unitMain: 'piezas',
+      auxFor: 'para', auxArea: 'm²',
+      grout: 'Boquilla', groutUnit: 'kg', adhesive: 'Adhesivo', adhesiveUnit: 'kg',
+      adhesiveBags: 'sacos de 20 kg', totalCost: 'Costo total del azulejo',
+      copyPrefix: 'Azulejo necesario', copyFor: 'para', copyCost: 'Costo',
+      shareTitle: 'Calculadora de Azulejos',
+    }
+  : {
+      length: 'Area length', width: 'Area width',
+      tileSize: 'Tile size', customSize: 'Custom tile size (square)',
+      tilePrice: 'Price per tile', tilePriceOpt: '(or per box)', tilePriceSuffix: '$/tile',
+      waste: 'Waste factor',
+      youNeed: 'You need', unitMain: 'tiles',
+      auxFor: 'for', auxArea: 'sq ft',
+      grout: 'Grout', groutUnit: 'lb', adhesive: 'Thinset', adhesiveUnit: 'bags (50 lb)',
+      adhesiveBags: 'bags', totalCost: 'Total tile cost',
+      copyPrefix: 'Tile needed', copyFor: 'for', copyCost: 'Cost',
+      shareTitle: 'Tile Calculator',
+    };
+
+// Tile-size options. ES values are the tile AREA in m²; EN values are area in sq ft.
+const tileOptions = lang === 'es'
+  ? [
+      { value: '0.0625', label: '25 × 25 cm' },
+      { value: '0.09',   label: '30 × 30 cm', selected: true },
+      { value: '0.1225', label: '35 × 35 cm' },
+      { value: '0.16',   label: '40 × 40 cm' },
+      { value: '0.2025', label: '45 × 45 cm' },
+      { value: '0.36',   label: '60 × 60 cm (formato grande)' },
+      { value: '0.72',   label: '60 × 120 cm (formato extra grande)' },
+      { value: 'custom', label: 'Tamaño personalizado' },
+    ]
+  : [
+      { value: '0.1111', label: '4x4 in (small mosaic)' },
+      { value: '0.25',   label: '6x6 in' },
+      { value: '0.4444', label: '8x8 in' },
+      { value: '1',      label: '12x12 in (1 sq ft)', selected: true },
+      { value: '1.1736', label: '13x13 in' },
+      { value: '2',      label: '12x24 in' },
+      { value: '1.7778', label: '16x16 in' },
+      { value: '2.25',   label: '18x18 in' },
+      { value: '2.7778', label: '20x20 in' },
+      { value: '4',      label: '24x24 in (large format)' },
+      { value: 'custom', label: 'Custom size' },
+    ];
+
+const wasteOptions = lang === 'es'
+  ? [
+      { value: '0.10', label: '10% (trazo recto)', selected: true },
+      { value: '0.15', label: '15% (diagonal)' },
+      { value: '0.20', label: '20% (tipo ladrillo / espiga)' },
+    ]
+  : [
+      { value: '0.10', label: '10% (straight layout)', selected: true },
+      { value: '0.15', label: '15% (diagonal)' },
+      { value: '0.20', label: '20% (patterned / herringbone)' },
+    ];
 ---
 
-<div class="tool" id="tile-tool">
+<div class="tool" id="tile-tool"
+  data-metric-default={metricDefault.toString()}
+  data-unit-main={labels.unitMain} data-aux-area={labels.auxArea}
+  data-grout-unit={labels.groutUnit} data-adhesive-unit={labels.adhesiveUnit}
+  data-copy-prefix={labels.copyPrefix} data-copy-for={labels.copyFor} data-copy-cost={labels.copyCost}
+  data-copied={t.copied} data-share-title={labels.shareTitle}>
   <div class="tool-header">
-    <div class="tool-title">Calculator</div>
-    <div class="unit-toggle" role="tablist" aria-label="Units">
-      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
-      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    <div class="tool-title">{t.calculator}</div>
+    <div class="unit-toggle" role="tablist" aria-label={t.units}>
+      <button type="button" class={metricDefault ? '' : 'active'} data-units="imperial" aria-pressed={(!metricDefault).toString()}>{t.imperial}</button>
+      <button type="button" class={metricDefault ? 'active' : ''} data-units="metric" aria-pressed={metricDefault.toString()}>{t.metric}</button>
     </div>
   </div>
 
   <div class="form-grid">
     <div class="field">
-      <label for="ti-length">Area length</label>
+      <label for="ti-length">{labels.length}</label>
       <div class="field-input">
-        <input id="ti-length" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="ti-length" type="number" value={metricDefault ? '4' : '12'} min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="ti-width">Area width</label>
+      <label for="ti-width">{labels.width}</label>
       <div class="field-input">
-        <input id="ti-width" type="number" value="10" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="ti-width" type="number" value={metricDefault ? '3' : '10'} min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="ti-tile-size">Tile size</label>
+      <label for="ti-tile-size">{labels.tileSize}</label>
       <div class="field-input">
         <select id="ti-tile-size">
-          <option value="4">4x4 in (small mosaic)</option>
-          <option value="6">6x6 in</option>
-          <option value="8">8x8 in</option>
-          <option value="12" selected>12x12 in (1 sq ft)</option>
-          <option value="13">13x13 in</option>
-          <option value="16">16x16 in</option>
-          <option value="18">18x18 in</option>
-          <option value="20">20x20 in</option>
-          <option value="24">24x24 in (large format)</option>
-          <option value="custom">Custom size</option>
+          {tileOptions.map(o => (
+            <option value={o.value} selected={o.selected}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
     <div class="field" id="ti-custom-row" hidden>
-      <label for="ti-custom-size">Custom tile size (square)</label>
+      <label for="ti-custom-size">{labels.customSize}</label>
       <div class="field-input">
-        <input id="ti-custom-size" type="number" value="12" min="1" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="small">in</span>
+        <input id="ti-custom-size" type="number" value={metricDefault ? '45' : '12'} min="1" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="small">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="ti-tile-price">Price per tile <span class="optional">(or per box)</span></label>
+      <label for="ti-tile-price">{labels.tilePrice} <span class="optional">{labels.tilePriceOpt}</span></label>
       <div class="field-input">
-        <input id="ti-tile-price" type="number" value="2.5" min="0" step="0.25" inputmode="decimal" />
-        <span class="suffix">$/tile</span>
+        <input id="ti-tile-price" type="number" value={metricDefault ? '40' : '2.5'} min="0" step="0.25" inputmode="decimal" />
+        <span class="suffix">{labels.tilePriceSuffix}</span>
       </div>
     </div>
     <div class="field">
-      <label for="ti-waste">Waste factor</label>
+      <label for="ti-waste">{labels.waste}</label>
       <div class="field-input">
         <select id="ti-waste">
-          <option value="0.10" selected>10% (straight layout)</option>
-          <option value="0.15">15% (diagonal)</option>
-          <option value="0.20">20% (patterned / herringbone)</option>
+          {wasteOptions.map(o => (
+            <option value={o.value} selected={o.selected}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
   </div>
 
   <div class="result" role="status" aria-live="polite">
-    <div class="result-label">You need</div>
+    <div class="result-label">{labels.youNeed}</div>
     <div class="result-main">
       <span class="number" id="ti-tiles">132</span>
-      <span class="unit">tiles</span>
-      <span class="aux">for <strong id="ti-area">120</strong> sq ft</span>
+      <span class="unit" id="ti-unit">{labels.unitMain}</span>
+      <span class="aux">{labels.auxFor} <strong id="ti-area">120</strong> <span id="ti-area-unit">{labels.auxArea}</span></span>
     </div>
     <div class="result-secondary">
-      Grout: <strong id="ti-grout">12</strong> lb &nbsp;·&nbsp;
-      Thinset: <strong id="ti-thinset">2</strong> bags (50 lb) &nbsp;·&nbsp;
-      Total tile cost: <strong id="ti-cost">$330</strong>
+      <span id="ti-grout-label">{labels.grout}</span>: <strong id="ti-grout">12</strong> <span id="ti-grout-unit">{labels.groutUnit}</span> &nbsp;·&nbsp;
+      <span id="ti-adhesive-label">{labels.adhesive}</span>: <strong id="ti-thinset">2</strong> <span id="ti-adhesive-unit">{labels.adhesiveUnit}</span> &nbsp;·&nbsp;
+      <span id="ti-cost-label">{labels.totalCost}</span>: <strong id="ti-cost">$330</strong>
     </div>
     <div class="result-actions">
-      <button type="button" class="btn" id="ti-btn-copy">📋 Copy result</button>
-      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
-      <button type="button" class="btn" id="ti-btn-share">↗ Share</button>
+      <button type="button" class="btn" id="ti-btn-copy">{t.copyResult}</button>
+      <button type="button" class="btn" onclick="window.print()">{t.print}</button>
+      <button type="button" class="btn" id="ti-btn-share">{t.share}</button>
     </div>
   </div>
 </div>
@@ -124,43 +195,58 @@
   if (!root) return;
   const $ = (s) => root.querySelector(s);
 
+  const isES = root.dataset.metricDefault === 'true';
+
   function calculate() {
     const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    const isMetric = units === 'metric';
     let l = parseFloat($('#ti-length').value) || 0;
     let w = parseFloat($('#ti-width').value) || 0;
     const tileSel = $('#ti-tile-size').value;
-    let tileIn;
-    if (tileSel === 'custom') {
-      tileIn = parseFloat($('#ti-custom-size').value) || 12;
-    } else {
-      tileIn = parseFloat(tileSel) || 12;
-    }
     const tilePrice = parseFloat($('#ti-tile-price').value) || 0;
     const waste = parseFloat($('#ti-waste').value) || 0;
 
-    // Convert metric m to ft for area, cm to in for tile if needed
-    if (units === 'metric') {
-      l = l * 3.2808;
-      w = w * 3.2808;
-      // tile values stay in inches via dropdown — but if custom, treat as cm
-      if (tileSel === 'custom') {
-        tileIn = (parseFloat($('#ti-custom-size').value) || 30) / 2.54;
-      }
+    // Area in the active input units: m² in metric, sq ft in imperial.
+    const area = l * w;
+
+    // Tile area in the same units (m² metric / sq ft imperial).
+    let tileArea;
+    if (tileSel === 'custom') {
+      const side = parseFloat($('#ti-custom-size').value) || (isMetric ? 45 : 12);
+      // custom side entered in cm (metric) or inches (imperial).
+      tileArea = isMetric ? (side / 100) * (side / 100) : (side * side) / 144;
+    } else {
+      tileArea = parseFloat(tileSel) || (isMetric ? 0.09 : 1);
     }
 
-    const areaSqFt = l * w;
-    const tileSqFt = (tileIn * tileIn) / 144;
-    const tilesNeeded = Math.ceil((areaSqFt / tileSqFt) * (1 + waste));
+    const tilesNeeded = tileArea > 0 ? Math.ceil((area / tileArea) * (1 + waste)) : 0;
 
-    // Rough estimates: grout 0.1 lb/sq ft, thinset 1 bag per 50-75 sq ft
-    const groutLb = Math.ceil(areaSqFt * 0.1);
-    const thinsetBags = Math.ceil(areaSqFt / 60);
+    let groutAmount, adhesiveAmount, groutUnit, adhesiveUnit;
+    if (isMetric) {
+      // Boquilla ≈ 0.5 kg/m²; adhesivo ≈ 5 kg/m² → sacos de 20 kg.
+      groutAmount = Math.ceil(area * 0.5);
+      adhesiveAmount = Math.max(area > 0 ? 1 : 0, Math.ceil((area * 5) / 20));
+      groutUnit = root.dataset.groutUnit || 'kg';
+      adhesiveUnit = root.dataset.adhesiveUnit || 'sacos de 20 kg';
+    } else {
+      // Grout 0.1 lb/sq ft; thinset 1 bag (50 lb) per ~60 sq ft.
+      groutAmount = Math.ceil(area * 0.1);
+      adhesiveAmount = Math.max(area > 0 ? 1 : 0, Math.ceil(area / 60));
+      groutUnit = root.dataset.groutUnit || 'lb';
+      adhesiveUnit = root.dataset.adhesiveUnit || 'bags (50 lb)';
+    }
+
     const cost = tilesNeeded * tilePrice;
 
     $('#ti-tiles').textContent = tilesNeeded.toLocaleString();
-    $('#ti-area').textContent = Math.round(areaSqFt).toLocaleString();
-    $('#ti-grout').textContent = groutLb.toString();
-    $('#ti-thinset').textContent = thinsetBags.toString();
+    $('#ti-area').textContent = isMetric
+      ? (area < 100 ? area.toFixed(1) : Math.round(area).toLocaleString())
+      : Math.round(area).toLocaleString();
+    $('#ti-area-unit').textContent = root.dataset.auxArea || (isMetric ? 'm²' : 'sq ft');
+    $('#ti-grout').textContent = groutAmount.toLocaleString();
+    $('#ti-grout-unit').textContent = groutUnit;
+    $('#ti-thinset').textContent = adhesiveAmount.toLocaleString();
+    $('#ti-adhesive-unit').textContent = adhesiveUnit;
     $('#ti-cost').textContent = '$' + Math.round(cost).toLocaleString();
   }
 
@@ -187,17 +273,22 @@
   });
 
   $('#ti-btn-copy').addEventListener('click', () => {
-    const text = `Tile needed: ${$('#ti-tiles').textContent} tiles for ${$('#ti-area').textContent} sq ft. Cost: ${$('#ti-cost').textContent}.`;
+    const prefix = root.dataset.copyPrefix || 'Tile needed';
+    const forWord = root.dataset.copyFor || 'for';
+    const costWord = root.dataset.copyCost || 'Cost';
+    const unit = root.dataset.unitMain || 'tiles';
+    const areaUnit = root.dataset.auxArea || 'sq ft';
+    const text = `${prefix}: ${$('#ti-tiles').textContent} ${unit} ${forWord} ${$('#ti-area').textContent} ${areaUnit}. ${costWord}: ${$('#ti-cost').textContent}.`;
     navigator.clipboard?.writeText(text).then(() => {
       const btn = $('#ti-btn-copy');
       const o = btn.textContent;
-      btn.textContent = '✓ Copied';
+      btn.textContent = root.dataset.copied || '✓ Copied';
       setTimeout(() => { btn.textContent = o; }, 1500);
     });
   });
 
   $('#ti-btn-share').addEventListener('click', () => {
-    if (navigator.share) navigator.share({ title: 'Tile Calculator', url: location.href });
+    if (navigator.share) navigator.share({ title: root.dataset.shareTitle || 'Tile Calculator', url: location.href });
     else navigator.clipboard?.writeText(location.href);
   });
 
