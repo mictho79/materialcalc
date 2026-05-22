@@ -1,0 +1,341 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import AsphaltCalculator from '@components/AsphaltCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { asfaltoFAQ } from '@data/faqs/es/asfalto';
+import { getRelatedCalculatorsES } from '@data/calculators';
+
+const title = "Calculadora de Asfalto — Toneladas, m³ y Costo";
+const description = "Calculadora de asfalto gratis. Estima las toneladas, los metros cúbicos y el costo de la mezcla asfáltica que necesitas para cocheras, estacionamientos, calles y bacheo. Rápida y para celular.";
+
+const alternates = [
+  { lang: 'en', href: 'https://materialcal.com/asphalt-calculator/' },
+  { lang: 'es', href: 'https://materialcal.com/es/calculadora-de-asfalto/' },
+  { lang: 'x-default', href: 'https://materialcal.com/asphalt-calculator/' }
+];
+
+const related = getRelatedCalculatorsES('asphalt-calculator', 4).map(c => ({
+  title: c.shortTitle_es,
+  href: `/es/${c.slug_es}/`,
+  desc: c.description_es
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Calculadora de Asfalto",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Cualquiera (en línea)",
+    "description": description,
+    "url": "https://materialcal.com/es/calculadora-de-asfalto/",
+    "inLanguage": "es",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "MXN" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Cómo calcular las toneladas de asfalto que necesitas",
+    "inLanguage": "es",
+    "step": [
+      { "@type": "HowToStep", "name": "Mide el área", "text": "Mide el largo y el ancho de la superficie en metros." },
+      { "@type": "HowToStep", "name": "Elige el espesor", "text": "Define el espesor de la carpeta en centímetros (5 a 15 cm según el uso)." },
+      { "@type": "HowToStep", "name": "Calcula el volumen", "text": "Volumen (m³) = Largo × Ancho × Espesor (en metros)." },
+      { "@type": "HowToStep", "name": "Convierte a toneladas", "text": "Multiplica los m³ por la densidad de la mezcla (2.4 t/m³ para mezcla en caliente)." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCal`} description={description} schema={schema} lang="es" alternates={alternates}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Inicio', href: '/es/' },
+      { label: 'Calculadoras', href: '/es/' },
+      { label: 'Calculadora de Asfalto' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Calculadora de Asfalto</h1>
+      <p class="intro">
+        Calcula exactamente cuántas toneladas de asfalto necesitas para tu cochera, estacionamiento,
+        calle o bacheo — con resultado en toneladas, metros cúbicos y costo total del material.
+        Funciona para rectángulos, círculos y trapecios, en sistema métrico e imperial.
+      </p>
+    </header>
+
+    <AsphaltCalculator lang="es" />
+
+    <article class="content">
+      <h2>Cómo calcular el asfalto que necesitas</h2>
+      <p>
+        El asfalto se vende por tonelada, pero se calcula por volumen: el área multiplicada por el
+        espesor te da los metros cúbicos, y esos m³ se convierten en toneladas a través de la densidad
+        de la mezcla. La complicación es que la mezcla asfáltica se compacta bastante al tenderla con el
+        rodillo, así que casi siempre tienes que pedir un poco más que el volumen geométrico que arroja
+        la fórmula.
+      </p>
+
+      <div class="formula">
+        Volumen (m³) = Largo × Ancho × Espesor (todo en metros)<br>
+        Espesor en metros = centímetros ÷ 100 (7 cm = 0.07 m)<br>
+        Peso (toneladas) = Volumen × Densidad (t/m³)<br>
+        Cantidad a pedir = Toneladas × 1.10 (10% por compactación)
+      </div>
+
+      <p>
+        La densidad de 2.4 t/m³ corresponde a la mezcla asfáltica en caliente compactada, que es la más
+        común. Las mezclas densas de granulometría cerrada pesan un poco más, cerca de 2.45 t/m³, y el
+        asfalto reciclado (RAP) es más ligero, alrededor de 2.2 t/m³. Agrega siempre un 10% extra por la
+        compactación: la mezcla suelta pierde entre 8 y 12% de su volumen cuando se tiende y se compacta
+        correctamente.
+      </p>
+
+      <h3>Ejemplo resuelto: cochera residencial</h3>
+      <p>
+        Supongamos una cochera de 12 m de largo × 3.5 m de ancho con 7 cm de carpeta, usando mezcla
+        asfáltica en caliente:
+      </p>
+      <ul>
+        <li><strong>Área:</strong> 12 × 3.5 = <strong>42 m²</strong></li>
+        <li><strong>Espesor en metros:</strong> 7 ÷ 100 = <strong>0.07 m</strong></li>
+        <li><strong>Volumen:</strong> 42 × 0.07 = <strong>2.94 m³</strong></li>
+        <li><strong>Con 10% de compactación:</strong> 2.94 × 1.10 = <strong>3.23 m³</strong></li>
+        <li><strong>Peso:</strong> 3.23 × 2.4 ≈ <strong>7.76 toneladas</strong></li>
+        <li><strong>Costo del material (a $1,800/ton):</strong> 7.76 × $1,800 ≈ <strong>$13,975 MXN</strong></li>
+        <li><strong>Más base y mano de obra:</strong> suma de $15,000 a $40,000 MXN según el proyecto</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">El asfalto no es un proyecto de fin de semana</div>
+        La mezcla asfáltica en caliente llega de la planta a unos 150 °C y debe tenderse y compactarse
+        en menos de 30 minutos, antes de que se enfríe por debajo de la temperatura de trabajo. Esto
+        requiere finisher (pavimentadora), rodillo o vibrocompactador y una cuadrilla con experiencia.
+        Usa esta calculadora para presupuestar, pero contrata siempre a un pavimentador profesional para
+        la instalación. El bacheo con mezcla en frío es la única aplicación realmente apta para hacerla
+        tú mismo.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="asfalto-mid-1" />
+
+      <h2>Espesor de la carpeta asfáltica según el proyecto</h2>
+      <p>
+        El espesor correcto es el factor que más influye en la vida útil del pavimento. Una carpeta
+        demasiado delgada se agrieta y falla en pocos años; una demasiado gruesa desperdicia dinero.
+        Estos son los espesores de referencia según el uso, recordando que la carpeta siempre va sobre
+        una base bien compactada.
+      </p>
+
+      <h3>Cocheras y estacionamientos residenciales</h3>
+      <p>
+        De 5 a 7 cm de carpeta sobre 15 a 20 cm de base de grava triturada o tepetate compactado. Los
+        5 cm son el mínimo; 7 cm es lo recomendable para autos y camionetas ligeras. Para vehículos
+        pesados (camionetas grandes, remolques) sube a 8 o 10 cm y refuerza la base. Recortar tanto en
+        el espesor como en la preparación de la base garantiza que la carpeta se agriete antes de tiempo.
+      </p>
+
+      <h3>Calles y vialidades ligeras</h3>
+      <p>
+        De 7 a 10 cm de carpeta sobre 20 a 30 cm de base hidráulica compactada. En fraccionamientos y
+        calles de bajo tránsito suele bastar con una sola capa de 7 cm bien compactada. Conforme aumenta
+        el tránsito, conviene tender en dos capas: una capa de base más gruesa abajo y una carpeta de
+        rodadura más fina arriba.
+      </p>
+
+      <h3>Caminos y zonas de tráfico pesado</h3>
+      <p>
+        Patios de maniobras, andenes de carga, vías de camiones: de 10 a 15 cm de carpeta en dos o más
+        capas, sobre una base de ingeniería de 30 a 50 cm. Estos proyectos requieren diseño profesional
+        del pavimento, basado en la carga de tránsito esperada y en las condiciones del terreno, y una
+        excavación mucho más profunda que un trabajo residencial.
+      </p>
+
+      <h3>Andadores y ciclovías</h3>
+      <p>
+        De 4 a 5 cm de carpeta sobre una base de grava de 10 a 15 cm. Las cargas peatonales y de
+        bicicletas toleran una carpeta más delgada. Los andadores en parques suelen usar 5 cm de mezcla
+        en caliente para durar sin un costo excesivo.
+      </p>
+
+      <h3>Sobrecarpeta (reencarpetado sobre asfalto existente)</h3>
+      <p>
+        De 4 a 5 cm de mezcla nueva sobre la superficie existente. Antes hay que fresar (escarificar),
+        limpiar y aplicar un riego de liga sobre la superficie vieja. La sobrecarpeta agrega de 10 a 15
+        años de vida, pero solo funciona si el pavimento existente está estructuralmente sano. Si la base
+        ya falló, hay que demoler y reconstruir por completo.
+      </p>
+
+      <h2>Cuánto asfalto según el tamaño del proyecto</h2>
+      <p>
+        Referencia rápida con mezcla asfáltica en caliente (2.4 t/m³), sin incluir el factor de
+        desperdicio. Agrega un 10% a la cantidad real que vas a pedir.
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Superficie</th>
+              <th>A 5 cm</th>
+              <th>A 7 cm</th>
+              <th>A 10 cm</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>10 m² (cochera chica)</td><td>1.2 t</td><td>1.7 t</td><td>2.4 t</td></tr>
+            <tr><td>25 m² (cochera doble)</td><td>3.0 t</td><td>4.2 t</td><td>6.0 t</td></tr>
+            <tr><td>42 m² (cochera larga)</td><td>5.0 t</td><td>7.1 t</td><td>10.1 t</td></tr>
+            <tr><td>100 m² (estacionamiento chico)</td><td>12.0 t</td><td>16.8 t</td><td>24.0 t</td></tr>
+            <tr><td>250 m² (estacionamiento mediano)</td><td>30.0 t</td><td>42.0 t</td><td>60.0 t</td></tr>
+            <tr><td>500 m² (calle / lote grande)</td><td>60.0 t</td><td>84.0 t</td><td>120.0 t</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Redondea hacia arriba al pedir y suma de 5 a 10% extra por la compactación y los recortes. Es
+        mucho más barato que sobre un poco de mezcla a quedarse corto a media obra: la cuadrilla y el
+        equipo no pueden esperar a que llegue otro viaje de la planta.
+      </p>
+
+      <h2>Tipos de mezcla asfáltica y cuándo usar cada una</h2>
+
+      <h3>Mezcla asfáltica en caliente — el estándar</h3>
+      <p>
+        Elaborada en planta a unos 150 °C con agregados pétreos y cemento asfáltico (ligante
+        bituminoso). Es la que se usa para construcción nueva, cocheras, estacionamientos, calles y
+        reparaciones grandes. Densidad: ~2.4 t/m³. Es la única mezcla apta para una carpeta completa.
+      </p>
+
+      <h3>Mezcla asfáltica en frío — para reparaciones</h3>
+      <p>
+        Agregado mezclado con emulsión asfáltica a temperatura ambiente. Se usa casi exclusivamente para
+        bacheo y parches chicos. Se mantiene trabajable en bultos durante meses. Cuesta más por tonelada
+        que la mezcla en caliente, pero se consigue en bultos chicos en ferretería. No la uses para una
+        carpeta completa: no compacta bien para durar a largo plazo.
+      </p>
+
+      <h3>Mezcla densa (granulometría cerrada)</h3>
+      <p>
+        Agregados más finos y mejor graduados que la mezcla estándar. Compacta hasta lograr una
+        superficie más lisa y densa, ideal para cocheras y estacionamientos de mejor acabado. Densidad:
+        ~2.45 t/m³. Vale la pena el sobreprecio en trabajos residenciales a la vista.
+      </p>
+
+      <h3>SMA y mezclas drenantes (especiales)</h3>
+      <p>
+        El SMA (Stone Matrix Asphalt) y las mezclas drenantes son mezclas especiales para carreteras y
+        usos comerciales. El SMA resiste mejor el ahuellamiento; las drenantes mejoran el agarre con
+        lluvia. No son típicas en obra residencial, pero a veces las plantas tienen excedente disponible
+        a buen precio.
+      </p>
+
+      <h3>Asfalto reciclado (RAP)</h3>
+      <p>
+        Asfalto viejo triturado y reprocesado. Es bastante más económico que la mezcla en caliente
+        virgen. Sirve para cocheras, capas de base y reparación de caminos rurales. Densidad: ~2.2 t/m³.
+        No liga con la misma fuerza al volver a tenderse; espera una vida útil de 10 a 15 años contra los
+        20 o más de la mezcla en caliente.
+      </p>
+
+      <AdSlot label="AdSense in-content #2" slotId="asfalto-mid-2" />
+
+      <h2>El costo real de pavimentar con asfalto</h2>
+      <p>
+        El costo del material suele ser apenas del 30 al 40% del presupuesto total. No olvides considerar
+        la base, la excavación y la mano de obra. Estos son precios orientativos para México; confirma
+        siempre con tu proveedor y pavimentador local.
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Concepto</th>
+              <th>Rango típico (MXN)</th>
+              <th>Notas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Mezcla asfáltica en caliente</td><td>$1,500 – $2,200 / ton</td><td>Puesta en obra</td></tr>
+            <tr><td>Base (grava triturada / tepetate)</td><td>$200 – $450 / m³</td><td>15 a 20 cm requeridos</td></tr>
+            <tr><td>Excavación y nivelación</td><td>$60 – $150 / m²</td><td>Incluye retiro de material</td></tr>
+            <tr><td>Compactación de base</td><td>$30 – $80 / m²</td><td>Clave para la durabilidad</td></tr>
+            <tr><td>Tendido y compactación de carpeta</td><td>$150 – $350 / m²</td><td>Cuadrilla + equipo</td></tr>
+            <tr><td>Sello asfáltico (cada 2-3 años)</td><td>$25 – $60 / m²</td><td>Mantenimiento esencial</td></tr>
+            <tr><td><strong>Costo total instalado</strong></td><td><strong>$400 – $900 / m²</strong></td><td>Cochera residencial típica</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Para una cochera típica de 42 m², el costo total ronda los $20,000 a $40,000 MXN. Las
+        instalaciones de mejor acabado, con guarnición y bordes definidos, pueden llegar a $50,000 o más.
+        Pide al menos tres cotizaciones a pavimentadores con experiencia: la variación de precios entre
+        proveedores es grande.
+      </p>
+
+      <h2>La base y la sub-base: el factor oculto</h2>
+      <p>
+        El asfalto falla desde abajo, no desde la superficie. Una cochera que se agrieta a los 5 años casi
+        siempre falló por una base insuficiente, no por la carpeta. Una buena preparación requiere:
+      </p>
+      <ol>
+        <li><strong>Excavar hasta el terreno firme.</strong> Retira la materia orgánica (tierra vegetal, pasto, raíces) hasta llegar a suelo mineral estable.</li>
+        <li><strong>Compactar el terreno natural.</strong> Pasa la placa vibradora o el bailarín sobre el suelo expuesto. Los puntos blandos hay que retirarlos y reemplazarlos con grava.</li>
+        <li><strong>Colocar la sub-base y la base.</strong> De 15 a 20 cm de grava triturada o tepetate (base hidráulica), tendidos en capas de 8 a 10 cm. Compacta cada capa antes de poner la siguiente.</li>
+        <li><strong>Colocar la guarnición o borde de contención.</strong> Donde el asfalto colinda con pasto o tierra, un borde de concreto evita que la orilla se desmorone.</li>
+        <li><strong>Geotextil (opcional pero recomendable).</strong> Entre el terreno y la base en suelos malos. Encarece un poco la obra, pero duplica la vida de la base.</li>
+        <li><strong>Dar la pendiente final.</strong> De 1 a 2% para que el agua escurra. El agua estancada es el enemigo número uno de la durabilidad del asfalto.</li>
+      </ol>
+
+      <h2>Mantenimiento para que dure más de 20 años</h2>
+      <p>
+        El asfalto es una superficie perecedera: el sol, el agua y los químicos van degradando poco a poco
+        el ligante bituminoso. Con buen mantenimiento, una carpeta residencial dura de 20 a 30 años; sin
+        él, espera de 10 a 15.
+      </p>
+      <ul>
+        <li><strong>Sella la superficie cada 2 o 3 años</strong> — restaura la protección contra el sol y el agua.</li>
+        <li><strong>Bachea las grietas en cuanto aparecen</strong> — el agua que se filtra por las grietas es lo que destruye la base. El sellador de grietas cuesta poco y evita reparaciones caras.</li>
+        <li><strong>Repara los baches en pocos días</strong> — un bache chico crece rápido con el tránsito. La mezcla en frío sirve bien para parchar en casa.</li>
+        <li><strong>Evita cargas puntuales el primer año</strong> — patas de remolque, gatos y soportes dejan hundimientos permanentes en asfalto fresco.</li>
+        <li><strong>Atiende el drenaje de inmediato</strong> — agua estancada más cambios de temperatura es igual a falla segura.</li>
+      </ul>
+
+      <h2>Errores comunes al pavimentar con asfalto</h2>
+      <ul>
+        <li><strong>Escatimar en la base:</strong> es la causa número uno de las fallas prematuras. Aquí no hay atajo que funcione.</li>
+        <li><strong>Tender sobre terreno blando o húmedo:</strong> el suelo debe estar firme y bien compactado; un terreno blando provoca compactación dispareja y agrietamiento inmediato.</li>
+        <li><strong>Carpeta demasiado delgada:</strong> existen carpetas de 4 cm, pero fallan en pocos años. Invierte en 7 cm para una cochera.</li>
+        <li><strong>No planear el drenaje:</strong> el agua estancada destruye el asfalto más rápido que cualquier otro factor. Da siempre una pendiente del 1 al 2%.</li>
+        <li><strong>Querer tender mezcla en caliente sin equipo:</strong> ni lo intentes. Solo el bacheo con mezcla en frío es para hacerlo tú.</li>
+        <li><strong>Saltarse el sello:</strong> el asfalto sin sellar falla en 10 a 15 años; sellado dura más de 25. Es el mantenimiento que más rinde.</li>
+        <li><strong>Mezclar unidades al cubicar:</strong> espesor en centímetros con largo en metros da un resultado equivocado. Convierte todo a metros primero.</li>
+      </ul>
+    </article>
+
+    <FAQ items={asfaltoFAQ} heading="Preguntas frecuentes" />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} heading="Calculadoras relacionadas" />
+
+    <EmbedCTA calculator="asphalt" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>
