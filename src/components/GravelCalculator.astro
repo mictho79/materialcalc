@@ -1,91 +1,154 @@
 ---
-// Self-contained interactive Gravel Calculator island.
-// All state lives in the DOM. Zero framework dependencies.
+// Gravel Calculator — area × depth → volume, weight (tons), bags, cost.
+// Parametrized by lang: ES defaults to metric and shows m³ as the primary result.
+// IMPORTANT: density options are stored per the active unit system —
+//   EN values are t/yd³; ES values are t/m³ (= t/yd³ × 1.30795).
+import { getStrings } from '@i18n/index';
+export interface Props { lang?: 'en' | 'es'; }
+const { lang = 'en' } = Astro.props;
+const t = getStrings(lang).widget;
+const metricDefault = lang === 'es';
+
+const labels = lang === 'es'
+  ? {
+      rectangle: '▭ Rectángulo', circle: '● Círculo', triangle: '▲ Triángulo',
+      length: 'Largo', width: 'Ancho', diameter: 'Diámetro', depth: 'Profundidad',
+      gravelType: 'Tipo de grava',
+      pricePer: 'Precio por tonelada', priceSuffix: '$/ton',
+      youNeed: 'Necesitas',
+      unitMain: 'metros cúbicos', unitMainImperial: 'yardas cúbicas',
+      tons: 'toneladas', bags: 'bultos (25 kg)', totalCost: 'costo total',
+      copyLabel: 'Grava', copyUnit: 'm³', shareTitle: 'Calculadora de Grava',
+    }
+  : {
+      rectangle: '▭ Rectangle', circle: '● Circle', triangle: '▲ Triangle',
+      length: 'Length', width: 'Width', diameter: 'Diameter', depth: 'Depth',
+      gravelType: 'Gravel type',
+      pricePer: 'Price per ton', priceSuffix: '$/ton',
+      youNeed: 'You need',
+      unitMain: 'cubic meters', unitMainImperial: 'cubic yards',
+      tons: 'tons', bags: 'bags (50 lb)', totalCost: 'total cost',
+      copyLabel: 'Gravel', copyUnit: 'yd³', shareTitle: 'Gravel Calculator',
+    };
+
+// Density options. ES values are converted to t/m³ (× 1.30795) and reworded in LatAm Spanish.
+const densityOptions = lang === 'es'
+  ? [
+      { value: '1.77', label: 'Grava común (1.77 t/m³)' },
+      { value: '1.86', label: 'Grava triturada / piedra triturada (1.86 t/m³)' },
+      { value: '1.96', label: 'Gravilla fina / grava de 3/4" (1.96 t/m³)' },
+      { value: '2.09', label: 'Grava de río / canto rodado (2.09 t/m³)' },
+      { value: '1.90', label: 'Piedra caliza triturada (1.90 t/m³)' },
+    ]
+  : [
+      { value: '1.35', label: 'Standard gravel (1.35 t/yd³)' },
+      { value: '1.42', label: 'Crushed stone (1.42 t/yd³)' },
+      { value: '1.50', label: 'Pea gravel (1.50 t/yd³)' },
+      { value: '1.60', label: 'River rock (1.60 t/yd³)' },
+      { value: '1.45', label: 'Limestone (1.45 t/yd³)' },
+    ];
+
+const wasteOptions = lang === 'es'
+  ? [
+      { value: '0', label: 'Ninguno' },
+      { value: '0.05', label: '5% (recomendado)', selected: true },
+      { value: '0.10', label: '10% (proyecto grande)' },
+    ]
+  : [
+      { value: '0', label: 'None' },
+      { value: '0.05', label: '5% (recommended)', selected: true },
+      { value: '0.10', label: '10% (large project)' },
+    ];
 ---
 
-<div class="tool" id="gravel-tool">
+<div class="tool" id="gravel-tool"
+  data-metric-default={metricDefault.toString()}
+  data-unit-main={labels.unitMain} data-unit-main-imperial={labels.unitMainImperial}
+  data-unit-tons={labels.tons} data-unit-bags={labels.bags}
+  data-label-length={labels.length} data-label-diameter={labels.diameter}
+  data-copied={t.copied} data-copy-label={labels.copyLabel}
+  data-share-title={labels.shareTitle}
+  data-with-waste={lang === 'es' ? 'con desperdicio' : 'with waste'}>
   <div class="tool-header">
-    <div class="tool-title">Calculator</div>
-    <div class="unit-toggle" role="tablist" aria-label="Units">
-      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
-      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    <div class="tool-title">{t.calculator}</div>
+    <div class="unit-toggle" role="tablist" aria-label={t.units}>
+      <button type="button" class={metricDefault ? '' : 'active'} data-units="imperial" aria-pressed={(!metricDefault).toString()}>{t.imperial}</button>
+      <button type="button" class={metricDefault ? 'active' : ''} data-units="metric" aria-pressed={metricDefault.toString()}>{t.metric}</button>
     </div>
   </div>
 
-  <div class="shape-row" role="tablist" aria-label="Shape">
-    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Rectangle</button>
-    <button type="button" class="shape-btn" data-shape="circle">● Circle</button>
-    <button type="button" class="shape-btn" data-shape="triangle">▲ Triangle</button>
+  <div class="shape-row" role="tablist" aria-label={t.shape}>
+    <button type="button" class="shape-btn active" data-shape="rectangle">{labels.rectangle}</button>
+    <button type="button" class="shape-btn" data-shape="circle">{labels.circle}</button>
+    <button type="button" class="shape-btn" data-shape="triangle">{labels.triangle}</button>
   </div>
 
   <div class="form-grid">
     <div class="field">
-      <label for="g-length"><span data-shape-text="rect-length">Length</span></label>
+      <label for="g-length"><span data-shape-text="length">{labels.length}</span></label>
       <div class="field-input">
-        <input id="g-length" type="number" value="20" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="g-length" type="number" value={metricDefault ? '6' : '20'} min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show-when="rectangle,triangle">
-      <label for="g-width"><span data-shape-text="rect-width">Width</span></label>
+      <label for="g-width">{labels.width}</label>
       <div class="field-input">
-        <input id="g-width" type="number" value="10" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="g-width" type="number" value={metricDefault ? '3' : '10'} min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="g-depth">Depth</label>
+      <label for="g-depth">{labels.depth}</label>
       <div class="field-input">
-        <input id="g-depth" type="number" value="4" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="depth">in</span>
+        <input id="g-depth" type="number" value={metricDefault ? '10' : '4'} min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="g-density">Gravel type</label>
+      <label for="g-density">{labels.gravelType}</label>
       <div class="field-input">
         <select id="g-density">
-          <option value="1.35">Standard gravel (1.35 t/yd³)</option>
-          <option value="1.42">Crushed stone (1.42 t/yd³)</option>
-          <option value="1.50">Pea gravel (1.50 t/yd³)</option>
-          <option value="1.60">River rock (1.60 t/yd³)</option>
+          {densityOptions.map(o => (
+            <option value={o.value}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
     <div class="field">
-      <label for="g-price">Price per ton <span class="optional">(optional)</span></label>
+      <label for="g-price">{labels.pricePer} <span class="optional">{t.optional}</span></label>
       <div class="field-input">
-        <input id="g-price" type="number" value="40" min="0" step="1" inputmode="decimal" />
-        <span class="suffix">$/ton</span>
+        <input id="g-price" type="number" value={metricDefault ? '350' : '40'} min="0" step="1" inputmode="decimal" />
+        <span class="suffix">{labels.priceSuffix}</span>
       </div>
     </div>
     <div class="field">
-      <label for="g-waste">Waste factor</label>
+      <label for="g-waste">{t.wasteFactor}</label>
       <div class="field-input">
         <select id="g-waste">
-          <option value="0">None</option>
-          <option value="0.05" selected>5% (recommended)</option>
-          <option value="0.10">10% (large project)</option>
+          {wasteOptions.map(o => (
+            <option value={o.value} selected={o.selected}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
   </div>
 
   <div class="result" role="status" aria-live="polite">
-    <div class="result-label">You need</div>
+    <div class="result-label">{labels.youNeed}</div>
     <div class="result-main">
       <span class="number" id="r-yards">2.59</span>
-      <span class="unit">cubic yards</span>
+      <span class="unit" id="r-unit">{metricDefault ? labels.unitMain : labels.unitMainImperial}</span>
     </div>
     <div class="result-secondary">
-      ≈ <strong id="r-tons">3.50</strong> tons &nbsp;·&nbsp;
-      ≈ <strong id="r-bags">140</strong> bags (50 lb) &nbsp;·&nbsp;
-      <strong id="r-cost">$140</strong> total cost
+      ≈ <strong id="r-tons">3.50</strong> <span id="r-tons-unit">{labels.tons}</span> &nbsp;·&nbsp;
+      ≈ <strong id="r-bags">140</strong> <span id="r-bags-unit">{labels.bags}</span> &nbsp;·&nbsp;
+      <strong id="r-cost">$140</strong> <span id="r-cost-unit">{labels.totalCost}</span>
     </div>
     <div class="result-actions">
-      <button type="button" class="btn" id="btn-copy">📋 Copy result</button>
-      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
-      <button type="button" class="btn" id="btn-share">↗ Share</button>
-      
+      <button type="button" class="btn" id="btn-copy">{t.copyResult}</button>
+      <button type="button" class="btn" onclick="window.print()">{t.print}</button>
+      <button type="button" class="btn" id="btn-share">{t.share}</button>
     </div>
   </div>
 </div>
@@ -281,6 +344,10 @@
   const waste  = $('#g-waste');
   const widthField = width.closest('.field');
 
+  const isES = root.dataset.metricDefault === 'true';
+  const labelLength = root.dataset.labelLength || 'Length';
+  const labelDiameter = root.dataset.labelDiameter || 'Diameter';
+
   function getActive(selector) {
     return root.querySelector(selector + '.active');
   }
@@ -288,47 +355,64 @@
   function calculate() {
     const shape = getActive('.shape-btn').dataset.shape;
     const units = getActive('.unit-toggle button').dataset.units;
+    const isMetric = units === 'metric';
     const l = parseFloat(length.value) || 0;
     const w = parseFloat(width.value)  || 0;
     const d = parseFloat(depth.value)  || 0;
-    const den = parseFloat(density.value) || 1.35;
+    const den = parseFloat(density.value) || (isES ? 1.77 : 1.35);
     const p = parseFloat(price.value) || 0;
     const wa = parseFloat(waste.value) || 0;
 
-    // Area
+    // Area in the active input units (m² in metric, ft² in imperial).
     let area;
     if (shape === 'rectangle')     area = l * w;
     else if (shape === 'circle')   area = Math.PI * Math.pow(l / 2, 2);
     else /* triangle */            area = 0.5 * l * w;
 
-    // Volume → cubic yards
-    let cubicYards;
-    if (units === 'imperial') {
-      // depth (in) → ft; area (sq ft) → cu ft → cu yd
-      cubicYards = (area * (d / 12)) / 27;
+    // Volume in both unit systems.
+    let cubicMeters, cubicYards;
+    if (isMetric) {
+      // depth (cm) → m; area (m²) → m³
+      cubicMeters = area * (d / 100);
+      cubicYards  = cubicMeters * 1.30795;
     } else {
-      // depth (cm) → m; area (m²) → m³ → cu yd
-      cubicYards = (area * (d / 100)) * 1.30795;
+      // depth (in) → ft; area (sq ft) → cu ft → cu yd
+      cubicYards  = (area * (d / 12)) / 27;
+      cubicMeters = cubicYards / 1.30795;
     }
 
-    cubicYards *= (1 + wa);
-    const tons = cubicYards * den;
-    const bags = (cubicYards * 27) / 0.5;  // 50 lb bag ≈ 0.5 ft³
+    cubicMeters *= (1 + wa);
+    cubicYards  *= (1 + wa);
+
+    // Density values are stored per the active unit system:
+    //   metric → t/m³ applied to cubic meters; imperial → t/yd³ applied to cubic yards.
+    const tons = isMetric ? (cubicMeters * den) : (cubicYards * den);
+
+    // Bags: 50 lb ≈ 0.5 ft³ (imperial); 25 kg sack ≈ 0.015 m³ (metric, LatAm typical).
+    const bags = isMetric ? (cubicMeters / 0.015) : ((cubicYards * 27) / 0.5);
     const cost = tons * p;
 
-    $('#r-yards').textContent = cubicYards.toFixed(2);
+    // Primary result: m³ in metric mode, yd³ in imperial mode.
+    const mainVol = isMetric ? cubicMeters : cubicYards;
+    const unitEl = $('#r-unit');
+    if (unitEl) unitEl.textContent = isMetric
+      ? (root.dataset.unitMain || 'cubic meters')
+      : (root.dataset.unitMainImperial || 'cubic yards');
+
+    $('#r-yards').textContent = mainVol.toFixed(2);
     $('#r-tons').textContent  = tons.toFixed(2);
     $('#r-bags').textContent  = Math.ceil(bags).toLocaleString();
     $('#r-cost').textContent  = '$' + Math.round(cost).toLocaleString();
   }
 
   function updateShape(shape) {
+    const labelSpan = length.closest('.field').querySelector('label span');
     if (shape === 'circle') {
       widthField.hidden = true;
-      length.closest('.field').querySelector('label span').textContent = 'Diameter';
+      if (labelSpan) labelSpan.textContent = labelDiameter;
     } else {
       widthField.hidden = false;
-      length.closest('.field').querySelector('label span').textContent = 'Length';
+      if (labelSpan) labelSpan.textContent = labelLength;
     }
   }
 
@@ -366,14 +450,18 @@
   // Copy result
   const btnCopy = $('#btn-copy');
   btnCopy.addEventListener('click', () => {
+    const isMetric = getActive('.unit-toggle button').dataset.units === 'metric';
+    const volUnit = isMetric ? 'm³' : 'yd³';
     const yards = $('#r-yards').textContent;
     const tons  = $('#r-tons').textContent;
-    const bags  = $('#r-bags').textContent;
     const cost  = $('#r-cost').textContent;
-    const text = `Gravel needed: ${yards} cubic yards (${tons} tons, ~${bags} bags). Estimated cost: ${cost}.`;
+    const tonsLabel = root.dataset.unitTons || 'tons';
+    const text = isES
+      ? `Grava: ${yards} ${volUnit} (${tons} ${tonsLabel}). Costo estimado: ${cost}.`
+      : `Gravel needed: ${yards} ${volUnit} (${tons} ${tonsLabel}). Estimated cost: ${cost}.`;
     navigator.clipboard?.writeText(text).then(() => {
       const original = btnCopy.textContent;
-      btnCopy.textContent = '✓ Copied';
+      btnCopy.textContent = root.dataset.copied || '✓ Copied';
       setTimeout(() => { btnCopy.textContent = original; }, 1500);
     });
   });
@@ -382,8 +470,7 @@
   $('#btn-share').addEventListener('click', () => {
     if (navigator.share) {
       navigator.share({
-        title: 'Gravel Calculator',
-        text: 'Calculate gravel quantity for your project',
+        title: root.dataset.shareTitle || 'Gravel Calculator',
         url: location.href
       });
     } else {
@@ -392,6 +479,7 @@
   });
 
   // Initial render
+  updateShape('rectangle');
   calculate();
 })();
 </script>
