@@ -1,91 +1,155 @@
 ---
-// Stair Calculator — total rise to step rise/run + stringer length + code check.
+// Stair Calculator — total rise to step rise/run + stringer length + code/comfort check.
+// EN: imperial inches + IRC code check. ES: metric cm + "rangos recomendados" (peralte/huella).
+import { getStrings } from '@i18n/index';
+export interface Props { lang?: 'en' | 'es'; }
+const { lang = 'en' } = Astro.props;
+const t = getStrings(lang).widget;
+const metricDefault = lang === 'es';
+
+const labels = lang === 'es'
+  ? {
+      totalRise: 'Altura total', floorToFloor: '(de piso a piso)',
+      targetRise: 'Peralte deseado por escalón',
+      tread: 'Huella (profundidad del paso)',
+      nosing: 'Saliente de la huella (narices)',
+      headroom: 'Altura libre requerida', headroomHint: '(recomendado: 200 cm)',
+      width: 'Ancho de la escalera',
+      designLabel: 'Diseño de la escalera',
+      steps: 'escalones', riseEach: 'con', riseEachSuffix: 'de peralte cada uno',
+      totalRun: 'Recorrido total', stringer: 'Largo de la zanca', angle: 'Ángulo',
+      anatomyTitle: 'Partes de la escalera:',
+      anatomy: 'Peralte = altura vertical de un escalón · Huella = profundidad horizontal del paso · Altura total = de piso a piso · Zanca = la viga diagonal que sostiene los escalones',
+      // Comfort/safety recommendation messages (NOT US legal code)
+      okPrefix: '✓ Dentro de los rangos cómodos', warnPrefix: '⚠ Fuera de rango',
+      riseUnit: 'cm', treadUnit: 'cm', widthUnit: 'cm',
+      riseLabel: 'peralte', treadLabel: 'huella', widthLabel: 'ancho',
+      riseMax: 'máx. 18 cm', treadMin: 'mín. 28 cm', widthMin: 'mín. 90 cm',
+      ruleLabel: 'regla 2×peralte + huella',
+    }
+  : {
+      totalRise: 'Total rise', floorToFloor: '(floor to floor)',
+      targetRise: 'Target rise per step',
+      tread: 'Tread depth (run)',
+      nosing: 'Nosing overhang',
+      headroom: 'Required headroom', headroomHint: '(IRC: 80 in)',
+      width: 'Stair width',
+      designLabel: 'Stair design',
+      steps: 'steps', riseEach: 'at', riseEachSuffix: 'rise each',
+      totalRun: 'Total run', stringer: 'Stringer length', angle: 'Angle',
+      anatomyTitle: 'Stair anatomy:',
+      anatomy: 'Rise = vertical height of one step · Run / Tread = horizontal depth of one step · Total rise = floor-to-floor height · Stringer = the diagonal board supporting the steps',
+      okPrefix: '✓ Meets IRC code', warnPrefix: '⚠ Check IRC code',
+      riseUnit: 'in', treadUnit: 'in', widthUnit: 'in',
+      riseLabel: 'rise', treadLabel: 'tread', widthLabel: 'width',
+      riseMax: 'max 7.75"', treadMin: 'min 10"', widthMin: 'min 36"',
+      ruleLabel: 'rule rise + tread',
+    };
+
+// Default field values + static (pre-JS) result preview differ per unit system.
+// The static preview matches what the inline script computes for the default inputs,
+// so the no-JS / first-paint result is correct for each language.
+const def = metricDefault
+  ? { totalRise: '280', targetRise: '17.5', tread: '28', nosing: '2.5', headroom: '200', width: '90', riseStep: '0.5', treadStep: '0.5', nosingStep: '0.5', headroomStep: '1', widthStep: '1', riseMin: '10', riseMax: '20', treadMin: '24', nosingMax: '3', headroomMin: '180',
+      resSteps: '16', resRise: '17.5', resRun: '420', resStringer: '5.05 m (505 cm)', resAngle: '33.7°',
+      resCode: '✓ Dentro de los rangos cómodos (peralte 17.5 cm, huella 28 cm, regla 2×peralte + huella = 63 cm)' }
+  : { totalRise: '108', targetRise: '7.5', tread: '10', nosing: '1', headroom: '80', width: '36', riseStep: '0.25', treadStep: '0.25', nosingStep: '0.125', headroomStep: '0.5', widthStep: '1', riseMin: '4', riseMax: '8', treadMin: '9', nosingMax: '1.25', headroomMin: '72',
+      resSteps: '14', resRise: '7.71', resRun: '130', resStringer: '14 ft 1 in', resAngle: '39.7°',
+      resCode: '✓ Meets IRC code (rise 7.71", tread 10", width 36")' };
 ---
 
-<div class="tool" id="stair-tool">
+<div class="tool" id="stair-tool"
+  data-lang={lang}
+  data-design-label={labels.designLabel}
+  data-steps={labels.steps}
+  data-rise-each={labels.riseEach} data-rise-each-suffix={labels.riseEachSuffix}
+  data-total-run={labels.totalRun} data-stringer={labels.stringer} data-angle={labels.angle}
+  data-ok-prefix={labels.okPrefix} data-warn-prefix={labels.warnPrefix}
+  data-rise-label={labels.riseLabel} data-tread-label={labels.treadLabel} data-width-label={labels.widthLabel}
+  data-rise-max={labels.riseMax} data-tread-min={labels.treadMin} data-width-min={labels.widthMin}
+  data-rule-label={labels.ruleLabel}
+  data-copied={t.copied}
+  data-share-title={lang === 'es' ? 'Calculadora de Escaleras' : 'Stair Calculator'}>
   <div class="tool-header">
-    <div class="tool-title">Calculator</div>
-    <div class="unit-toggle" role="tablist" aria-label="Units">
-      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
-      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    <div class="tool-title">{t.calculator}</div>
+    <div class="unit-toggle" role="tablist" aria-label={t.units}>
+      <button type="button" class={metricDefault ? '' : 'active'} data-units="imperial" aria-pressed={(!metricDefault).toString()}>{t.imperial}</button>
+      <button type="button" class={metricDefault ? 'active' : ''} data-units="metric" aria-pressed={metricDefault.toString()}>{t.metric}</button>
     </div>
   </div>
 
   <div class="form-grid">
     <div class="field">
-      <label for="st-total-rise">Total rise <span class="optional">(floor to floor)</span></label>
+      <label for="st-total-rise">{labels.totalRise} <span class="optional">{labels.floorToFloor}</span></label>
       <div class="field-input">
-        <input id="st-total-rise" type="number" value="108" min="0" step="0.25" inputmode="decimal" />
-        <span class="suffix" data-unit="small">in</span>
+        <input id="st-total-rise" type="number" value={def.totalRise} min="0" step={def.riseStep} inputmode="decimal" />
+        <span class="suffix" data-unit="small">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="st-target-rise">Target rise per step</label>
+      <label for="st-target-rise">{labels.targetRise}</label>
       <div class="field-input">
-        <input id="st-target-rise" type="number" value="7.5" min="4" max="8" step="0.25" inputmode="decimal" />
-        <span class="suffix" data-unit="small">in</span>
+        <input id="st-target-rise" type="number" value={def.targetRise} min={def.riseMin} max={def.riseMax} step={def.riseStep} inputmode="decimal" />
+        <span class="suffix" data-unit="small">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="st-tread">Tread depth (run)</label>
+      <label for="st-tread">{labels.tread}</label>
       <div class="field-input">
-        <input id="st-tread" type="number" value="10" min="9" step="0.25" inputmode="decimal" />
-        <span class="suffix" data-unit="small">in</span>
+        <input id="st-tread" type="number" value={def.tread} min={def.treadMin} step={def.treadStep} inputmode="decimal" />
+        <span class="suffix" data-unit="small">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="st-nosing">Nosing overhang</label>
+      <label for="st-nosing">{labels.nosing}</label>
       <div class="field-input">
-        <input id="st-nosing" type="number" value="1" min="0" max="1.25" step="0.125" inputmode="decimal" />
-        <span class="suffix" data-unit="small">in</span>
+        <input id="st-nosing" type="number" value={def.nosing} min="0" max={def.nosingMax} step={def.nosingStep} inputmode="decimal" />
+        <span class="suffix" data-unit="small">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="st-headroom">Required headroom <span class="optional">(IRC: 80 in)</span></label>
+      <label for="st-headroom">{labels.headroom} <span class="optional">{labels.headroomHint}</span></label>
       <div class="field-input">
-        <input id="st-headroom" type="number" value="80" min="72" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="small">in</span>
+        <input id="st-headroom" type="number" value={def.headroom} min={def.headroomMin} step={def.headroomStep} inputmode="decimal" />
+        <span class="suffix" data-unit="small">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="st-width">Stair width</label>
+      <label for="st-width">{labels.width}</label>
       <div class="field-input">
-        <input id="st-width" type="number" value="36" min="0" step="1" inputmode="decimal" />
-        <span class="suffix" data-unit="small">in</span>
+        <input id="st-width" type="number" value={def.width} min="0" step={def.widthStep} inputmode="decimal" />
+        <span class="suffix" data-unit="small">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
   </div>
 
   <div class="result" role="status" aria-live="polite">
-    <div class="result-label">Stair design</div>
+    <div class="result-label">{labels.designLabel}</div>
     <div class="result-main">
-      <span class="number" id="st-num-steps">14</span>
-      <span class="unit">steps</span>
-      <span class="aux">at <strong id="st-rise-display">7.71</strong> in rise each</span>
+      <span class="number" id="st-num-steps">{def.resSteps}</span>
+      <span class="unit" id="st-steps-unit">{labels.steps}</span>
+      <span class="aux">{labels.riseEach} <strong id="st-rise-display">{def.resRise}</strong> <span id="st-rise-aux-unit">{metricDefault ? 'cm' : 'in'}</span> {labels.riseEachSuffix}</span>
     </div>
     <div class="result-secondary">
-      Total run: <strong id="st-total-run">130</strong> in &nbsp;·&nbsp;
-      Stringer length: <strong id="st-stringer">14 ft 7 in</strong> &nbsp;·&nbsp;
-      Angle: <strong id="st-angle">37.6°</strong>
+      <span id="st-run-label">{labels.totalRun}</span>: <strong id="st-total-run">{def.resRun}</strong> <span id="st-run-unit">{metricDefault ? 'cm' : 'in'}</span> &nbsp;·&nbsp;
+      <span id="st-stringer-label">{labels.stringer}</span>: <strong id="st-stringer">{def.resStringer}</strong> &nbsp;·&nbsp;
+      <span id="st-angle-label">{labels.angle}</span>: <strong id="st-angle">{def.resAngle}</strong>
     </div>
     <div class="result-cost-row">
-      <span class="check-row" id="st-code-check">
-        <span id="st-code-status">✓ Meets IRC code (rise ≤ 7.75", tread ≥ 10")</span>
+      <span class="check-row ok" id="st-code-check">
+        <span id="st-code-status">{def.resCode}</span>
       </span>
     </div>
     <div class="result-actions">
-      <button type="button" class="btn" id="st-btn-copy">📋 Copy result</button>
-      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
-      <button type="button" class="btn" id="st-btn-share">↗ Share</button>
+      <button type="button" class="btn" id="st-btn-copy">{t.copyResult}</button>
+      <button type="button" class="btn" onclick="window.print()">{t.print}</button>
+      <button type="button" class="btn" id="st-btn-share">{t.share}</button>
     </div>
   </div>
 
   <div class="diagram" aria-hidden="true">
-    <strong>Stair anatomy:</strong>
-    Rise = vertical height of one step ·
-    Run / Tread = horizontal depth of one step ·
-    Total rise = floor-to-floor height ·
-    Stringer = the diagonal board supporting the steps
+    <strong>{labels.anatomyTitle}</strong>
+    {labels.anatomy}
   </div>
 </div>
 
@@ -126,6 +190,8 @@
   const root = document.getElementById('stair-tool');
   if (!root) return;
   const $ = (s) => root.querySelector(s);
+  const D = root.dataset;
+  const isES = D.lang === 'es';
 
   function formatFeetInches(inches) {
     const ft = Math.floor(inches / 12);
@@ -134,24 +200,17 @@
     const frac = Math.round((inRem - inWhole) * 16) / 16;
     let inStr = inWhole.toString();
     if (frac > 0) inStr += ' ' + frac.toString().replace(/^0\./, '').padStart(2, '0') + '/16';
-    return `${ft} ft ${inStr} in`;
+    return ft + ' ft ' + inStr + ' in';
   }
 
   function calculate() {
     const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    const isMetric = units === 'metric';
+    // Native units: metric = cm, imperial = in. Math runs in the active unit.
     let totalRise = parseFloat($('#st-total-rise').value) || 0;
-    let targetRise = parseFloat($('#st-target-rise').value) || 7.5;
-    let tread = parseFloat($('#st-tread').value) || 10;
-    let nosing = parseFloat($('#st-nosing').value) || 0;
-    let width = parseFloat($('#st-width').value) || 36;
-
-    // If metric (cm), normalize to inches for code-check display
-    if (units === 'metric') {
-      totalRise = totalRise / 2.54;
-      targetRise = targetRise / 2.54;
-      tread = tread / 2.54;
-      nosing = nosing / 2.54;
-    }
+    let targetRise = parseFloat($('#st-target-rise').value) || (isMetric ? 17.5 : 7.5);
+    let tread = parseFloat($('#st-tread').value) || (isMetric ? 28 : 10);
+    let width = parseFloat($('#st-width').value) || (isMetric ? 90 : 36);
 
     if (totalRise <= 0 || targetRise <= 0) return;
 
@@ -164,30 +223,60 @@
     const angle = Math.atan2(totalRise, totalRun) * 180 / Math.PI;
 
     $('#st-num-steps').textContent = numRisers.toString();
-    $('#st-rise-display').textContent = actualRise.toFixed(2);
-    $('#st-total-run').textContent = totalRun.toFixed(1);
-    $('#st-stringer').textContent = formatFeetInches(stringerLength);
+    $('#st-rise-display').textContent = actualRise.toFixed(isMetric ? 1 : 2);
+    $('#st-total-run').textContent = totalRun.toFixed(isMetric ? 0 : 1);
+
+    if (isMetric) {
+      // Stringer in m (and cm in parentheses)
+      const meters = stringerLength / 100;
+      $('#st-stringer').textContent = meters.toFixed(2) + ' m (' + Math.round(stringerLength) + ' cm)';
+    } else {
+      $('#st-stringer').textContent = formatFeetInches(stringerLength);
+    }
     $('#st-angle').textContent = angle.toFixed(1) + '°';
 
-    // IRC code check: rise ≤ 7.75", tread ≥ 10", rise + run = 17-18" (rule of thumb)
-    const riseOk = actualRise <= 7.75 && actualRise >= 4;
-    const treadOk = tread >= 10;
-    const widthOk = width >= 36;
-    const rule = actualRise + tread;
-    const rulesOk = rule >= 17 && rule <= 18;
+    // ---- Code / comfort check ----
     const codeRow = $('#st-code-check');
     const codeStatus = $('#st-code-status');
+    const rule = actualRise + tread;
 
-    if (riseOk && treadOk && widthOk) {
-      codeRow.className = 'check-row ok';
-      codeStatus.textContent = `✓ Meets IRC code (rise ${actualRise.toFixed(2)}", tread ${tread}", width ${width}")`;
+    if (isMetric) {
+      // ES (and metric EN): comfort/safety recommended ranges, NOT US legal code.
+      // peralte 17-18 cm cómodo (aceptable 15-19), huella 28-30 cm, ancho ≥ 90 cm,
+      // regla 2×peralte + huella ≈ 63-65 cm.
+      const riseOk = actualRise <= 18 && actualRise >= 15;
+      const treadOk = tread >= 28;
+      const widthOk = width >= 90;
+      const blondelRule = 2 * actualRise + tread; // 2×peralte + huella
+      if (riseOk && treadOk && widthOk) {
+        codeRow.className = 'check-row ok';
+        codeStatus.textContent = D.okPrefix + ' (' + D.riseLabel + ' ' + actualRise.toFixed(1) + ' cm, ' +
+          D.treadLabel + ' ' + tread + ' cm, ' + D.ruleLabel + ' = ' + blondelRule.toFixed(0) + ' cm)';
+      } else {
+        codeRow.className = 'check-row warn';
+        const issues = [];
+        if (!riseOk) issues.push(D.riseLabel + ' ' + actualRise.toFixed(1) + ' cm (' + D.riseMax + ')');
+        if (!treadOk) issues.push(D.treadLabel + ' ' + tread + ' cm (' + D.treadMin + ')');
+        if (!widthOk) issues.push(D.widthLabel + ' ' + width + ' cm (' + D.widthMin + ')');
+        codeStatus.textContent = D.warnPrefix + ': ' + issues.join(', ');
+      }
     } else {
-      codeRow.className = 'check-row warn';
-      const issues = [];
-      if (!riseOk) issues.push(`rise ${actualRise.toFixed(2)}" (max 7.75")`);
-      if (!treadOk) issues.push(`tread ${tread}" (min 10")`);
-      if (!widthOk) issues.push(`width ${width}" (min 36")`);
-      codeStatus.textContent = `⚠ Check IRC code: ${issues.join(', ')}`;
+      // EN imperial: US residential code check (unchanged behavior).
+      const riseOk = actualRise <= 7.75 && actualRise >= 4;
+      const treadOk = tread >= 10;
+      const widthOk = width >= 36;
+      if (riseOk && treadOk && widthOk) {
+        codeRow.className = 'check-row ok';
+        codeStatus.textContent = D.okPrefix + ' (' + D.riseLabel + ' ' + actualRise.toFixed(2) + '", ' +
+          D.treadLabel + ' ' + tread + '", ' + D.widthLabel + ' ' + width + '")';
+      } else {
+        codeRow.className = 'check-row warn';
+        const issues = [];
+        if (!riseOk) issues.push(D.riseLabel + ' ' + actualRise.toFixed(2) + '" (' + D.riseMax + ')');
+        if (!treadOk) issues.push(D.treadLabel + ' ' + tread + '" (' + D.treadMin + ')');
+        if (!widthOk) issues.push(D.widthLabel + ' ' + width + '" (' + D.widthMin + ')');
+        codeStatus.textContent = D.warnPrefix + ': ' + issues.join(', ');
+      }
     }
   }
 
@@ -195,30 +284,46 @@
 
   root.querySelectorAll('.unit-toggle button').forEach(btn => {
     btn.addEventListener('click', () => {
+      const wasMetric = root.querySelector('.unit-toggle button.active').dataset.units === 'metric';
+      const willMetric = btn.dataset.units === 'metric';
+      if (wasMetric === willMetric) return;
       root.querySelectorAll('.unit-toggle button').forEach(b => {
         b.classList.remove('active');
         b.setAttribute('aria-pressed', 'false');
       });
       btn.classList.add('active');
       btn.setAttribute('aria-pressed', 'true');
-      const metric = btn.dataset.units === 'metric';
-      root.querySelectorAll('[data-unit="small"]').forEach(el => el.textContent = metric ? 'cm' : 'in');
+
+      // Convert current field values between cm and inches so the toggle is non-destructive.
+      const factor = willMetric ? 2.54 : (1 / 2.54);
+      ['#st-total-rise', '#st-target-rise', '#st-tread', '#st-nosing', '#st-headroom', '#st-width'].forEach(id => {
+        const el = $(id);
+        const v = parseFloat(el.value);
+        if (!isNaN(v)) el.value = (v * factor).toFixed(willMetric ? 0 : 2);
+      });
+
+      root.querySelectorAll('[data-unit="small"]').forEach(el => el.textContent = willMetric ? 'cm' : 'in');
+      const auxUnit = $('#st-rise-aux-unit'); if (auxUnit) auxUnit.textContent = willMetric ? 'cm' : 'in';
+      const runUnit = $('#st-run-unit'); if (runUnit) runUnit.textContent = willMetric ? 'cm' : 'in';
       calculate();
     });
   });
 
   $('#st-btn-copy').addEventListener('click', () => {
-    const text = `Stair design: ${$('#st-num-steps').textContent} steps × ${$('#st-rise-display').textContent} in rise. Total run: ${$('#st-total-run').textContent} in. Stringer: ${$('#st-stringer').textContent}. Angle: ${$('#st-angle').textContent}.`;
+    const text = D.designLabel + ': ' + $('#st-num-steps').textContent + ' ' + D.steps + ' ' +
+      D.riseEach + ' ' + $('#st-rise-display').textContent + ' ' + $('#st-rise-aux-unit').textContent + '. ' +
+      D.totalRun + ': ' + $('#st-total-run').textContent + ' ' + $('#st-run-unit').textContent + '. ' +
+      D.stringer + ': ' + $('#st-stringer').textContent + '. ' + D.angle + ': ' + $('#st-angle').textContent + '.';
     navigator.clipboard?.writeText(text).then(() => {
       const btn = $('#st-btn-copy');
       const o = btn.textContent;
-      btn.textContent = '✓ Copied';
+      btn.textContent = D.copied || '✓ Copied';
       setTimeout(() => { btn.textContent = o; }, 1500);
     });
   });
 
   $('#st-btn-share').addEventListener('click', () => {
-    if (navigator.share) navigator.share({ title: 'Stair Calculator', url: location.href });
+    if (navigator.share) navigator.share({ title: D.shareTitle || 'Stair Calculator', url: location.href });
     else navigator.clipboard?.writeText(location.href);
   });
 
