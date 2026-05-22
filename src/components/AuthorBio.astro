@@ -2,18 +2,39 @@
 // Generic "last updated" signal — no fake credentials, no claimed authorship.
 export interface Props {
   updated?: string;
+  lang?: 'en' | 'es';
 }
 
-const { updated = "November 2026" } = Astro.props;
+const { updated, lang = 'en' } = Astro.props;
+
+const copy = {
+  en: {
+    label: '📅 Last reviewed',
+    date: updated || 'November 2026',
+    disclaimerPre: 'Calculations are estimates based on standard material density values and typical industry practice. Always verify with your local supplier before placing large orders. See our ',
+    methodologyText: 'methodology page',
+    disclaimerPost: ' for formulas and references.'
+  },
+  es: {
+    label: '📅 Última revisión',
+    date: updated || 'noviembre de 2026',
+    disclaimerPre: 'Los cálculos son estimaciones basadas en densidades de materiales estándar y en la práctica común de la construcción. Confirma siempre con tu proveedor local antes de hacer pedidos grandes. Consulta nuestra ',
+    methodologyText: 'página de metodología',
+    disclaimerPost: ' para ver las fórmulas y referencias.'
+  }
+};
+
+const t = copy[lang];
+// Phase 1 trust pages stay EN, so the methodology link points to the EN page
+// for both languages (consistent with the footer's ES→EN trust links).
+const methodologyHref = '/methodology/';
 ---
 
 <aside class="updated-note">
-  <div class="updated-label">📅 Last reviewed</div>
-  <div class="updated-date">{updated}</div>
+  <div class="updated-label">{t.label}</div>
+  <div class="updated-date">{t.date}</div>
   <p class="updated-disclaimer">
-    Calculations are estimates based on standard material density values and typical industry
-    practice. Always verify with your local supplier before placing large orders. See our
-    <a href="/methodology/">methodology page</a> for formulas and references.
+    {t.disclaimerPre}<a href={methodologyHref}>{t.methodologyText}</a>{t.disclaimerPost}
   </p>
 </aside>
 

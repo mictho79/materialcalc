@@ -2,11 +2,13 @@
 export interface Props {
   label?: string;
   slotId?: string;
+  lang?: 'en' | 'es';
 }
-const { slotId } = Astro.props;
+const { slotId, lang = 'en' } = Astro.props;
+const adLabel = lang === 'es' ? 'Publicidad' : 'Advertisement';
 ---
 
 <div class="ad-slot" data-slot={slotId} aria-hidden="true">
   <!-- AdSense slot will be injected here when monetization is enabled -->
-  Advertisement
+  {adLabel}
 </div>
