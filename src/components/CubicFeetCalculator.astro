@@ -1,112 +1,161 @@
 ---
 // Cubic Feet Calculator — siblings with cubic-yard but presents ft³ as primary output.
 // Accepts feet, inches, yards, meters, cm as length units.
+// Parametrized by lang: ES defaults to metric and shows m³ as the primary result.
+import { getStrings } from '@i18n/index';
+export interface Props { lang?: 'en' | 'es'; }
+const { lang = 'en' } = Astro.props;
+const t = getStrings(lang).widget;
+const metricDefault = lang === 'es';
+
+const labels = lang === 'es'
+  ? {
+      feet: 'Pies', inches: 'Pulgadas', yards: 'Yardas', meters: 'Metros', centimeters: 'Centímetros',
+      inputUnits: 'Unidades de entrada', shape: 'Forma',
+      rectangle: '▭ Caja / Rectángulo', cylinder: '⬭ Cilindro', circle: '● Área circular',
+      length: 'Largo', width: 'Ancho', heightDepth: 'Altura / Profundidad',
+      diameter: 'Diámetro', height: 'Altura', depth: 'Profundidad',
+      quantity: 'Número de piezas', quantitySuffix: 'pzs',
+      pricePer: 'Precio por m³', priceSuffix: '$/m³',
+      totalVolume: 'Volumen total',
+      unitMain: 'metros cúbicos', unitMainImperial: 'pies cúbicos',
+      totalCost: 'Costo total:',
+      copyLabel: 'Volumen', shareTitle: 'Calculadora de Metros Cúbicos',
+      // secondary line labels
+      secCubicFeet: 'ft³', secCubicYards: 'yd³', secCubicMeters: 'm³', secLiters: 'litros', secGallons: 'galones EE.UU.',
+      copyUnit: 'm³',
+    }
+  : {
+      feet: 'Feet', inches: 'Inches', yards: 'Yards', meters: 'Meters', centimeters: 'Centimeters',
+      inputUnits: 'Input units', shape: 'Shape',
+      rectangle: '▭ Box / Rectangle', cylinder: '⬭ Cylinder', circle: '● Circle area',
+      length: 'Length', width: 'Width', heightDepth: 'Height / Depth',
+      diameter: 'Diameter', height: 'Height', depth: 'Depth',
+      quantity: 'Number of items', quantitySuffix: 'pcs',
+      pricePer: 'Price per ft³', priceSuffix: '$/ft³',
+      totalVolume: 'Total volume',
+      unitMain: 'cubic meters', unitMainImperial: 'cubic feet',
+      totalCost: 'Total cost:',
+      copyLabel: 'Volume', shareTitle: 'Cubic Feet Calculator',
+      secCubicFeet: 'ft³', secCubicYards: 'yd³', secCubicMeters: 'm³', secLiters: 'L', secGallons: 'US gallons',
+      copyUnit: 'ft³',
+    };
+
+// Default input length unit: meters in ES, feet in EN.
+const defUnit = metricDefault ? 'm' : 'ft';
 ---
 
-<div class="tool" id="cf-tool">
+<div class="tool" id="cf-tool"
+  data-metric-default={metricDefault.toString()}
+  data-unit-main={labels.unitMain} data-unit-main-imperial={labels.unitMainImperial}
+  data-sec-ft={labels.secCubicFeet} data-sec-yd={labels.secCubicYards} data-sec-m3={labels.secCubicMeters}
+  data-sec-liters={labels.secLiters} data-sec-gallons={labels.secGallons}
+  data-copied={t.copied} data-copy-label={labels.copyLabel} data-copy-unit={labels.copyUnit}
+  data-share-title={labels.shareTitle}
+  data-with={lang === 'es' ? 'con' : 'with'}>
   <div class="tool-header">
-    <div class="tool-title">Calculator</div>
-    <div class="unit-toggle" role="tablist" aria-label="Input units">
-      <button type="button" class="active" data-units="ft" aria-pressed="true">Feet</button>
-      <button type="button" data-units="in" aria-pressed="false">Inches</button>
-      <button type="button" data-units="yd" aria-pressed="false">Yards</button>
-      <button type="button" data-units="m" aria-pressed="false">Meters</button>
-      <button type="button" data-units="cm" aria-pressed="false">Centimeters</button>
+    <div class="tool-title">{t.calculator}</div>
+    <div class="unit-toggle" role="tablist" aria-label={labels.inputUnits}>
+      <button type="button" class={defUnit === 'ft' ? 'active' : ''} data-units="ft" aria-pressed={(defUnit === 'ft').toString()}>{labels.feet}</button>
+      <button type="button" data-units="in" aria-pressed="false">{labels.inches}</button>
+      <button type="button" data-units="yd" aria-pressed="false">{labels.yards}</button>
+      <button type="button" class={defUnit === 'm' ? 'active' : ''} data-units="m" aria-pressed={(defUnit === 'm').toString()}>{labels.meters}</button>
+      <button type="button" data-units="cm" aria-pressed="false">{labels.centimeters}</button>
     </div>
   </div>
 
-  <div class="shape-row" role="tablist" aria-label="Shape">
-    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Box / Rectangle</button>
-    <button type="button" class="shape-btn" data-shape="cylinder">⬭ Cylinder</button>
-    <button type="button" class="shape-btn" data-shape="circle">● Circle area</button>
+  <div class="shape-row" role="tablist" aria-label={labels.shape}>
+    <button type="button" class="shape-btn active" data-shape="rectangle">{labels.rectangle}</button>
+    <button type="button" class="shape-btn" data-shape="cylinder">{labels.cylinder}</button>
+    <button type="button" class="shape-btn" data-shape="circle">{labels.circle}</button>
   </div>
 
   <div class="form-grid">
     <div class="field" data-show="rectangle">
-      <label for="cf-length">Length</label>
+      <label for="cf-length">{labels.length}</label>
       <div class="field-input">
         <input id="cf-length" type="number" value="8" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="input">ft</span>
+        <span class="suffix" data-unit="input">{defUnit}</span>
       </div>
     </div>
     <div class="field" data-show="rectangle">
-      <label for="cf-width">Width</label>
+      <label for="cf-width">{labels.width}</label>
       <div class="field-input">
         <input id="cf-width" type="number" value="5" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="input">ft</span>
+        <span class="suffix" data-unit="input">{defUnit}</span>
       </div>
     </div>
     <div class="field" data-show="rectangle">
-      <label for="cf-height">Height / Depth</label>
+      <label for="cf-height">{labels.heightDepth}</label>
       <div class="field-input">
         <input id="cf-height" type="number" value="2" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="input">ft</span>
+        <span class="suffix" data-unit="input">{defUnit}</span>
       </div>
     </div>
     <div class="field" data-show="cylinder">
-      <label for="cf-cyl-diameter">Diameter</label>
+      <label for="cf-cyl-diameter">{labels.diameter}</label>
       <div class="field-input">
         <input id="cf-cyl-diameter" type="number" value="3" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="input">ft</span>
+        <span class="suffix" data-unit="input">{defUnit}</span>
       </div>
     </div>
     <div class="field" data-show="cylinder">
-      <label for="cf-cyl-height">Height</label>
+      <label for="cf-cyl-height">{labels.height}</label>
       <div class="field-input">
         <input id="cf-cyl-height" type="number" value="6" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="input">ft</span>
+        <span class="suffix" data-unit="input">{defUnit}</span>
       </div>
     </div>
     <div class="field" data-show="circle">
-      <label for="cf-circle-diameter">Diameter</label>
+      <label for="cf-circle-diameter">{labels.diameter}</label>
       <div class="field-input">
         <input id="cf-circle-diameter" type="number" value="10" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="input">ft</span>
+        <span class="suffix" data-unit="input">{defUnit}</span>
       </div>
     </div>
     <div class="field" data-show="circle">
-      <label for="cf-circle-depth">Depth</label>
+      <label for="cf-circle-depth">{labels.depth}</label>
       <div class="field-input">
         <input id="cf-circle-depth" type="number" value="0.5" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="input">ft</span>
+        <span class="suffix" data-unit="input">{defUnit}</span>
       </div>
     </div>
     <div class="field">
-      <label for="cf-quantity">Number of items</label>
+      <label for="cf-quantity">{labels.quantity}</label>
       <div class="field-input">
         <input id="cf-quantity" type="number" value="1" min="1" step="1" inputmode="numeric" />
-        <span class="suffix">pcs</span>
+        <span class="suffix">{labels.quantitySuffix}</span>
       </div>
     </div>
     <div class="field">
-      <label for="cf-price">Price per ft³ <span class="optional">(optional)</span></label>
+      <label for="cf-price">{labels.pricePer} <span class="optional">{t.optional}</span></label>
       <div class="field-input">
         <input id="cf-price" type="number" value="0" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix">$/ft³</span>
+        <span class="suffix" data-unit="price">{labels.priceSuffix}</span>
       </div>
     </div>
   </div>
 
   <div class="result" role="status" aria-live="polite">
-    <div class="result-label">Total volume</div>
+    <div class="result-label">{labels.totalVolume}</div>
     <div class="result-main">
       <span class="number" id="cf-feet">80.00</span>
-      <span class="unit">cubic feet</span>
+      <span class="unit" id="cf-unit">{metricDefault ? labels.unitMain : labels.unitMainImperial}</span>
     </div>
     <div class="result-secondary">
-      = <strong id="cf-yards">2.96</strong> yd³ &nbsp;·&nbsp;
-      <strong id="cf-meters">2.27</strong> m³ &nbsp;·&nbsp;
-      <strong id="cf-gallons">598</strong> US gallons &nbsp;·&nbsp;
-      <strong id="cf-liters">2,264</strong> L
+      = <strong id="cf-sec-1">2.96</strong> <span id="cf-sec-1-unit">{labels.secCubicYards}</span> &nbsp;·&nbsp;
+      <strong id="cf-sec-2">2.27</strong> <span id="cf-sec-2-unit">{labels.secCubicMeters}</span> &nbsp;·&nbsp;
+      <strong id="cf-sec-3">598</strong> <span id="cf-sec-3-unit">{labels.secGallons}</span> &nbsp;·&nbsp;
+      <strong id="cf-sec-4">2,264</strong> <span id="cf-sec-4-unit">{labels.secLiters}</span>
     </div>
     <div class="result-cost" id="cf-cost-row" hidden>
-      Total cost: <strong id="cf-cost">$0</strong>
+      {labels.totalCost} <strong id="cf-cost">$0</strong>
     </div>
     <div class="result-actions">
-      <button type="button" class="btn" id="cf-btn-copy">📋 Copy result</button>
-      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
-      <button type="button" class="btn" id="cf-btn-share">↗ Share</button>
-      
+      <button type="button" class="btn" id="cf-btn-copy">{t.copyResult}</button>
+      <button type="button" class="btn" onclick="window.print()">{t.print}</button>
+      <button type="button" class="btn" id="cf-btn-share">{t.share}</button>
+
     </div>
   </div>
 </div>
@@ -274,6 +323,8 @@
   if (!root) return;
   const $ = (s) => root.querySelector(s);
 
+  const isES = root.dataset.metricDefault === 'true';
+
   // Convert any input unit to feet
   function toFeet(value, unit) {
     switch (unit) {
@@ -284,6 +335,10 @@
       case 'cm': return value * 0.0328084;
       default:   return value;
     }
+  }
+
+  function fmt(n, decimals) {
+    return n.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   }
 
   function calculate() {
@@ -313,13 +368,38 @@
     const cubicMeters = cubicFeet * 0.0283168;
     const gallons = cubicFeet * 7.4805;
     const liters = cubicFeet * 28.3168;
-    const cost = cubicFeet * price;
 
-    $('#cf-feet').textContent = cubicFeet.toFixed(2);
-    $('#cf-yards').textContent = cubicYards.toFixed(2);
-    $('#cf-meters').textContent = cubicMeters.toFixed(2);
-    $('#cf-gallons').textContent = Math.round(gallons).toLocaleString();
-    $('#cf-liters').textContent = Math.round(liters).toLocaleString();
+    // Primary result: m³ in ES (metric), ft³ in EN.
+    const mainVol = isES ? cubicMeters : cubicFeet;
+    const mainUnitEl = $('#cf-unit');
+    if (mainUnitEl) mainUnitEl.textContent = isES
+      ? (root.dataset.unitMain || 'cubic meters')
+      : (root.dataset.unitMainImperial || 'cubic feet');
+    const cost = mainVol * price;
+
+    $('#cf-feet').textContent = fmt(mainVol, 2);
+
+    if (isES) {
+      // Secondary: pies cúbicos · litros · galones
+      $('#cf-sec-1').textContent = fmt(cubicFeet, 2);
+      $('#cf-sec-2').textContent = Math.round(liters).toLocaleString();
+      $('#cf-sec-3').textContent = Math.round(gallons).toLocaleString();
+      $('#cf-sec-4').textContent = fmt(cubicYards, 2);
+      $('#cf-sec-1-unit').textContent = root.dataset.secFt || 'ft³';
+      $('#cf-sec-2-unit').textContent = root.dataset.secLiters || 'litros';
+      $('#cf-sec-3-unit').textContent = root.dataset.secGallons || 'galones';
+      $('#cf-sec-4-unit').textContent = root.dataset.secYd || 'yd³';
+    } else {
+      // Secondary: yd³ · m³ · US gallons · L
+      $('#cf-sec-1').textContent = cubicYards.toFixed(2);
+      $('#cf-sec-2').textContent = cubicMeters.toFixed(2);
+      $('#cf-sec-3').textContent = Math.round(gallons).toLocaleString();
+      $('#cf-sec-4').textContent = Math.round(liters).toLocaleString();
+      $('#cf-sec-1-unit').textContent = root.dataset.secYd || 'yd³';
+      $('#cf-sec-2-unit').textContent = root.dataset.secM3 || 'm³';
+      $('#cf-sec-3-unit').textContent = root.dataset.secGallons || 'US gallons';
+      $('#cf-sec-4-unit').textContent = root.dataset.secLiters || 'L';
+    }
 
     if (price > 0) {
       $('#cf-cost').textContent = '$' + cost.toFixed(2);
@@ -361,18 +441,19 @@
   });
 
   $('#cf-btn-copy').addEventListener('click', () => {
-    const text = `Volume: ${$('#cf-feet').textContent} ft³ (${$('#cf-yards').textContent} yd³, ${$('#cf-meters').textContent} m³).`;
+    const u = root.dataset.copyUnit || 'ft³';
+    const text = `${root.dataset.copyLabel || 'Volume'}: ${$('#cf-feet').textContent} ${u}.`;
     navigator.clipboard?.writeText(text).then(() => {
       const btn = $('#cf-btn-copy');
       const original = btn.textContent;
-      btn.textContent = '✓ Copied';
+      btn.textContent = root.dataset.copied || '✓ Copied';
       setTimeout(() => { btn.textContent = original; }, 1500);
     });
   });
 
   $('#cf-btn-share').addEventListener('click', () => {
     if (navigator.share) {
-      navigator.share({ title: 'Cubic Feet Calculator', url: location.href });
+      navigator.share({ title: root.dataset.shareTitle || 'Cubic Feet Calculator', url: location.href });
     } else {
       navigator.clipboard?.writeText(location.href);
     }
