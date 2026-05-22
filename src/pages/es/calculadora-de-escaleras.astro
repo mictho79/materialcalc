@@ -1,0 +1,314 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import StairCalculator from '@components/StairCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { escalerasFAQ } from '@data/faqs/es/escaleras';
+import { getRelatedCalculatorsES } from '@data/calculators';
+
+const title = "Calculadora de Escaleras — Huella y Peralte";
+const description = "Calculadora de escaleras gratis: calcula el peralte, la huella, el número de escalones y el largo de la zanca a partir de la altura total. Con rangos cómodos recomendados (peralte 17-18 cm, huella 28-30 cm).";
+
+const alternates = [
+  { lang: 'en', href: 'https://materialcal.com/stair-calculator/' },
+  { lang: 'es', href: 'https://materialcal.com/es/calculadora-de-escaleras/' },
+  { lang: 'x-default', href: 'https://materialcal.com/stair-calculator/' }
+];
+
+const related = getRelatedCalculatorsES('stair-calculator', 4).map(c => ({
+  title: c.shortTitle_es,
+  href: `/es/${c.slug_es}/`,
+  desc: c.description_es
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Calculadora de Escaleras",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Cualquiera (en línea)",
+    "description": description,
+    "url": "https://materialcal.com/es/calculadora-de-escaleras/",
+    "inLanguage": "es",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "MXN" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Cómo calcular el peralte y la huella de una escalera",
+    "inLanguage": "es",
+    "step": [
+      { "@type": "HowToStep", "name": "Mide la altura total", "text": "La distancia de piso a piso terminado, incluyendo el firme y el piso de acabado. Trabaja en centímetros." },
+      { "@type": "HowToStep", "name": "Define el peralte deseado", "text": "Un peralte cómodo va de 17 a 18 cm por escalón." },
+      { "@type": "HowToStep", "name": "Calcula el número de escalones", "text": "Divide la altura total entre el peralte deseado y redondea al entero más cercano." },
+      { "@type": "HowToStep", "name": "Obtén el peralte real y la huella", "text": "Altura total ÷ número de escalones = peralte real; usa una huella de 28 a 30 cm." },
+      { "@type": "HowToStep", "name": "Calcula el largo de la zanca", "text": "Raíz cuadrada de (altura total² + recorrido total²)." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCal`} description={description} schema={schema} lang="es" alternates={alternates}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Inicio', href: '/es/' },
+      { label: 'Calculadoras', href: '/es/' },
+      { label: 'Calculadora de Escaleras' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Calculadora de Escaleras</h1>
+      <p class="intro">
+        Diseña una escalera cómoda y segura a partir de la altura total. La calculadora obtiene el
+        número de escalones, el peralte real de cada uno, el recorrido total, el largo de la zanca y
+        el ángulo — y revisa que tu diseño quede dentro de los rangos recomendados. Incluye una guía
+        completa de cómo calcular, los anchos recomendados y los errores más comunes.
+      </p>
+    </header>
+
+    <StairCalculator lang="es" />
+
+    <article class="content">
+      <h2>Cómo calcular el peralte y la huella</h2>
+      <p>
+        Diseñar una escalera es, sobre todo, un problema de aritmética: hay que repartir la altura
+        total (de piso a piso) en escalones iguales, cada uno lo bastante cómodo para subir y bajar
+        sin cansarse ni tropezar. La parte importante es que todos los escalones midan exactamente lo
+        mismo y que el peralte y la huella se queden dentro de rangos cómodos. Nuestra calculadora
+        hace las cuentas por ti; aquí tienes las fórmulas para que verifiques cualquier resultado.
+      </p>
+
+      <div class="formula">
+        Número de escalones = Altura total ÷ peralte deseado (redondeado al entero)<br>
+        Peralte real = Altura total ÷ número de escalones<br>
+        Recorrido total = (número de escalones − 1) × huella<br>
+        Largo de la zanca = √(altura total² + recorrido total²)<br>
+        Ángulo de la escalera = arctan(peralte ÷ huella) — normalmente 30° a 38°
+      </div>
+
+      <p>
+        El "menos 1" en la fórmula del recorrido confunde a muchos. Si tu escalera tiene 16 peraltes
+        (escalones de subida), el último termina justo en el piso de arriba — así que solo construyes
+        15 huellas horizontales. Súbela mentalmente y cuenta: apoyas el pie 15 veces antes de pisar
+        el nivel superior.
+      </p>
+
+      <h3>Ejemplo resuelto: una escalera de casa típica</h3>
+      <p>
+        Altura total (de piso a piso): 280 cm (incluyendo firme y piso de acabado). Buscamos un
+        peralte de 17.5 cm y una huella de 28 cm.
+      </p>
+      <ul>
+        <li><strong>Número de escalones:</strong> 280 ÷ 17.5 = 16 escalones</li>
+        <li><strong>Peralte real:</strong> 280 ÷ 16 = 17.5 cm (dentro del rango cómodo de 17 a 18 cm)</li>
+        <li><strong>Número de huellas:</strong> 16 − 1 = 15 huellas</li>
+        <li><strong>Recorrido total:</strong> 15 × 28 = 420 cm (4.20 m)</li>
+        <li><strong>Largo de la zanca:</strong> √(280² + 420²) = √(78,400 + 176,400) = √254,800 ≈ 505 cm (5.05 m)</li>
+        <li><strong>Ángulo:</strong> arctan(280 ÷ 420) ≈ 33.7° (muy cómodo, lejos de lo empinado)</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">La regla cómoda: 2 × peralte + huella = 63 a 65 cm</div>
+        La regla clásica del oficio (regla de Blondel) dice que una escalera cómoda cumple que dos
+        veces el peralte más la huella quede entre 63 y 65 cm. Por ejemplo: 2 × 17.5 + 28 = 63 ✓.
+        Si el resultado sube de 65 (peralte chico, huella larga) la escalera se siente tendida y es
+        fácil tropezar al bajar; si baja de 63 (peralte alto, huella corta) se siente empinada y
+        cansa al subir.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="stair-mid-1" />
+
+      <h2>Rangos cómodos y recomendados (2026)</h2>
+      <p>
+        Estos no son un código legal estadounidense, sino los rangos cómodos y seguros que se usan en
+        la construcción residencial en México y Latinoamérica. Tu reglamento de construcción local
+        puede tener requisitos específicos; tómalos como punto de partida y confírmalos con el
+        municipio o con un perito si es una obra formal.
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Dimensión</th>
+              <th>Rango recomendado</th>
+              <th>Lo cómodo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Peralte (altura del escalón)</td><td>15 a 19 cm</td><td>17 a 18 cm</td></tr>
+            <tr><td>Huella (profundidad del paso)</td><td>26 a 32 cm</td><td>28 a 30 cm</td></tr>
+            <tr><td>Ancho de la escalera</td><td>mínimo 90 cm</td><td>100 a 120 cm</td></tr>
+            <tr><td>Altura libre de paso</td><td>mínimo 200 cm</td><td>210 cm o más</td></tr>
+            <tr><td>Regla 2×peralte + huella</td><td>63 a 65 cm</td><td>63 a 64 cm</td></tr>
+            <tr><td>Ángulo de la escalera</td><td>25° a 40°</td><td>30° a 35°</td></tr>
+            <tr><td>Saliente de la huella (narices)</td><td>2 a 3 cm</td><td>2.5 cm</td></tr>
+            <tr><td>Diferencia entre peraltes</td><td>máximo 1 cm</td><td>menos de 0.5 cm</td></tr>
+            <tr><td>Altura del pasamanos</td><td>85 a 95 cm</td><td>90 cm</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        La regla que más se rompe es la de mantener todos los peraltes iguales. Aunque la diferencia
+        sea de un centímetro (por ejemplo, el primer escalón más bajo porque el firme quedó alto),
+        aumenta mucho el riesgo de tropezar: el pie espera que cada escalón sea idéntico al anterior.
+      </p>
+
+      <h2>Partes de una escalera</h2>
+      <ul>
+        <li><strong>Peralte:</strong> la altura vertical de un escalón, lo que subes con cada paso.</li>
+        <li><strong>Huella:</strong> la superficie horizontal donde apoyas el pie. Incluye el saliente (las narices).</li>
+        <li><strong>Contrahuella:</strong> la cara vertical (frontal) del escalón. Puede ir cerrada o quedar abierta.</li>
+        <li><strong>Zanca (o zancón):</strong> la viga diagonal — de concreto, madera o acero — que sostiene los escalones.</li>
+        <li><strong>Narices o saliente:</strong> los 2 a 3 cm que la huella sobresale por encima de la contrahuella, para dar más apoyo al pie.</li>
+        <li><strong>Descanso:</strong> la plataforma plana que interrumpe la escalera, en cambios de dirección o tramos largos.</li>
+        <li><strong>Altura total:</strong> la distancia de piso terminado a piso terminado.</li>
+        <li><strong>Recorrido total:</strong> la distancia horizontal que ocupa la escalera en planta.</li>
+        <li><strong>Barandal o pasamanos:</strong> la barra continua de la que te agarras al subir y bajar.</li>
+        <li><strong>Balaustres:</strong> los barrotes verticales del barandal; deben quedar lo bastante juntos para que no pase un objeto de unos 10 cm.</li>
+      </ul>
+
+      <h2>Número de escalones a partir de la altura total</h2>
+      <p>
+        El primer paso siempre es medir bien la altura total: de piso terminado a piso terminado,
+        incluyendo el espesor del firme y del piso de acabado de ambos niveles. Un error de un par de
+        centímetros aquí se reparte entre todos los escalones y puede sacar el peralte del rango
+        cómodo. Con la altura total en la mano, divides entre el peralte deseado y redondeas.
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Altura total</th>
+              <th>Escalones (peralte ≈ 17.5 cm)</th>
+              <th>Peralte real</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>240 cm (2.40 m)</td><td>14</td><td>17.1 cm</td></tr>
+            <tr><td>260 cm (2.60 m)</td><td>15</td><td>17.3 cm</td></tr>
+            <tr><td>270 cm (2.70 m)</td><td>15</td><td>18.0 cm</td></tr>
+            <tr><td>280 cm (2.80 m)</td><td>16</td><td>17.5 cm</td></tr>
+            <tr><td>290 cm (2.90 m)</td><td>17</td><td>17.1 cm</td></tr>
+            <tr><td>300 cm (3.00 m)</td><td>17</td><td>17.6 cm</td></tr>
+            <tr><td>320 cm (3.20 m)</td><td>18</td><td>17.8 cm</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Si el peralte real se sale de los 17 a 18 cm, prueba con un escalón más o uno menos hasta que
+        caiga dentro del rango. Por ejemplo, con 270 cm te quedan 15 escalones de 18.0 cm (al límite);
+        si lo sientes alto, súbelo a 16 escalones de 16.9 cm, que es más suave pero ocupa una huella
+        más de recorrido.
+      </p>
+
+      <h2>Largo de la zanca</h2>
+      <p>
+        La zanca es la viga diagonal que carga todo el peso de la escalera y de quien la usa. Para
+        comprar o cimbrar la zanca necesitas su largo, que sale del teorema de Pitágoras usando la
+        altura total y el recorrido total como catetos. En el ejemplo de 280 cm de altura y 420 cm de
+        recorrido, la zanca mide unos 505 cm (5.05 m). Compra siempre con holgura: es preferible que
+        sobre material a quedarte corto en los cortes.
+      </p>
+
+      <h3>Zanca de concreto</h3>
+      <p>
+        Es la más común en casa habitación en México. Se arma con acero de refuerzo y se cuela sobre
+        cimbra de madera. El reto está en la cimbra: hay que trazar con cuidado cada peralte y cada
+        huella para que la escalera quede a escuadra y todos los escalones iguales. Apóyate en un
+        albañil con experiencia en escaleras, porque rehacer una mal colada es caro.
+      </p>
+
+      <h3>Zanca de madera</h3>
+      <p>
+        Para escaleras interiores ligeras o exteriores de jardín. Se traza con escuadra de carpintero,
+        marcando todos los cortes antes de cortar nada y comprobando que la suma de los peraltes dé la
+        altura total. En el escalón de abajo hay que descontar el espesor de la huella para que el
+        primer paso no quede más alto que los demás. Usa madera tratada para exteriores.
+      </p>
+
+      <h3>Zanca de acero</h3>
+      <p>
+        Perfil metálico (canal o PTR) para escaleras industriales, exteriores o de estilo moderno.
+        Permite claros más largos sin apoyos intermedios y se combina con huellas de madera, rejilla
+        o concreto. Requiere soldadura y, casi siempre, taller; es la opción más limpia visualmente
+        pero la que más mano de obra especializada pide.
+      </p>
+
+      <AdSlot label="AdSense in-content #2" slotId="stair-mid-2" />
+
+      <h2>Anchos recomendados según el uso</h2>
+      <p>
+        El ancho de la escalera depende de cuánta gente la use y de si vas a subir muebles por ella.
+        Estos son los anchos que se manejan normalmente:
+      </p>
+      <ul>
+        <li><strong>Escalera secundaria o de servicio:</strong> mínimo 80 cm. Suficiente para una persona a la vez.</li>
+        <li><strong>Escalera principal de casa:</strong> mínimo 90 cm; lo cómodo es de 100 a 120 cm para cruzarse y subir muebles.</li>
+        <li><strong>Escaleras de uso intenso (edificios, locales):</strong> de 1.20 m en adelante, según el reglamento local y el número de personas.</li>
+        <li><strong>Escalera de caracol:</strong> entre 60 y 90 cm de paso libre; ahorra espacio pero es incómoda para muebles y como única salida.</li>
+      </ul>
+
+      <h2>El descanso: cuándo y de qué tamaño</h2>
+      <p>
+        El descanso es la plataforma plana que parte la escalera. Conviene ponerlo cuando hay más de
+        unos 16 a 18 escalones seguidos, cuando la escalera cambia de dirección (en L o en U) o cuando
+        el recorrido es muy largo y quieres dar un respiro al subir. Como regla, el fondo del descanso
+        debe ser al menos igual al ancho de la escalera, para que el paso sea natural. Los descansos en
+        L y en U también ayudan a meter la escalera en huecos chicos sin que el recorrido se alargue
+        demasiado en una sola dirección.
+      </p>
+
+      <h2>Cómo construir una escalera: paso a paso</h2>
+      <ol>
+        <li><strong>Mide la altura total.</strong> De piso terminado a piso terminado. Si el piso de acabado aún no está, suma su espesor más el del firme.</li>
+        <li><strong>Calcula peralte y huella.</strong> Usa esta calculadora. Ajusta el peralte deseado hasta caer en un número entero de escalones dentro del rango cómodo.</li>
+        <li><strong>Revisa el recorrido.</strong> Confirma que la escalera cabe en el hueco disponible. Si no cabe, reduce la huella, sube el peralte (dentro del rango) o agrega un descanso.</li>
+        <li><strong>Verifica la altura libre de paso.</strong> Mínimo 200 cm desde cualquier nariz de escalón hasta el techo o la losa de arriba.</li>
+        <li><strong>Traza la zanca.</strong> Marca todos los peraltes y huellas con escuadra antes de cortar o cimbrar. Comprueba que la suma de los peraltes dé la altura total exacta.</li>
+        <li><strong>Descuenta el espesor de la huella abajo.</strong> El primer escalón debe cortarse más bajo por el grosor de la huella, para que quede a la misma altura que los demás.</li>
+        <li><strong>Arma o cimbra y cuela.</strong> En concreto: arma el acero y cuela sobre cimbra bien aplomada. En madera o acero: fija la zanca arriba y abajo con buen anclaje.</li>
+        <li><strong>Coloca contrahuellas y huellas.</strong> Primero la contrahuella, luego la huella. En madera, pega y atornilla (no claves) para evitar rechinidos.</li>
+        <li><strong>Pon el barandal y los balaustres.</strong> Pasamanos continuo de 85 a 95 cm sobre la nariz del escalón, con balaustres lo bastante juntos para que no pase un objeto de 10 cm.</li>
+      </ol>
+
+      <h2>Errores comunes al hacer una escalera</h2>
+      <ul>
+        <li><strong>Peraltes desiguales:</strong> todos los escalones deben medir lo mismo, con menos de 1 cm de diferencia. Es la principal causa de tropiezos.</li>
+        <li><strong>Olvidar descontar la huella en el primer escalón:</strong> el escalón de abajo queda más alto que el resto. Es un riesgo de caída clásico.</li>
+        <li><strong>Huella demasiado corta:</strong> si la huella baja de 26 cm el pie no apoya bien y es fácil resbalar al bajar.</li>
+        <li><strong>Poca altura libre de paso:</strong> escaleras bajo una losa o un entrepiso a veces dejan menos de 200 cm y la gente se golpea la cabeza. Revísalo desde el diseño.</li>
+        <li><strong>Medir mal la altura total:</strong> no incluir el firme o el piso de acabado descuadra todos los peraltes. Mide de piso terminado a piso terminado.</li>
+        <li><strong>No poner barandal:</strong> con más de 3 o 4 escalones, o caída a un costado, el barandal es indispensable, sobre todo con niños y adultos mayores.</li>
+        <li><strong>Material equivocado en exteriores:</strong> la madera sin tratar a la intemperie se pudre en pocos años. Usa madera tratada, acero galvanizado o concreto.</li>
+        <li><strong>Acabado resbaloso:</strong> en huellas de loseta o concreto pulido, agrega cintas o ranuras antiderrapantes, en especial en escaleras exteriores expuestas a la lluvia.</li>
+      </ul>
+    </article>
+
+    <FAQ items={escalerasFAQ} heading="Preguntas frecuentes" />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} heading="Calculadoras relacionadas" />
+
+    <EmbedCTA calculator="stair" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>
