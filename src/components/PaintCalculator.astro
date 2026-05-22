@@ -1,114 +1,187 @@
 ---
 // Paint Calculator — wall area, doors/windows subtraction, coats, coverage, cost.
+// Parametrized by lang: ES defaults to metric and shows LITROS as the primary result.
+// IMPORTANT: coverage options are stored per the active unit system —
+//   EN values are sq ft/gal; ES values are m²/litro.
+import { getStrings } from '@i18n/index';
+export interface Props { lang?: 'en' | 'es'; }
+const { lang = 'en' } = Astro.props;
+const t = getStrings(lang).widget;
+const metricDefault = lang === 'es';
+
+const labels = lang === 'es'
+  ? {
+      walls: 'Paredes', ceiling: 'Techo', exterior: 'Exterior',
+      perimeter: 'Perímetro del cuarto', height: 'Altura de pared',
+      length: 'Largo', width: 'Ancho',
+      doors: 'Número de puertas', windows: 'Número de ventanas',
+      doorsSuffix: '≈ 1.9 m² c/u', windowsSuffix: '≈ 1.4 m² c/u',
+      coats: 'Número de manos', coverage: 'Rendimiento de la pintura',
+      pricePer: 'Precio por litro', priceSuffix: '$/L',
+      paintNeeded: 'Pintura necesaria', unitMain: 'litros',
+      areaLabel: 'Área a pintar', areaUnit: 'm²',
+      coatsCoverage: 'Con', coatsCoverageSuffix: 'm² de cobertura',
+      costLabel: 'Costo estimado de pintura',
+      costNote: 'solo pintura, sin sellador, materiales ni mano de obra',
+      coatOne: '1 mano', coatPlural: 'manos',
+      copyLabel: 'Pintura', shareTitle: 'Calculadora de Pintura',
+    }
+  : {
+      walls: 'Walls', ceiling: 'Ceiling', exterior: 'Exterior',
+      perimeter: 'Room perimeter', height: 'Wall height',
+      length: 'Length', width: 'Width',
+      doors: 'Number of doors', windows: 'Number of windows',
+      doorsSuffix: '≈ 20 sq ft each', windowsSuffix: '≈ 15 sq ft each',
+      coats: 'Number of coats', coverage: 'Paint coverage',
+      pricePer: 'Price per gallon', priceSuffix: '$/gal',
+      paintNeeded: 'Paint needed', unitMain: 'gallons',
+      areaLabel: 'Paintable area', areaUnit: 'sq ft',
+      coatsCoverage: 'With', coatsCoverageSuffix: 'sq ft of coverage',
+      costLabel: 'Estimated paint cost',
+      costNote: 'paint only, excludes primer, supplies, labor',
+      coatOne: '1 coat', coatPlural: 'coats',
+      copyLabel: 'Paint', shareTitle: 'Paint Calculator',
+    };
+
+const coatsOptions = lang === 'es'
+  ? [
+      { value: '1', label: '1 mano (refrescar, mismo color)' },
+      { value: '2', label: '2 manos (estándar)', selected: true },
+      { value: '3', label: '3 manos (claro sobre oscuro / con sellador)' },
+    ]
+  : [
+      { value: '1', label: '1 coat (refresh, same color)' },
+      { value: '2', label: '2 coats (standard)', selected: true },
+      { value: '3', label: '3 coats (light over dark / primer)' },
+    ];
+
+// Coverage options. ES values are m²/litro (350 sq ft/gal ≈ 8.6 m²/L); EN values are sq ft/gal.
+const coverageOptions = lang === 'es'
+  ? [
+      { value: '10',  label: 'Pared lisa — 10 m²/L' },
+      { value: '8.6', label: 'Estándar — 8.6 m²/L', selected: true },
+      { value: '7',   label: 'Texturada / poco porosa — 7 m²/L' },
+      { value: '6',   label: 'Textura gruesa / tirol — 6 m²/L' },
+      { value: '5',   label: 'Muro nuevo, mampostería — 5 m²/L' },
+    ]
+  : [
+      { value: '400', label: 'Smooth walls — 400 sq ft/gal' },
+      { value: '350', label: 'Standard — 350 sq ft/gal', selected: true },
+      { value: '300', label: 'Textured / lightly porous — 300 sq ft/gal' },
+      { value: '250', label: 'Heavy texture / stucco — 250 sq ft/gal' },
+      { value: '200', label: 'Bare drywall, masonry — 200 sq ft/gal' },
+    ];
 ---
 
-<div class="tool" id="paint-tool">
+<div class="tool" id="paint-tool"
+  data-metric-default={metricDefault.toString()}
+  data-unit-main={labels.unitMain} data-area-unit={labels.areaUnit}
+  data-area-label={labels.areaLabel}
+  data-coats-coverage={labels.coatsCoverage} data-coats-coverage-suffix={labels.coatsCoverageSuffix}
+  data-coat-one={labels.coatOne} data-coat-plural={labels.coatPlural}
+  data-copied={t.copied} data-copy-label={labels.copyLabel}
+  data-share-title={labels.shareTitle}>
   <div class="tool-header">
-    <div class="tool-title">Calculator</div>
-    <div class="unit-toggle" role="tablist" aria-label="Units">
-      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
-      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    <div class="tool-title">{t.calculator}</div>
+    <div class="unit-toggle" role="tablist" aria-label={t.units}>
+      <button type="button" class={metricDefault ? '' : 'active'} data-units="imperial" aria-pressed={(!metricDefault).toString()}>{t.imperial}</button>
+      <button type="button" class={metricDefault ? 'active' : ''} data-units="metric" aria-pressed={metricDefault.toString()}>{t.metric}</button>
     </div>
   </div>
 
-  <div class="mode-row" role="tablist" aria-label="Surface">
-    <button type="button" class="mode-btn active" data-mode="walls">Walls</button>
-    <button type="button" class="mode-btn" data-mode="ceiling">Ceiling</button>
-    <button type="button" class="mode-btn" data-mode="exterior">Exterior</button>
+  <div class="mode-row" role="tablist" aria-label={lang === 'es' ? 'Superficie' : 'Surface'}>
+    <button type="button" class="mode-btn active" data-mode="walls">{labels.walls}</button>
+    <button type="button" class="mode-btn" data-mode="ceiling">{labels.ceiling}</button>
+    <button type="button" class="mode-btn" data-mode="exterior">{labels.exterior}</button>
   </div>
 
   <div class="form-grid">
     <div class="field" data-show-mode="walls,exterior">
-      <label for="pt-perimeter"><span data-mode-text="perimeter">Room perimeter</span></label>
+      <label for="pt-perimeter"><span data-mode-text="perimeter">{labels.perimeter}</span></label>
       <div class="field-input">
-        <input id="pt-perimeter" type="number" value="52" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="pt-perimeter" type="number" value={metricDefault ? '16' : '52'} min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show-mode="walls,exterior">
-      <label for="pt-height">Wall height</label>
+      <label for="pt-height">{labels.height}</label>
       <div class="field-input">
-        <input id="pt-height" type="number" value="8" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="pt-height" type="number" value={metricDefault ? '2.5' : '8'} min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show-mode="ceiling">
-      <label for="pt-length">Length</label>
+      <label for="pt-length">{labels.length}</label>
       <div class="field-input">
-        <input id="pt-length" type="number" value="14" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="pt-length" type="number" value={metricDefault ? '4' : '14'} min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show-mode="ceiling">
-      <label for="pt-width">Width</label>
+      <label for="pt-width">{labels.width}</label>
       <div class="field-input">
-        <input id="pt-width" type="number" value="12" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="pt-width" type="number" value={metricDefault ? '3.5' : '12'} min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show-mode="walls,exterior">
-      <label for="pt-doors">Number of doors</label>
+      <label for="pt-doors">{labels.doors}</label>
       <div class="field-input">
         <input id="pt-doors" type="number" value="1" min="0" step="1" inputmode="decimal" />
-        <span class="suffix">≈ 20 sq ft each</span>
+        <span class="suffix">{labels.doorsSuffix}</span>
       </div>
     </div>
     <div class="field" data-show-mode="walls,exterior">
-      <label for="pt-windows">Number of windows</label>
+      <label for="pt-windows">{labels.windows}</label>
       <div class="field-input">
         <input id="pt-windows" type="number" value="2" min="0" step="1" inputmode="decimal" />
-        <span class="suffix">≈ 15 sq ft each</span>
+        <span class="suffix">{labels.windowsSuffix}</span>
       </div>
     </div>
     <div class="field">
-      <label for="pt-coats">Number of coats</label>
+      <label for="pt-coats">{labels.coats}</label>
       <div class="field-input">
         <select id="pt-coats">
-          <option value="1">1 coat (refresh, same color)</option>
-          <option value="2" selected>2 coats (standard)</option>
-          <option value="3">3 coats (light over dark / primer)</option>
+          {coatsOptions.map(o => (
+            <option value={o.value} selected={o.selected}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
     <div class="field">
-      <label for="pt-coverage">Paint coverage</label>
+      <label for="pt-coverage">{labels.coverage}</label>
       <div class="field-input">
         <select id="pt-coverage">
-          <option value="400">Smooth walls — 400 sq ft/gal</option>
-          <option value="350" selected>Standard — 350 sq ft/gal</option>
-          <option value="300">Textured / lightly porous — 300 sq ft/gal</option>
-          <option value="250">Heavy texture / stucco — 250 sq ft/gal</option>
-          <option value="200">Bare drywall, masonry — 200 sq ft/gal</option>
+          {coverageOptions.map(o => (
+            <option value={o.value} selected={o.selected}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
     <div class="field">
-      <label for="pt-price">Price per gallon <span class="optional">(optional)</span></label>
+      <label for="pt-price">{labels.pricePer} <span class="optional">{t.optional}</span></label>
       <div class="field-input">
-        <input id="pt-price" type="number" value="45" min="0" step="1" inputmode="decimal" />
-        <span class="suffix">$/gal</span>
+        <input id="pt-price" type="number" value={metricDefault ? '120' : '45'} min="0" step="1" inputmode="decimal" />
+        <span class="suffix">{labels.priceSuffix}</span>
       </div>
     </div>
   </div>
 
   <div class="result" role="status" aria-live="polite">
-    <div class="result-label">Paint needed</div>
+    <div class="result-label">{labels.paintNeeded}</div>
     <div class="result-main">
       <span class="number" id="pt-gallons">2</span>
-      <span class="unit">gallons</span>
+      <span class="unit" id="pt-unit">{labels.unitMain}</span>
     </div>
-    <div class="result-secondary">
-      Paintable area: <strong id="pt-area">366</strong> sq ft &nbsp;·&nbsp;
-      With 2 coats: <strong id="pt-area-coats">732</strong> sq ft of coverage
-    </div>
+    <div class="result-secondary"></div>
     <div class="result-cost-row">
-      Estimated paint cost: <strong id="pt-cost">$90</strong>
-      <span class="note">paint only, excludes primer, supplies, labor</span>
+      {labels.costLabel}: <strong id="pt-cost">$0</strong>
+      <span class="note">{labels.costNote}</span>
     </div>
     <div class="result-actions">
-      <button type="button" class="btn" id="pt-btn-copy">📋 Copy result</button>
-      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
-      <button type="button" class="btn" id="pt-btn-share">↗ Share</button>
+      <button type="button" class="btn" id="pt-btn-copy">{t.copyResult}</button>
+      <button type="button" class="btn" onclick="window.print()">{t.print}</button>
+      <button type="button" class="btn" id="pt-btn-share">{t.share}</button>
     </div>
   </div>
 </div>
@@ -153,51 +226,68 @@
   if (!root) return;
   const $ = (s) => root.querySelector(s);
 
+  const isES = root.dataset.metricDefault === 'true';
+  const areaLabel = root.dataset.areaLabel || 'Paintable area';
+  const areaUnit = root.dataset.areaUnit || 'sq ft';
+  const withLabel = root.dataset.coatsCoverage || 'With';
+  const coverageSuffix = root.dataset.coatsCoverageSuffix || 'sq ft of coverage';
+  const coatOne = root.dataset.coatOne || '1 coat';
+  const coatPlural = root.dataset.coatPlural || 'coats';
+
   function getMode() { return root.querySelector('.mode-btn.active').dataset.mode; }
   function getUnits() { return root.querySelector('.unit-toggle button.active').dataset.units; }
 
   function calculate() {
     const mode = getMode();
     const units = getUnits();
+    const isMetric = units === 'metric';
     const coats = parseInt($('#pt-coats').value) || 2;
-    const coverage = parseFloat($('#pt-coverage').value) || 350;
+    const coverage = parseFloat($('#pt-coverage').value) || (isES ? 8.6 : 350);
     const price = parseFloat($('#pt-price').value) || 0;
 
+    // Area computed in the active input units (m² in metric, sq ft in imperial).
     let area = 0;
-
     if (mode === 'walls' || mode === 'exterior') {
       const perim = parseFloat($('#pt-perimeter').value) || 0;
       const height = parseFloat($('#pt-height').value) || 0;
       const doors = parseInt($('#pt-doors').value) || 0;
       const windows = parseInt($('#pt-windows').value) || 0;
       area = perim * height;
-      // Subtract openings (use sq ft regardless of unit input)
-      const doorArea = units === 'metric' ? doors * 1.86 : doors * 20;     // 1.86 m² ≈ 20 sq ft
-      const windowArea = units === 'metric' ? windows * 1.39 : windows * 15;
+      const doorArea = isMetric ? doors * 1.86 : doors * 20;       // 1.86 m² ≈ 20 sq ft
+      const windowArea = isMetric ? windows * 1.39 : windows * 15; // 1.39 m² ≈ 15 sq ft
       area = Math.max(0, area - doorArea - windowArea);
     } else {
-      // ceiling
       const l = parseFloat($('#pt-length').value) || 0;
       const w = parseFloat($('#pt-width').value) || 0;
       area = l * w;
     }
 
-    // Convert m² to sq ft for display consistency
-    let areaSqFt = units === 'metric' ? area * 10.7639 : area;
-    const coatedArea = areaSqFt * coats;
-    const gallons = coatedArea / coverage;
-    const gallonsToBuy = Math.ceil(gallons * 2) / 2; // round up to nearest 0.5 gal
-    const cost = gallonsToBuy * price;
+    const coatedArea = area * coats;
 
-    $('#pt-area').textContent = Math.round(areaSqFt).toLocaleString();
-    $('#pt-area-coats').textContent = Math.round(coatedArea).toLocaleString();
-    $('#pt-gallons').textContent = gallonsToBuy < 1 ? gallonsToBuy.toFixed(1) : gallonsToBuy.toString();
+    // Primary result: litros (metric) or gallons (imperial).
+    // ES coverage is m²/L → litros = coatedArea(m²) / coverage(m²/L).
+    // EN coverage is sq ft/gal → gallons = coatedArea(sq ft) / coverage(sq ft/gal).
+    let mainAmount, amountToBuy, unitText;
+    if (isMetric) {
+      const litres = coatedArea / coverage;
+      amountToBuy = Math.ceil(litres);          // round up to whole litres
+      unitText = root.dataset.unitMain || 'litros';
+    } else {
+      const gallons = coatedArea / coverage;
+      amountToBuy = Math.ceil(gallons * 2) / 2;  // round up to nearest 0.5 gal
+      unitText = root.dataset.unitMain || 'gallons';
+    }
+    const cost = amountToBuy * price;
+
+    const unitEl = $('#pt-unit');
+    if (unitEl) unitEl.textContent = unitText;
+
+    $('#pt-gallons').textContent = amountToBuy < 1 ? amountToBuy.toFixed(1) : amountToBuy.toLocaleString();
     $('#pt-cost').textContent = '$' + Math.round(cost).toLocaleString();
 
-    // Update coats text in secondary line
-    const coatsLabel = coats === 1 ? '1 coat' : coats + ' coats';
+    const coatsLabel = coats === 1 ? coatOne : coats + ' ' + coatPlural;
     root.querySelector('.result-secondary').innerHTML =
-      `Paintable area: <strong id="pt-area">${Math.round(areaSqFt).toLocaleString()}</strong> sq ft &nbsp;·&nbsp; With ${coatsLabel}: <strong id="pt-area-coats">${Math.round(coatedArea).toLocaleString()}</strong> sq ft of coverage`;
+      `${areaLabel}: <strong id="pt-area">${Math.round(area).toLocaleString()}</strong> ${areaUnit} &nbsp;·&nbsp; ${withLabel} ${coatsLabel}: <strong id="pt-area-coats">${Math.round(coatedArea).toLocaleString()}</strong> ${coverageSuffix}`;
   }
 
   function setMode(mode) {
@@ -232,17 +322,23 @@
   });
 
   $('#pt-btn-copy').addEventListener('click', () => {
-    const text = `Paint needed: ${$('#pt-gallons').textContent} gallons for ${$('#pt-area').textContent} sq ft. Estimated cost: ${$('#pt-cost').textContent}.`;
+    const amount = $('#pt-gallons').textContent;
+    const unit = $('#pt-unit').textContent;
+    const area = $('#pt-area') ? $('#pt-area').textContent : '';
+    const cost = $('#pt-cost').textContent;
+    const text = isES
+      ? `Pintura necesaria: ${amount} ${unit} para ${area} ${areaUnit}. Costo estimado: ${cost}.`
+      : `Paint needed: ${amount} ${unit} for ${area} ${areaUnit}. Estimated cost: ${cost}.`;
     navigator.clipboard?.writeText(text).then(() => {
       const btn = $('#pt-btn-copy');
       const o = btn.textContent;
-      btn.textContent = '✓ Copied';
+      btn.textContent = root.dataset.copied || '✓ Copied';
       setTimeout(() => { btn.textContent = o; }, 1500);
     });
   });
 
   $('#pt-btn-share').addEventListener('click', () => {
-    if (navigator.share) navigator.share({ title: 'Paint Calculator', url: location.href });
+    if (navigator.share) navigator.share({ title: root.dataset.shareTitle || 'Paint Calculator', url: location.href });
     else navigator.clipboard?.writeText(location.href);
   });
 
