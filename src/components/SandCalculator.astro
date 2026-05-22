@@ -1,93 +1,157 @@
 ---
-// Sand Calculator — variant with sand-specific density and bag sizes.
+// Sand Calculator — area × depth → volume, weight (tons), bags, cost.
+// Parametrized by lang: ES defaults to metric and shows m³ as the primary result.
+// IMPORTANT: density options are stored per the active unit system —
+//   EN values are t/yd³; ES values are t/m³ (= t/yd³ × 1.30795).
+import { getStrings } from '@i18n/index';
+export interface Props { lang?: 'en' | 'es'; }
+const { lang = 'en' } = Astro.props;
+const t = getStrings(lang).widget;
+const metricDefault = lang === 'es';
+
+const labels = lang === 'es'
+  ? {
+      rectangle: '▭ Rectángulo', circle: '● Círculo', triangle: '▲ Triángulo',
+      length: 'Largo', width: 'Ancho', diameter: 'Diámetro', depth: 'Profundidad',
+      sandType: 'Tipo de arena', bagSize: 'Tamaño del saco',
+      pricePer: 'Precio por tonelada', priceSuffix: '$/ton',
+      youNeed: 'Necesitas',
+      unitMain: 'metros cúbicos', unitMainImperial: 'yardas cúbicas',
+      tons: 'toneladas', bags: 'sacos', totalCost: 'costo total',
+      copyLabel: 'Arena', shareTitle: 'Calculadora de Arena',
+    }
+  : {
+      rectangle: '▭ Rectangle', circle: '● Circle', triangle: '▲ Triangle',
+      length: 'Length', width: 'Width', diameter: 'Diameter', depth: 'Depth',
+      sandType: 'Sand type', bagSize: 'Bag size',
+      pricePer: 'Price per ton', priceSuffix: '$/ton',
+      youNeed: 'You need',
+      unitMain: 'cubic meters', unitMainImperial: 'cubic yards',
+      tons: 'tons', bags: 'bags', totalCost: 'total cost',
+      copyLabel: 'Sand', shareTitle: 'Sand Calculator',
+    };
+
+// Density options. ES values are converted to t/m³ (× 1.30795) and reworded in LatAm Spanish.
+const densityOptions = lang === 'es'
+  ? [
+      { value: '1.90', label: 'Arena de río (1.90 t/m³)' },
+      { value: '1.70', label: 'Arena fina (1.70 t/m³)' },
+      { value: '1.86', label: 'Arena para concreto (1.86 t/m³)' },
+      { value: '1.77', label: 'Arena de mortero / cemento (1.77 t/m³)' },
+      { value: '1.96', label: 'Arena gruesa (1.96 t/m³)' },
+    ]
+  : [
+      { value: '1.35', label: 'Mason sand (dry) — 1.35 t/yd³' },
+      { value: '1.42', label: 'Concrete sand — 1.42 t/yd³' },
+      { value: '1.45', label: 'Paver sand (sharp) — 1.45 t/yd³' },
+      { value: '1.30', label: 'Play sand — 1.30 t/yd³' },
+      { value: '1.50', label: 'All-purpose / fill sand — 1.50 t/yd³' },
+      { value: '1.60', label: 'Wet sand — 1.60 t/yd³' },
+    ];
+
+// Bag size options. ES uses kg sacks; EN uses lb bags. Value stored in the active mass unit.
+const bagOptions = lang === 'es'
+  ? [
+      { value: '40', label: 'Saco de 40 kg' },
+      { value: '25', label: 'Saco de 25 kg' },
+      { value: '50', label: 'Saco de 50 kg' },
+      { value: '1000', label: 'Bolsa de 1 tonelada' },
+    ]
+  : [
+      { value: '50', label: '50 lb bag' },
+      { value: '70', label: '70 lb bag (mason)' },
+      { value: '100', label: '100 lb bag (large)' },
+      { value: '2000', label: '1 ton bag' },
+    ];
 ---
 
-<div class="tool" id="sand-tool">
+<div class="tool" id="sand-tool"
+  data-metric-default={metricDefault.toString()}
+  data-unit-main={labels.unitMain} data-unit-main-imperial={labels.unitMainImperial}
+  data-unit-tons={labels.tons} data-unit-bags={labels.bags}
+  data-label-length={labels.length} data-label-diameter={labels.diameter}
+  data-copied={t.copied} data-copy-label={labels.copyLabel}
+  data-share-title={labels.shareTitle}>
   <div class="tool-header">
-    <div class="tool-title">Calculator</div>
-    <div class="unit-toggle" role="tablist" aria-label="Units">
-      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
-      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    <div class="tool-title">{t.calculator}</div>
+    <div class="unit-toggle" role="tablist" aria-label={t.units}>
+      <button type="button" class={metricDefault ? '' : 'active'} data-units="imperial" aria-pressed={(!metricDefault).toString()}>{t.imperial}</button>
+      <button type="button" class={metricDefault ? 'active' : ''} data-units="metric" aria-pressed={metricDefault.toString()}>{t.metric}</button>
     </div>
   </div>
 
-  <div class="shape-row" role="tablist" aria-label="Shape">
-    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Rectangle</button>
-    <button type="button" class="shape-btn" data-shape="circle">● Circle</button>
-    <button type="button" class="shape-btn" data-shape="triangle">▲ Triangle</button>
+  <div class="shape-row" role="tablist" aria-label={t.shape}>
+    <button type="button" class="shape-btn active" data-shape="rectangle">{labels.rectangle}</button>
+    <button type="button" class="shape-btn" data-shape="circle">{labels.circle}</button>
+    <button type="button" class="shape-btn" data-shape="triangle">{labels.triangle}</button>
   </div>
 
   <div class="form-grid">
     <div class="field">
-      <label for="s-length"><span data-shape-text="length">Length</span></label>
+      <label for="s-length"><span data-shape-text="length">{labels.length}</span></label>
       <div class="field-input">
-        <input id="s-length" type="number" value="10" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="s-length" type="number" value={metricDefault ? '3' : '10'} min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show-when="rectangle,triangle">
-      <label for="s-width">Width</label>
+      <label for="s-width">{labels.width}</label>
       <div class="field-input">
-        <input id="s-width" type="number" value="10" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="s-width" type="number" value={metricDefault ? '3' : '10'} min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="s-depth">Depth</label>
+      <label for="s-depth">{labels.depth}</label>
       <div class="field-input">
-        <input id="s-depth" type="number" value="1" min="0" step="0.25" inputmode="decimal" />
-        <span class="suffix" data-unit="depth">in</span>
+        <input id="s-depth" type="number" value={metricDefault ? '5' : '1'} min="0" step={metricDefault ? '0.5' : '0.25'} inputmode="decimal" />
+        <span class="suffix" data-unit="depth">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="s-type">Sand type</label>
+      <label for="s-type">{labels.sandType}</label>
       <div class="field-input">
         <select id="s-type">
-          <option value="1.35">Mason sand (dry) — 1.35 t/yd³</option>
-          <option value="1.42">Concrete sand — 1.42 t/yd³</option>
-          <option value="1.45">Paver sand (sharp) — 1.45 t/yd³</option>
-          <option value="1.30">Play sand — 1.30 t/yd³</option>
-          <option value="1.50">All-purpose / fill sand — 1.50 t/yd³</option>
-          <option value="1.60">Wet sand — 1.60 t/yd³</option>
+          {densityOptions.map(o => (
+            <option value={o.value}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
     <div class="field">
-      <label for="s-price">Price per ton <span class="optional">(optional)</span></label>
+      <label for="s-price">{labels.pricePer} <span class="optional">{t.optional}</span></label>
       <div class="field-input">
-        <input id="s-price" type="number" value="35" min="0" step="1" inputmode="decimal" />
-        <span class="suffix">$/ton</span>
+        <input id="s-price" type="number" value={metricDefault ? '350' : '35'} min="0" step="1" inputmode="decimal" />
+        <span class="suffix">{labels.priceSuffix}</span>
       </div>
     </div>
     <div class="field">
-      <label for="s-bag-size">Bag size</label>
+      <label for="s-bag-size">{labels.bagSize}</label>
       <div class="field-input">
         <select id="s-bag-size">
-          <option value="50">50 lb bag</option>
-          <option value="70">70 lb bag (mason)</option>
-          <option value="100">100 lb bag (large)</option>
-          <option value="2000">1 ton bag</option>
+          {bagOptions.map(o => (
+            <option value={o.value}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
   </div>
 
   <div class="result" role="status" aria-live="polite">
-    <div class="result-label">You need</div>
+    <div class="result-label">{labels.youNeed}</div>
     <div class="result-main">
       <span class="number" id="s-yards">0.31</span>
-      <span class="unit">cubic yards</span>
+      <span class="unit" id="s-unit">{metricDefault ? labels.unitMain : labels.unitMainImperial}</span>
     </div>
     <div class="result-secondary">
-      ≈ <strong id="s-tons">0.42</strong> tons &nbsp;·&nbsp;
-      ≈ <strong id="s-bags">17</strong> bags &nbsp;·&nbsp;
-      <strong id="s-cost">$15</strong> total cost
+      ≈ <strong id="s-tons">0.42</strong> <span id="s-tons-unit">{labels.tons}</span> &nbsp;·&nbsp;
+      ≈ <strong id="s-bags">17</strong> <span id="s-bags-unit">{labels.bags}</span> &nbsp;·&nbsp;
+      <strong id="s-cost">$15</strong> <span id="s-cost-unit">{labels.totalCost}</span>
     </div>
     <div class="result-actions">
-      <button type="button" class="btn" id="s-btn-copy">📋 Copy result</button>
-      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
-      <button type="button" class="btn" id="s-btn-share">↗ Share</button>
-      
+      <button type="button" class="btn" id="s-btn-copy">{t.copyResult}</button>
+      <button type="button" class="btn" onclick="window.print()">{t.print}</button>
+      <button type="button" class="btn" id="s-btn-share">{t.share}</button>
     </div>
   </div>
 </div>
@@ -131,43 +195,70 @@
   const widthField = $('#s-width').closest('.field');
   const lengthLabel = root.querySelector('[data-shape-text="length"]');
 
+  const isES = root.dataset.metricDefault === 'true';
+  const labelLength = root.dataset.labelLength || 'Length';
+  const labelDiameter = root.dataset.labelDiameter || 'Diameter';
+
+  function getActive(selector) {
+    return root.querySelector(selector + '.active');
+  }
+
   function calculate() {
-    const shape = root.querySelector('.shape-btn.active').dataset.shape;
-    const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    const shape = getActive('.shape-btn').dataset.shape;
+    const units = getActive('.unit-toggle button').dataset.units;
+    const isMetric = units === 'metric';
     const l = parseFloat($('#s-length').value) || 0;
     const w = parseFloat($('#s-width').value) || 0;
     const d = parseFloat($('#s-depth').value) || 0;
-    const density = parseFloat($('#s-type').value) || 1.35;
+    const density = parseFloat($('#s-type').value) || (isES ? 1.77 : 1.35);
     const price = parseFloat($('#s-price').value) || 0;
-    const bagSize = parseFloat($('#s-bag-size').value) || 50;
+    const bagSize = parseFloat($('#s-bag-size').value) || (isES ? 40 : 50);
 
+    // Area in the active input units (m² in metric, ft² in imperial).
     let area = 0;
     if (shape === 'rectangle')   area = l * w;
     else if (shape === 'circle') area = Math.PI * Math.pow(l / 2, 2);
     else                          area = 0.5 * l * w;
 
-    let cubicYards;
-    if (units === 'imperial') cubicYards = (area * (d / 12)) / 27;
-    else cubicYards = (area * (d / 100)) * 1.30795;
+    // Volume in both unit systems.
+    let cubicMeters, cubicYards;
+    if (isMetric) {
+      cubicMeters = area * (d / 100);
+      cubicYards  = cubicMeters * 1.30795;
+    } else {
+      cubicYards  = (area * (d / 12)) / 27;
+      cubicMeters = cubicYards / 1.30795;
+    }
 
-    const tons = cubicYards * density;
-    const pounds = tons * 2000;
-    const bags = pounds / bagSize;
+    // Density values are stored per the active unit system:
+    //   metric → t/m³ applied to cubic meters; imperial → t/yd³ applied to cubic yards.
+    const tons = isMetric ? (cubicMeters * density) : (cubicYards * density);
+
+    // Bags: bag size is kg in metric, lb in imperial.
+    const mass = isMetric ? (tons * 1000) : (tons * 2000);
+    const bags = mass / bagSize;
     const cost = tons * price;
 
-    $('#s-yards').textContent = cubicYards.toFixed(2);
-    $('#s-tons').textContent = tons.toFixed(2);
-    $('#s-bags').textContent = Math.ceil(bags).toLocaleString();
-    $('#s-cost').textContent = '$' + Math.round(cost).toLocaleString();
+    // Primary result: m³ in metric mode, yd³ in imperial mode.
+    const mainVol = isMetric ? cubicMeters : cubicYards;
+    const unitEl = $('#s-unit');
+    if (unitEl) unitEl.textContent = isMetric
+      ? (root.dataset.unitMain || 'cubic meters')
+      : (root.dataset.unitMainImperial || 'cubic yards');
+
+    $('#s-yards').textContent = mainVol.toFixed(2);
+    $('#s-tons').textContent  = tons.toFixed(2);
+    $('#s-bags').textContent  = Math.ceil(bags).toLocaleString();
+    $('#s-cost').textContent  = '$' + Math.round(cost).toLocaleString();
   }
 
   function updateShape(shape) {
     if (shape === 'circle') {
       widthField.hidden = true;
-      if (lengthLabel) lengthLabel.textContent = 'Diameter';
+      if (lengthLabel) lengthLabel.textContent = labelDiameter;
     } else {
       widthField.hidden = false;
-      if (lengthLabel) lengthLabel.textContent = 'Length';
+      if (lengthLabel) lengthLabel.textContent = labelLength;
     }
   }
 
@@ -192,18 +283,30 @@
     });
   });
   $('#s-btn-copy').addEventListener('click', () => {
-    const text = `Sand needed: ${$('#s-yards').textContent} yd³ (${$('#s-tons').textContent} tons, ~${$('#s-bags').textContent} bags). Estimated cost: ${$('#s-cost').textContent}.`;
+    const isMetric = getActive('.unit-toggle button').dataset.units === 'metric';
+    const volUnit = isMetric ? 'm³' : 'yd³';
+    const yards = $('#s-yards').textContent;
+    const tons  = $('#s-tons').textContent;
+    const bags  = $('#s-bags').textContent;
+    const cost  = $('#s-cost').textContent;
+    const tonsLabel = root.dataset.unitTons || 'tons';
+    const bagsLabel = root.dataset.unitBags || 'bags';
+    const text = isES
+      ? `Arena: ${yards} ${volUnit} (${tons} ${tonsLabel}, ~${bags} ${bagsLabel}). Costo estimado: ${cost}.`
+      : `Sand needed: ${yards} ${volUnit} (${tons} ${tonsLabel}, ~${bags} ${bagsLabel}). Estimated cost: ${cost}.`;
     navigator.clipboard?.writeText(text).then(() => {
       const btn = $('#s-btn-copy');
       const o = btn.textContent;
-      btn.textContent = '✓ Copied';
+      btn.textContent = root.dataset.copied || '✓ Copied';
       setTimeout(() => { btn.textContent = o; }, 1500);
     });
   });
   $('#s-btn-share').addEventListener('click', () => {
-    if (navigator.share) navigator.share({ title: 'Sand Calculator', url: location.href });
+    if (navigator.share) navigator.share({ title: root.dataset.shareTitle || 'Sand Calculator', url: location.href });
     else navigator.clipboard?.writeText(location.href);
   });
+
+  updateShape('rectangle');
   calculate();
 })();
 </script>
