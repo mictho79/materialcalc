@@ -13,6 +13,12 @@ import { getRelatedCalculators } from '@data/calculators';
 const title = "Stone Calculator — Crushed, Decorative & Landscape Stone";
 const description = "Free stone calculator for landscape and construction projects. Estimate volume, weight and cost for crushed stone, river rock, limestone, marble chips and decorative stones.";
 
+const alternates = [
+  { lang: 'en', href: 'https://materialcal.com/stone-calculator/' },
+  { lang: 'es', href: 'https://materialcal.com/es/calculadora-de-piedra/' },
+  { lang: 'x-default', href: 'https://materialcal.com/stone-calculator/' }
+];
+
 const related = getRelatedCalculators('stone-calculator', 4).map(c => ({
   title: c.shortTitle + ' Calculator',
   href: `/${c.slug}/`,
@@ -44,7 +50,7 @@ const schema = [
 ];
 ---
 
-<BaseLayout title={`${title} | MaterialCal`} description={description} schema={schema}>
+<BaseLayout title={`${title} | MaterialCal`} description={description} schema={schema} alternates={alternates}>
   <div class="container content-wrapper">
     <Breadcrumb trail={[
       { label: 'Home', href: '/' },

@@ -1,0 +1,338 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import StoneCalculator from '@components/StoneCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { piedraFAQ } from '@data/faqs/es/piedra';
+import { getRelatedCalculatorsES } from '@data/calculators';
+
+const title = "Calculadora de Piedra — Volumen, Peso y Costo";
+const description = "Calculadora de piedra gratis. Estima los metros cúbicos, las toneladas, los sacos y el costo de piedra triturada, de río, laja, caliza o mármol para jardines, drenajes, muros y caminos.";
+
+const alternates = [
+  { lang: 'en', href: 'https://materialcal.com/stone-calculator/' },
+  { lang: 'es', href: 'https://materialcal.com/es/calculadora-de-piedra/' },
+  { lang: 'x-default', href: 'https://materialcal.com/stone-calculator/' }
+];
+
+const related = getRelatedCalculatorsES('stone-calculator', 4).map(c => ({
+  title: c.shortTitle_es,
+  href: `/es/${c.slug_es}/`,
+  desc: c.description_es
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Calculadora de Piedra",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Cualquiera (en línea)",
+    "description": description,
+    "url": "https://materialcal.com/es/calculadora-de-piedra/",
+    "inLanguage": "es",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "MXN" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Cómo calcular la piedra que necesitas",
+    "inLanguage": "es",
+    "step": [
+      { "@type": "HowToStep", "name": "Mide el área", "text": "Mide el largo y el ancho del área en metros." },
+      { "@type": "HowToStep", "name": "Elige la profundidad", "text": "Define el espesor en centímetros (5 a 15 cm según el uso)." },
+      { "@type": "HowToStep", "name": "Calcula el volumen", "text": "Volumen (m³) = Largo × Ancho × Profundidad (en metros)." },
+      { "@type": "HowToStep", "name": "Convierte a toneladas", "text": "Multiplica los m³ por la densidad (1.86 t/m³ para piedra triturada)." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCal`} description={description} schema={schema} lang="es" alternates={alternates}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Inicio', href: '/es/' },
+      { label: 'Calculadoras', href: '/es/' },
+      { label: 'Calculadora de Piedra' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Calculadora de Piedra</h1>
+      <p class="intro">
+        Calcula exactamente cuánta piedra necesitas para tu proyecto — en metros cúbicos, toneladas,
+        sacos y costo total. Sirve para piedra triturada, piedra de río, laja, caliza, mármol y roca
+        decorativa, en jardines, drenajes, muros y caminos.
+      </p>
+    </header>
+
+    <StoneCalculator lang="es" />
+
+    <article class="content">
+      <h2>Cómo calcular la piedra que necesitas</h2>
+      <p>
+        Calcular cuánta piedra comprar sigue la misma lógica que cualquier material a granel: mides el
+        área que vas a cubrir, eliges una profundidad adecuada y conviertes ese volumen en peso
+        (toneladas), sacos o costo. La diferencia con la piedra está en la densidad: hay un rango enorme
+        entre tipos, desde la piedra volcánica (tezontle), muy ligera con 0.72 t/m³, hasta la piedra de
+        río, densa, con 2.09 t/m³. Elegir la densidad correcta para tu piedra es clave para no quedarte
+        corto ni pagar de más.
+      </p>
+
+      <div class="formula">
+        Volumen (m³) = Largo × Ancho × Profundidad (todo en metros)<br>
+        Profundidad en metros = centímetros ÷ 100 (8 cm = 0.08 m)<br>
+        Peso (toneladas) = Volumen × Densidad (t/m³)<br>
+        Costo = Peso × Precio por tonelada
+      </div>
+
+      <p>
+        El detalle más importante es no mezclar unidades: el largo y el ancho casi siempre los mides en
+        metros, pero la profundidad la piensas en centímetros. Convierte el espesor a metros (divide
+        entre 100) antes de multiplicar. La densidad depende del tipo de piedra — la piedra triturada
+        pesa alrededor de 1.86 t/m³, la roca decorativa de jardín 1.70 t/m³, la piedra de río de 2.03 a
+        2.09 t/m³, la piedra caliza 1.90 t/m³ y el mármol triturado 1.96 t/m³.
+      </p>
+
+      <h3>Ejemplo resuelto: cama decorativa</h3>
+      <p>
+        Supongamos que vas a cubrir una cama decorativa de 5 m de largo × 3 m de ancho con 6 cm de
+        piedra de río:
+      </p>
+      <ul>
+        <li><strong>Profundidad en metros:</strong> 6 ÷ 100 = <strong>0.06 m</strong></li>
+        <li><strong>Volumen:</strong> 5 × 3 × 0.06 = <strong>0.9 m³</strong></li>
+        <li><strong>Peso (piedra de río a 2.09 t/m³):</strong> 0.9 × 2.09 = <strong>1.88 toneladas</strong></li>
+        <li><strong>Costo (a $900/ton):</strong> 1.88 × $900 ≈ <strong>$1,690 MXN</strong></li>
+        <li><strong>Con 10% de desperdicio:</strong> pide <strong>≈ 2.07 toneladas</strong> ($1,860)</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">La densidad importa — no adivines</div>
+        Usar la densidad equivocada puede desviar tu pedido entre 20 y 60%. La roca decorativa ligera
+        (1.70 t/m³) frente a la piedra de río pesada (2.09 t/m³) ya es una diferencia del 23%. La piedra
+        volcánica es casi 60% más ligera que la piedra de río por volumen. Elige siempre el tipo de
+        piedra específico en la lista desplegable.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="stone-mid-1" />
+
+      <h2>Tipos de piedra decorativa y de construcción</h2>
+      <p>
+        Elegir la piedra correcta importa tanto como calcular la cantidad correcta. Cada tipo tiene
+        usos ideales y compromisos en costo, peso y aspecto. Así se comparan las variedades más comunes
+        en México y Latinoamérica.
+      </p>
+
+      <h3>Piedra triturada</h3>
+      <p>
+        El caballito de batalla de la construcción. Sus piezas angulares se traban al compactar, lo que
+        la hace ideal para bases de caminos y entradas, sub-bases y cualquier aplicación donde importe
+        la estabilidad. Se vende por tamaño; la de 2 a 4 cm sirve para drenajes y bases, y las mezclas
+        con finos compactan más duro para la capa superior. Densidad: ~1.86 t/m³.
+      </p>
+
+      <h3>Piedra de río (canto rodado)</h3>
+      <p>
+        Piedras naturalmente lisas y redondeadas por el agua. Se vende por tamaño: chica (2–5 cm),
+        mediana (5–8 cm) y grande (8–13 cm). Uso casi siempre decorativo: camas de jardín, ríos secos,
+        fuentes y bordes. No compacta — se mantiene suelta. Densidad: 2.03 a 2.09 t/m³.
+      </p>
+
+      <h3>Piedra caliza</h3>
+      <p>
+        Piedra sedimentaria triturada con alto contenido de calcio. Suele ser un poco más económica que
+        la triturada de origen volcánico o granítico donde hay canteras locales. Compacta apretado y
+        forma una superficie dura con el tiempo. Buen material para caminos en clima seco, pero puede
+        liberar calcio y subir el pH del suelo en las jardineras. Densidad: ~1.90 t/m³.
+      </p>
+
+      <h3>Mármol triturado</h3>
+      <p>
+        Mármol blanco o de color triturado, por lo general de 1 a 2 cm. Uso decorativo premium para
+        camas formales, alrededor de esculturas y jardinería de alto nivel. Refleja mucho la luz y da
+        impacto visual. Con los años puede amarillear un poco por la lluvia ácida. Densidad: ~1.96 t/m³.
+      </p>
+
+      <h3>Laja</h3>
+      <p>
+        Piedras planas grandes que se usan para patios, andadores y pasos japoneses, más que como
+        material de relleno. Se vende por tonelada (piezas irregulares) o por tarima (piezas cortadas).
+        Calcula por superficie en lugar de volumen: una tonelada cubre normalmente de 7 a 11 m² como
+        capa única. Densidad de referencia: ~1.83 t/m³.
+      </p>
+
+      <h3>Piedra volcánica (tezontle)</h3>
+      <p>
+        Piedra volcánica porosa y muy ligera, casi siempre roja o negra. Excelente para asadores y
+        fogatas (resiste el calor), azoteas verdes (ligera) y camas decorativas. Densidad de apenas
+        0.72 t/m³ — cerca de 60% más ligera que la piedra de río por volumen, así que necesitas pocas
+        toneladas para cubrir un área grande.
+      </p>
+
+      <h2>Cuánta piedra según el tipo de proyecto</h2>
+      <p>
+        Cada proyecto usa la piedra de forma distinta. Estas son cantidades reales para las
+        aplicaciones más comunes en casa habitación en México y Latinoamérica.
+      </p>
+
+      <h3>Camas decorativas de jardín</h3>
+      <p>
+        Cubre con 5 a 8 cm de piedra sobre geotextil. Una cama de 10 m² con 6 cm de piedra de río
+        necesita <strong>0.6 m³ (unas 1.25 toneladas)</strong>. Pasar de 8 cm se ve artificial en la
+        mayoría de los jardines de casa y desperdicia material. La piedra decorativa luce mejor con un
+        borde de contención que la mantenga en su lugar.
+      </p>
+
+      <h3>Drenaje alrededor de la casa</h3>
+      <p>
+        Una franja de 60 cm de ancho de piedra triturada limpia alrededor del perímetro de una casa
+        (digamos 40 metros lineales) con 8 cm de profundidad necesita aproximadamente
+        <strong>2 m³ (unas 3.7 toneladas)</strong> de piedra triturada de 2 a 4 cm. Coloca geotextil
+        debajo para que la piedra no se hunda en la tierra y mantenga el drenaje libre.
+      </p>
+
+      <h3>Muros de piedra y gaviones</h3>
+      <p>
+        Para rellenar un gavión (jaula de malla) de 2 m de largo × 0.5 m de ancho × 1 m de alto
+        necesitas <strong>1 m³ (unas 1.9 toneladas)</strong> de piedra angular de tamaño medio (10 a
+        20 cm). La piedra para gaviones debe ser más grande que la abertura de la malla. Para muros de
+        piedra acomodada a mano, calcula el volumen total del muro y resta cerca del 20% por las juntas.
+      </p>
+
+      <h3>Andadores y senderos de piedra</h3>
+      <p>
+        Un andador de 1 m de ancho que corre 10 m, con 8 cm de piedra triturada sobre una base de 5 cm
+        (13 cm en total), necesita cerca de <strong>1.3 m³ (unas 2.4 toneladas)</strong>. Una guarnición
+        de metal, concreto o piedra mantiene el material en su lugar; sin ella, vas a estar rastrillando
+        piedra de regreso del jardín todo el tiempo.
+      </p>
+
+      <h3>Entradas de auto y caminos</h3>
+      <p>
+        Para una entrada de 6 m × 3 m con 15 cm de espesor total (10 cm de base de piedra triturada con
+        finos más 5 cm de capa superior) necesitas <strong>2.7 m³ (unas 5 toneladas)</strong>. Usa
+        placa vibradora o bailarina en la capa base. Un borde de contención alarga muchísimo la vida del
+        camino.
+      </p>
+
+      <h3>Áreas de asador o fogata</h3>
+      <p>
+        La base circular de un asador de 2 m de diámetro con 8 cm de piedra necesita
+        <strong>0.25 m³ (unas 0.18 toneladas)</strong> de piedra volcánica (tezontle). Usa siempre
+        piedra volcánica o gravilla — nunca piedra caliza, de río o arenisca alrededor del fuego, porque
+        atrapan humedad y pueden agrietarse o reventar al calentarse.
+      </p>
+
+      <h2>Tabla de referencia: cobertura de piedra</h2>
+      <p>Cuántos metros cuadrados cubre una tonelada de cada tipo de piedra a distintas profundidades:</p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Tipo de piedra</th>
+              <th>5 cm</th>
+              <th>8 cm</th>
+              <th>10 cm</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Piedra triturada (1.86 t/m³)</td><td>10.7 m²</td><td>6.7 m²</td><td>5.4 m²</td></tr>
+            <tr><td>Roca decorativa (1.70 t/m³)</td><td>11.8 m²</td><td>7.4 m²</td><td>5.9 m²</td></tr>
+            <tr><td>Piedra de río (2.09 t/m³)</td><td>9.6 m²</td><td>6.0 m²</td><td>4.8 m²</td></tr>
+            <tr><td>Piedra caliza (1.90 t/m³)</td><td>10.5 m²</td><td>6.6 m²</td><td>5.3 m²</td></tr>
+            <tr><td>Mármol triturado (1.96 t/m³)</td><td>10.2 m²</td><td>6.4 m²</td><td>5.1 m²</td></tr>
+            <tr><td>Piedra volcánica (0.72 t/m³)</td><td>27.8 m²</td><td>17.4 m²</td><td>13.9 m²</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Agrega un 5% a estas cifras en áreas regulares y un 10% en camas irregulares o terreno
+        inclinado. Redondea hacia arriba al pedir — es mejor que sobre poco a que falte y tengas que
+        pagar otro flete por unas cuantas toneladas que faltaron.
+      </p>
+
+      <h2>Costo de la piedra en 2026</h2>
+      <p>
+        El precio de la piedra varía mucho según el tipo, la calidad y la distancia a la cantera. Estos
+        son precios orientativos para México; confirma siempre con tu proveedor local.
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Tipo de piedra</th>
+              <th>Por m³ (a granel)</th>
+              <th>Por tonelada</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Piedra triturada</td><td>$350 – $600 MXN</td><td>$190 – $320 MXN</td></tr>
+            <tr><td>Piedra caliza</td><td>$320 – $550 MXN</td><td>$170 – $290 MXN</td></tr>
+            <tr><td>Roca decorativa de jardín</td><td>$500 – $900 MXN</td><td>$290 – $530 MXN</td></tr>
+            <tr><td>Piedra de río / canto rodado</td><td>$700 – $1,500 MXN</td><td>$340 – $740 MXN</td></tr>
+            <tr><td>Mármol triturado</td><td>$1,000 – $2,000 MXN</td><td>$510 – $1,020 MXN</td></tr>
+            <tr><td>Piedra volcánica / tezontle</td><td>$300 – $600 MXN</td><td>$420 – $830 MXN</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Costo del flete</h3>
+      <ul>
+        <li><strong>Flete local (dentro de la ciudad):</strong> normalmente $500 a $2,000 MXN según la distancia y el camión.</li>
+        <li><strong>Pedido mínimo:</strong> muchos proveedores piden un mínimo de 1 m³ o de un viaje de camión completo (7 m³).</li>
+        <li><strong>Piedra en saco:</strong> las variedades decorativas exóticas a veces solo se consiguen en saco, y el saco sale 3 a 5 veces más caro por tonelada que el granel.</li>
+      </ul>
+
+      <AdSlot label="AdSense in-content #2" slotId="stone-mid-2" />
+
+      <h2>Cómo instalar una superficie de piedra</h2>
+      <p>
+        Tanto para camas decorativas como para drenajes funcionales, el proceso de instalación pesa más
+        que la elección de la piedra en los resultados a largo plazo:
+      </p>
+      <ol>
+        <li><strong>Excava bien.</strong> Retira el pasto y la tierra vegetal hasta el espesor de la piedra más 2 o 3 cm para el geotextil y la nivelación. La piedra colocada directamente sobre el pasto desaparece en menos de un año.</li>
+        <li><strong>Dale pendiente al drenaje.</strong> La superficie debe tener una caída del 1 al 2% para alejar el agua de la construcción. El agua estancada hace que la piedra migre, que prospere la maleza y que las camas se vean sucias.</li>
+        <li><strong>Coloca el geotextil.</strong> Tela geotextil no tejida (no plástico). Traslapa las uniones unos 15 cm y fíjalas con grapas cada medio metro.</li>
+        <li><strong>Pon la guarnición.</strong> Un borde de metal, concreto o piedra mantiene el material contenido. Sin él, la piedra se escapa hacia el pasto en una sola temporada.</li>
+        <li><strong>Coloca la piedra en capas.</strong> Para espesores de más de 8 cm, esparce en capas de unos 5 cm y empareja con rastrillo para lograr una profundidad uniforme.</li>
+        <li><strong>No compactes la piedra decorativa.</strong> La piedra de río, el mármol triturado y la piedra volcánica deben quedar sueltas. Solo se compacta la base de piedra triturada de caminos y entradas.</li>
+      </ol>
+
+      <h2>Errores comunes al colocar piedra</h2>
+      <ul>
+        <li><strong>Saltarse el geotextil:</strong> sin tela, la piedra se hunde en la tierra en pocos años y te preguntas a dónde se fue.</li>
+        <li><strong>Profundidad equivocada:</strong> muy poca (menos de 5 cm) se ve rala y deja ver el geotextil; demasiada (más de 8 cm en decoración) desperdicia material y se ve artificial.</li>
+        <li><strong>Tipo de piedra equivocado:</strong> gravilla como capa superior de una entrada, piedra de río en una fogata o mármol triturado alrededor de plantas que prefieren suelo ácido — errores muy comunes.</li>
+        <li><strong>Olvidar la guarnición:</strong> la piedra migra hacia afuera por cualquier borde sin contención. La guarnición sube cerca del 10% el costo, pero duplica la duración.</li>
+        <li><strong>Comprar en saco para obras grandes:</strong> a partir de media tonelada conviene el granel con flete. El saco es práctico, pero caro.</li>
+        <li><strong>Mezclar unidades al cubicar:</strong> profundidad en centímetros con largo en metros da un resultado equivocado. Convierte todo a metros primero.</li>
+      </ul>
+    </article>
+
+    <FAQ items={piedraFAQ} heading="Preguntas frecuentes" />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} heading="Calculadoras relacionadas" />
+
+    <EmbedCTA calculator="stone" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>
