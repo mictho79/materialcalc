@@ -1,91 +1,147 @@
 ---
-// Square Footage Calculator — multi-shape area + optional price per sq ft.
+// Square Footage Calculator — multi-shape area + optional price per unit.
+// Parametrized by lang: ES defaults to metric and shows m² as the primary result.
+import { getStrings } from '@i18n/index';
+export interface Props { lang?: 'en' | 'es'; }
+const { lang = 'en' } = Astro.props;
+const t = getStrings(lang).widget;
+const metricDefault = lang === 'es';
+
+const labels = lang === 'es'
+  ? {
+      shape: 'Forma',
+      rectangle: '▭ Rectángulo', circle: '● Círculo', triangle: '▲ Triángulo', trapezoid: '⬢ Trapecio',
+      length: 'Largo', width: 'Ancho',
+      secondParallel: 'Segundo lado paralelo',
+      quantity: 'Número de áreas', quantitySuffix: 'cuartos / secciones',
+      pricePer: 'Precio por m²', priceSuffix: '$/m²',
+      totalArea: 'Superficie total',
+      unitMain: 'metros cuadrados', unitMainImperial: 'pies cuadrados',
+      withWaste: 'Con desperdicio:', estimatedCost: 'Costo estimado:',
+      copyLabel: 'Superficie', shareTitle: 'Calculadora de Metros Cuadrados',
+      // secondary line labels
+      secSqYd: 'yd²', secSqMeters: 'm²', secSqFt: 'ft²', secAcres: 'acres', secHectares: 'hectáreas',
+      copyUnit: 'm²',
+    }
+  : {
+      shape: 'Shape',
+      rectangle: '▭ Rectangle', circle: '● Circle', triangle: '▲ Triangle', trapezoid: '⬢ Trapezoid',
+      length: 'Length', width: 'Width',
+      secondParallel: 'Second parallel side',
+      quantity: 'Number of areas', quantitySuffix: 'rooms / sections',
+      pricePer: 'Price per sq ft', priceSuffix: '$/sq ft',
+      totalArea: 'Total area',
+      unitMain: 'square feet', unitMainImperial: 'square feet',
+      withWaste: 'With waste factor:', estimatedCost: 'Estimated cost:',
+      copyLabel: 'Area', shareTitle: 'Square Footage Calculator',
+      secSqYd: 'sq yd', secSqMeters: 'sq m', secSqFt: 'sq ft', secAcres: 'acres', secHectares: 'hectares',
+      copyUnit: 'sq ft',
+    };
+
+const wasteOptions = lang === 'es'
+  ? [
+      { value: '0', label: 'Ninguno' },
+      { value: '0.05', label: '5%' },
+      { value: '0.10', label: '10% (recomendado)', selected: true },
+      { value: '0.15', label: '15% (diagonales / patrones)' },
+    ]
+  : [
+      { value: '0', label: 'None' },
+      { value: '0.05', label: '5%' },
+      { value: '0.10', label: '10% (recommended)', selected: true },
+      { value: '0.15', label: '15% (diagonal layouts)' },
+    ];
 ---
 
-<div class="tool" id="sqft-tool">
+<div class="tool" id="sqft-tool"
+  data-unit-main={labels.unitMain} data-unit-main-imperial={labels.unitMainImperial}
+  data-sec-sqft={labels.secSqFt} data-sec-sqyd={labels.secSqYd}
+  data-sec-sqm={labels.secSqMeters} data-sec-acres={labels.secAcres} data-sec-hectares={labels.secHectares}
+  data-metric-default={metricDefault.toString()}
+  data-copied={t.copied} data-copy-label={labels.copyLabel} data-copy-unit={labels.copyUnit}
+  data-share-title={labels.shareTitle}>
   <div class="tool-header">
-    <div class="tool-title">Calculator</div>
-    <div class="unit-toggle" role="tablist" aria-label="Units">
-      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
-      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    <div class="tool-title">{t.calculator}</div>
+    <div class="unit-toggle" role="tablist" aria-label={t.units}>
+      <button type="button" class={metricDefault ? '' : 'active'} data-units="imperial" aria-pressed={(!metricDefault).toString()}>{t.imperial}</button>
+      <button type="button" class={metricDefault ? 'active' : ''} data-units="metric" aria-pressed={metricDefault.toString()}>{t.metric}</button>
     </div>
   </div>
 
-  <div class="shape-row" role="tablist" aria-label="Shape">
-    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Rectangle</button>
-    <button type="button" class="shape-btn" data-shape="circle">● Circle</button>
-    <button type="button" class="shape-btn" data-shape="triangle">▲ Triangle</button>
-    <button type="button" class="shape-btn" data-shape="trapezoid">⬢ Trapezoid</button>
+  <div class="shape-row" role="tablist" aria-label={labels.shape}>
+    <button type="button" class="shape-btn active" data-shape="rectangle">{labels.rectangle}</button>
+    <button type="button" class="shape-btn" data-shape="circle">{labels.circle}</button>
+    <button type="button" class="shape-btn" data-shape="triangle">{labels.triangle}</button>
+    <button type="button" class="shape-btn" data-shape="trapezoid">{labels.trapezoid}</button>
   </div>
 
   <div class="form-grid">
     <div class="field">
-      <label for="sf-a"><span data-shape-text="a">Length</span></label>
+      <label for="sf-a"><span data-shape-text="a">{labels.length}</span></label>
       <div class="field-input">
         <input id="sf-a" type="number" value="20" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show-when="rectangle,triangle,trapezoid">
-      <label for="sf-b"><span data-shape-text="b">Width</span></label>
+      <label for="sf-b"><span data-shape-text="b">{labels.width}</span></label>
       <div class="field-input">
         <input id="sf-b" type="number" value="15" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show-when="trapezoid">
-      <label for="sf-c">Second parallel side</label>
+      <label for="sf-c">{labels.secondParallel}</label>
       <div class="field-input">
         <input id="sf-c" type="number" value="10" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="sf-quantity">Number of areas</label>
+      <label for="sf-quantity">{labels.quantity}</label>
       <div class="field-input">
         <input id="sf-quantity" type="number" value="1" min="1" step="1" inputmode="decimal" />
-        <span class="suffix">rooms / sections</span>
+        <span class="suffix">{labels.quantitySuffix}</span>
       </div>
     </div>
     <div class="field">
-      <label for="sf-price">Price per sq ft <span class="optional">(optional)</span></label>
+      <label for="sf-price">{labels.pricePer} <span class="optional">{t.optional}</span></label>
       <div class="field-input">
         <input id="sf-price" type="number" value="0" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix">$/sq ft</span>
+        <span class="suffix" data-unit="price">{metricDefault ? '$/m²' : '$/sq ft'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="sf-waste">Waste factor</label>
+      <label for="sf-waste">{t.wasteFactor}</label>
       <div class="field-input">
         <select id="sf-waste">
-          <option value="0">None</option>
-          <option value="0.05">5%</option>
-          <option value="0.10" selected>10% (recommended)</option>
-          <option value="0.15">15% (diagonal layouts)</option>
+          {wasteOptions.map(o => (
+            <option value={o.value} selected={o.selected}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
   </div>
 
   <div class="result" role="status" aria-live="polite">
-    <div class="result-label">Total area</div>
+    <div class="result-label">{labels.totalArea}</div>
     <div class="result-main">
       <span class="number" id="sf-area">300</span>
-      <span class="unit">square feet</span>
+      <span class="unit" id="sf-unit">{metricDefault ? labels.unitMain : labels.unitMainImperial}</span>
     </div>
     <div class="result-secondary">
-      ≈ <strong id="sf-yards">33.33</strong> sq yd &nbsp;·&nbsp;
-      ≈ <strong id="sf-meters">27.87</strong> sq m &nbsp;·&nbsp;
-      ≈ <strong id="sf-acres">0.0069</strong> acres
+      ≈ <strong id="sf-yards">33.33</strong> <span id="sf-yards-unit">{labels.secSqYd}</span> &nbsp;·&nbsp;
+      ≈ <strong id="sf-meters">27.87</strong> <span id="sf-meters-unit">{labels.secSqMeters}</span> &nbsp;·&nbsp;
+      ≈ <strong id="sf-acres">0.0028</strong> <span id="sf-acres-unit">{metricDefault ? labels.secHectares : labels.secAcres}</span>
     </div>
     <div class="result-cost-row">
-      With waste factor: <strong id="sf-area-waste">330</strong> sq ft &nbsp;·&nbsp;
-      Estimated cost: <strong id="sf-cost">$0</strong>
+      {labels.withWaste} <strong id="sf-area-waste">330</strong> <span id="sf-waste-unit">{metricDefault ? labels.secSqMeters : labels.secSqFt}</span> &nbsp;·&nbsp;
+      {labels.estimatedCost} <strong id="sf-cost">$0</strong>
     </div>
     <div class="result-actions">
-      <button type="button" class="btn" id="sf-btn-copy">📋 Copy result</button>
-      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
-      <button type="button" class="btn" id="sf-btn-share">↗ Share</button>
+      <button type="button" class="btn" id="sf-btn-copy">{t.copyResult}</button>
+      <button type="button" class="btn" onclick="window.print()">{t.print}</button>
+      <button type="button" class="btn" id="sf-btn-share">{t.share}</button>
     </div>
   </div>
 </div>
@@ -130,12 +186,20 @@
   if (!root) return;
   const $ = (s) => root.querySelector(s);
 
-  const labels = {
-    rectangle: { a: 'Length', b: 'Width' },
-    circle:    { a: 'Diameter' },
-    triangle:  { a: 'Base', b: 'Height' },
-    trapezoid: { a: 'Height (between parallel sides)', b: 'First parallel side' }
-  };
+  const isES = root.dataset.metricDefault === 'true';
+  const labels = isES
+    ? {
+        rectangle: { a: 'Largo', b: 'Ancho' },
+        circle:    { a: 'Diámetro' },
+        triangle:  { a: 'Base', b: 'Altura' },
+        trapezoid: { a: 'Altura (entre lados paralelos)', b: 'Primer lado paralelo' }
+      }
+    : {
+        rectangle: { a: 'Length', b: 'Width' },
+        circle:    { a: 'Diameter' },
+        triangle:  { a: 'Base', b: 'Height' },
+        trapezoid: { a: 'Height (between parallel sides)', b: 'First parallel side' }
+      };
 
   function getShape() { return root.querySelector('.shape-btn.active').dataset.shape; }
   function getUnits() { return root.querySelector('.unit-toggle button.active').dataset.units; }
@@ -143,6 +207,7 @@
   function calculate() {
     const shape = getShape();
     const units = getUnits();
+    const isMetric = units === 'metric';
     const a = parseFloat($('#sf-a').value) || 0;
     const b = parseFloat($('#sf-b').value) || 0;
     const c = parseFloat($('#sf-c').value) || 0;
@@ -158,26 +223,50 @@
 
     area *= qty;
 
-    // Always normalize display to sq ft
-    let sqft;
-    if (units === 'metric') {
-      // input was in meters; convert m² to ft²
-      sqft = area * 10.7639;
-    } else {
-      sqft = area;
-    }
-    const sqyd = sqft / 9;
-    const sqm  = sqft / 10.7639;
-    const acres = sqft / 43560;
-    const areaWaste = sqft * (1 + waste);
-    const cost = areaWaste * price;
+    // 'area' is in the input units (m² in metric, ft² in imperial).
+    let sqm, sqft;
+    if (isMetric) { sqm = area; sqft = area * 10.7639; }
+    else          { sqft = area; sqm = area / 10.7639; }
 
-    $('#sf-area').textContent     = sqft.toFixed(sqft < 10 ? 2 : sqft < 100 ? 1 : 0);
-    $('#sf-yards').textContent    = sqyd.toFixed(2);
-    $('#sf-meters').textContent   = sqm.toFixed(2);
-    $('#sf-acres').textContent    = acres.toFixed(4);
-    $('#sf-area-waste').textContent = areaWaste.toFixed(areaWaste < 100 ? 1 : 0);
-    $('#sf-cost').textContent     = '$' + Math.round(cost).toLocaleString();
+    const sqyd = sqft / 9;
+    const acres = sqft / 43560;
+    const hectares = sqm / 10000;
+
+    // Primary result: m² in metric mode, ft² in imperial mode.
+    const mainArea = isMetric ? sqm : sqft;
+    const unitEl = $('#sf-unit');
+    if (unitEl) unitEl.textContent = isMetric
+      ? (root.dataset.unitMain || 'square meters')
+      : (root.dataset.unitMainImperial || 'square feet');
+
+    // Waste applies to the primary unit.
+    const mainWaste = mainArea * (1 + waste);
+    const cost = mainWaste * price;
+
+    $('#sf-area').textContent = mainArea.toFixed(mainArea < 10 ? 2 : mainArea < 100 ? 1 : 0);
+    $('#sf-area-waste').textContent = mainWaste.toFixed(mainWaste < 100 ? 1 : 0);
+
+    if (isMetric) {
+      // Secondary line: yd² · ft² · hectáreas
+      $('#sf-yards').textContent  = sqyd.toFixed(2);
+      $('#sf-meters').textContent = sqft.toFixed(sqft < 100 ? 1 : 0);
+      $('#sf-acres').textContent  = hectares.toFixed(4);
+      $('#sf-yards-unit').textContent  = root.dataset.secSqyd || 'yd²';
+      $('#sf-meters-unit').textContent = root.dataset.secSqft || 'ft²';
+      $('#sf-acres-unit').textContent  = root.dataset.secHectares || 'hectáreas';
+      $('#sf-waste-unit').textContent  = root.dataset.secSqm || 'm²';
+    } else {
+      // Secondary line: sq yd · sq m · acres
+      $('#sf-yards').textContent  = sqyd.toFixed(2);
+      $('#sf-meters').textContent = sqm.toFixed(2);
+      $('#sf-acres').textContent  = acres.toFixed(4);
+      $('#sf-yards-unit').textContent  = root.dataset.secSqyd || 'sq yd';
+      $('#sf-meters-unit').textContent = root.dataset.secSqm || 'sq m';
+      $('#sf-acres-unit').textContent  = root.dataset.secAcres || 'acres';
+      $('#sf-waste-unit').textContent  = root.dataset.secSqft || 'sq ft';
+    }
+
+    $('#sf-cost').textContent = '$' + Math.round(cost).toLocaleString();
   }
 
   function updateShape() {
@@ -214,22 +303,24 @@
       btn.setAttribute('aria-pressed', 'true');
       const metric = btn.dataset.units === 'metric';
       root.querySelectorAll('[data-unit="length"]').forEach(el => el.textContent = metric ? 'm' : 'ft');
+      root.querySelectorAll('[data-unit="price"]').forEach(el => el.textContent = metric ? '$/m²' : '$/sq ft');
       calculate();
     });
   });
 
   $('#sf-btn-copy').addEventListener('click', () => {
-    const text = `Area: ${$('#sf-area').textContent} sq ft (${$('#sf-yards').textContent} sq yd, ${$('#sf-meters').textContent} sq m). With waste: ${$('#sf-area-waste').textContent} sq ft.`;
+    const unit = root.dataset.copyUnit || 'sq ft';
+    const text = `${root.dataset.copyLabel || 'Area'}: ${$('#sf-area').textContent} ${unit} (${$('#sf-area-waste').textContent} ${unit} ${isES ? 'con desperdicio' : 'with waste'}).`;
     navigator.clipboard?.writeText(text).then(() => {
       const btn = $('#sf-btn-copy');
       const o = btn.textContent;
-      btn.textContent = '✓ Copied';
+      btn.textContent = root.dataset.copied || '✓ Copied';
       setTimeout(() => { btn.textContent = o; }, 1500);
     });
   });
 
   $('#sf-btn-share').addEventListener('click', () => {
-    if (navigator.share) navigator.share({ title: 'Square Footage Calculator', url: location.href });
+    if (navigator.share) navigator.share({ title: root.dataset.shareTitle || 'Square Footage Calculator', url: location.href });
     else navigator.clipboard?.writeText(location.href);
   });
 
