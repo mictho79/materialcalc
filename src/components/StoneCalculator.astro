@@ -1,94 +1,159 @@
 ---
-// Stone Calculator — variant of Gravel with stone-specific density options.
+// Stone Calculator — area × depth → volume, weight (tons), bags, cost.
+// Parametrized by lang: ES defaults to metric and shows m³ as the primary result.
+// IMPORTANT: density options are stored per the active unit system —
+//   EN values are t/yd³; ES values are t/m³ (= t/yd³ × 1.30795).
+import { getStrings } from '@i18n/index';
+export interface Props { lang?: 'en' | 'es'; }
+const { lang = 'en' } = Astro.props;
+const t = getStrings(lang).widget;
+const metricDefault = lang === 'es';
+
+const labels = lang === 'es'
+  ? {
+      rectangle: '▭ Rectángulo', circle: '● Círculo', triangle: '▲ Triángulo',
+      length: 'Largo', width: 'Ancho', diameter: 'Diámetro', depth: 'Profundidad',
+      stoneType: 'Tipo de piedra',
+      pricePer: 'Precio por tonelada', priceSuffix: '$/ton',
+      youNeed: 'Necesitas',
+      unitMain: 'metros cúbicos', unitMainImperial: 'yardas cúbicas',
+      tons: 'toneladas', bags: 'sacos (25 kg)', totalCost: 'costo total',
+      copyLabel: 'Piedra', shareTitle: 'Calculadora de Piedra',
+    }
+  : {
+      rectangle: '▭ Rectangle', circle: '● Circle', triangle: '▲ Triangle',
+      length: 'Length', width: 'Width', diameter: 'Diameter', depth: 'Depth',
+      stoneType: 'Stone type',
+      pricePer: 'Price per ton', priceSuffix: '$/ton',
+      youNeed: 'You need',
+      unitMain: 'cubic meters', unitMainImperial: 'cubic yards',
+      tons: 'tons', bags: 'bags (50 lb)', totalCost: 'total cost',
+      copyLabel: 'Stone', shareTitle: 'Stone Calculator',
+    };
+
+// Density options. ES values are converted to t/m³ (× 1.30795) and reworded in LatAm Spanish.
+const densityOptions = lang === 'es'
+  ? [
+      { value: '1.86', label: 'Piedra triturada (1.86 t/m³)' },
+      { value: '1.70', label: 'Roca decorativa de jardín (1.70 t/m³)' },
+      { value: '2.09', label: 'Piedra de río chica, 2–5 cm (2.09 t/m³)' },
+      { value: '2.03', label: 'Piedra de río grande, 8–13 cm (2.03 t/m³)' },
+      { value: '1.90', label: 'Piedra caliza (1.90 t/m³)' },
+      { value: '1.96', label: 'Mármol triturado (1.96 t/m³)' },
+      { value: '0.72', label: 'Piedra volcánica / tezontle (0.72 t/m³)' },
+      { value: '1.83', label: 'Laja (promedio, 1.83 t/m³)' },
+    ]
+  : [
+      { value: '1.42', label: 'Crushed stone (#57, #411) — 1.42 t/yd³' },
+      { value: '1.30', label: 'Landscape stone (1–2") — 1.30 t/yd³' },
+      { value: '1.60', label: 'River rock (small, 1–2") — 1.60 t/yd³' },
+      { value: '1.55', label: 'River rock (large, 3–5") — 1.55 t/yd³' },
+      { value: '1.45', label: 'Limestone — 1.45 t/yd³' },
+      { value: '1.50', label: 'Marble chips — 1.50 t/yd³' },
+      { value: '0.55', label: 'Lava rock — 0.55 t/yd³' },
+      { value: '1.40', label: 'Flagstone (avg) — 1.40 t/yd³' },
+    ];
+
+const wasteOptions = lang === 'es'
+  ? [
+      { value: '0', label: 'Ninguno' },
+      { value: '0.05', label: '5% (recomendado)', selected: true },
+      { value: '0.10', label: '10% (decorativo / irregular)' },
+    ]
+  : [
+      { value: '0', label: 'None' },
+      { value: '0.05', label: '5% (recommended)', selected: true },
+      { value: '0.10', label: '10% (decorative / irregular)' },
+    ];
 ---
 
-<div class="tool" id="stone-tool">
+<div class="tool" id="stone-tool"
+  data-metric-default={metricDefault.toString()}
+  data-unit-main={labels.unitMain} data-unit-main-imperial={labels.unitMainImperial}
+  data-unit-tons={labels.tons} data-unit-bags={labels.bags}
+  data-label-length={labels.length} data-label-diameter={labels.diameter}
+  data-copied={t.copied} data-copy-label={labels.copyLabel}
+  data-share-title={labels.shareTitle}>
   <div class="tool-header">
-    <div class="tool-title">Calculator</div>
-    <div class="unit-toggle" role="tablist" aria-label="Units">
-      <button type="button" class="active" data-units="imperial" aria-pressed="true">Imperial</button>
-      <button type="button" data-units="metric" aria-pressed="false">Metric</button>
+    <div class="tool-title">{t.calculator}</div>
+    <div class="unit-toggle" role="tablist" aria-label={t.units}>
+      <button type="button" class={metricDefault ? '' : 'active'} data-units="imperial" aria-pressed={(!metricDefault).toString()}>{t.imperial}</button>
+      <button type="button" class={metricDefault ? 'active' : ''} data-units="metric" aria-pressed={metricDefault.toString()}>{t.metric}</button>
     </div>
   </div>
 
-  <div class="shape-row" role="tablist" aria-label="Shape">
-    <button type="button" class="shape-btn active" data-shape="rectangle">▭ Rectangle</button>
-    <button type="button" class="shape-btn" data-shape="circle">● Circle</button>
-    <button type="button" class="shape-btn" data-shape="triangle">▲ Triangle</button>
+  <div class="shape-row" role="tablist" aria-label={t.shape}>
+    <button type="button" class="shape-btn active" data-shape="rectangle">{labels.rectangle}</button>
+    <button type="button" class="shape-btn" data-shape="circle">{labels.circle}</button>
+    <button type="button" class="shape-btn" data-shape="triangle">{labels.triangle}</button>
   </div>
 
   <div class="form-grid">
     <div class="field">
-      <label for="st-length"><span data-shape-text="length">Length</span></label>
+      <label for="st-length"><span data-shape-text="length">{labels.length}</span></label>
       <div class="field-input">
-        <input id="st-length" type="number" value="20" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="st-length" type="number" value={metricDefault ? '6' : '20'} min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field" data-show-when="rectangle,triangle">
-      <label for="st-width">Width</label>
+      <label for="st-width">{labels.width}</label>
       <div class="field-input">
-        <input id="st-width" type="number" value="10" min="0" step="0.1" inputmode="decimal" />
-        <span class="suffix" data-unit="length">ft</span>
+        <input id="st-width" type="number" value={metricDefault ? '3' : '10'} min="0" step="0.1" inputmode="decimal" />
+        <span class="suffix" data-unit="length">{metricDefault ? 'm' : 'ft'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="st-depth">Depth</label>
+      <label for="st-depth">{labels.depth}</label>
       <div class="field-input">
-        <input id="st-depth" type="number" value="3" min="0" step="0.5" inputmode="decimal" />
-        <span class="suffix" data-unit="depth">in</span>
+        <input id="st-depth" type="number" value={metricDefault ? '8' : '3'} min="0" step="0.5" inputmode="decimal" />
+        <span class="suffix" data-unit="depth">{metricDefault ? 'cm' : 'in'}</span>
       </div>
     </div>
     <div class="field">
-      <label for="st-density">Stone type</label>
+      <label for="st-density">{labels.stoneType}</label>
       <div class="field-input">
         <select id="st-density">
-          <option value="1.42">Crushed stone (#57, #411) — 1.42 t/yd³</option>
-          <option value="1.30">Landscape stone (1–2") — 1.30 t/yd³</option>
-          <option value="1.60">River rock (small, 1–2") — 1.60 t/yd³</option>
-          <option value="1.55">River rock (large, 3–5") — 1.55 t/yd³</option>
-          <option value="1.45">Limestone — 1.45 t/yd³</option>
-          <option value="1.50">Marble chips — 1.50 t/yd³</option>
-          <option value="0.55">Lava rock — 0.55 t/yd³</option>
-          <option value="1.40">Flagstone (avg) — 1.40 t/yd³</option>
+          {densityOptions.map(o => (
+            <option value={o.value}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
     <div class="field">
-      <label for="st-price">Price per ton <span class="optional">(optional)</span></label>
+      <label for="st-price">{labels.pricePer} <span class="optional">{t.optional}</span></label>
       <div class="field-input">
-        <input id="st-price" type="number" value="60" min="0" step="1" inputmode="decimal" />
-        <span class="suffix">$/ton</span>
+        <input id="st-price" type="number" value={metricDefault ? '600' : '60'} min="0" step="1" inputmode="decimal" />
+        <span class="suffix">{labels.priceSuffix}</span>
       </div>
     </div>
     <div class="field">
-      <label for="st-waste">Waste factor</label>
+      <label for="st-waste">{t.wasteFactor}</label>
       <div class="field-input">
         <select id="st-waste">
-          <option value="0">None</option>
-          <option value="0.05" selected>5% (recommended)</option>
-          <option value="0.10">10% (decorative / irregular)</option>
+          {wasteOptions.map(o => (
+            <option value={o.value} selected={o.selected}>{o.label}</option>
+          ))}
         </select>
       </div>
     </div>
   </div>
 
   <div class="result" role="status" aria-live="polite">
-    <div class="result-label">You need</div>
+    <div class="result-label">{labels.youNeed}</div>
     <div class="result-main">
-      <span class="number" id="st-yards">1.94</span>
-      <span class="unit">cubic yards</span>
+      <span class="number" id="st-yards">1.88</span>
+      <span class="unit" id="st-unit">{metricDefault ? labels.unitMain : labels.unitMainImperial}</span>
     </div>
     <div class="result-secondary">
-      ≈ <strong id="st-tons">2.76</strong> tons &nbsp;·&nbsp;
-      ≈ <strong id="st-bags">105</strong> bags (50 lb) &nbsp;·&nbsp;
-      <strong id="st-cost">$165</strong> total cost
+      ≈ <strong id="st-tons">2.67</strong> <span id="st-tons-unit">{labels.tons}</span> &nbsp;·&nbsp;
+      ≈ <strong id="st-bags">128</strong> <span id="st-bags-unit">{labels.bags}</span> &nbsp;·&nbsp;
+      <strong id="st-cost">$160</strong> <span id="st-cost-unit">{labels.totalCost}</span>
     </div>
     <div class="result-actions">
-      <button type="button" class="btn" id="st-btn-copy">📋 Copy result</button>
-      <button type="button" class="btn" onclick="window.print()">🖨 Print</button>
-      <button type="button" class="btn" id="st-btn-share">↗ Share</button>
-      
+      <button type="button" class="btn" id="st-btn-copy">{t.copyResult}</button>
+      <button type="button" class="btn" onclick="window.print()">{t.print}</button>
+      <button type="button" class="btn" id="st-btn-share">{t.share}</button>
     </div>
   </div>
 </div>
@@ -240,46 +305,72 @@
   const widthField = $('#st-width').closest('.field');
   const lengthLabel = root.querySelector('[data-shape-text="length"]');
 
+  const isES = root.dataset.metricDefault === 'true';
+  const labelLength = root.dataset.labelLength || 'Length';
+  const labelDiameter = root.dataset.labelDiameter || 'Diameter';
+
+  function getActive(selector) {
+    return root.querySelector(selector + '.active');
+  }
+
   function calculate() {
-    const shape = root.querySelector('.shape-btn.active').dataset.shape;
-    const units = root.querySelector('.unit-toggle button.active').dataset.units;
+    const shape = getActive('.shape-btn').dataset.shape;
+    const units = getActive('.unit-toggle button').dataset.units;
+    const isMetric = units === 'metric';
     const l = parseFloat($('#st-length').value) || 0;
     const w = parseFloat($('#st-width').value) || 0;
     const d = parseFloat($('#st-depth').value) || 0;
-    const density = parseFloat($('#st-density').value) || 1.42;
+    const density = parseFloat($('#st-density').value) || (isES ? 1.86 : 1.42);
     const price = parseFloat($('#st-price').value) || 0;
     const waste = parseFloat($('#st-waste').value) || 0;
 
+    // Area in the active input units (m² in metric, ft² in imperial).
     let area = 0;
     if (shape === 'rectangle')   area = l * w;
     else if (shape === 'circle') area = Math.PI * Math.pow(l / 2, 2);
     else                          area = 0.5 * l * w;
 
-    let cubicYards;
-    if (units === 'imperial') {
-      cubicYards = (area * (d / 12)) / 27;
+    // Volume in both unit systems.
+    let cubicMeters, cubicYards;
+    if (isMetric) {
+      cubicMeters = area * (d / 100);
+      cubicYards  = cubicMeters * 1.30795;
     } else {
-      cubicYards = (area * (d / 100)) * 1.30795;
+      cubicYards  = (area * (d / 12)) / 27;
+      cubicMeters = cubicYards / 1.30795;
     }
 
-    cubicYards *= (1 + waste);
-    const tons = cubicYards * density;
-    const bags = (cubicYards * 27) / 0.5;
+    cubicMeters *= (1 + waste);
+    cubicYards  *= (1 + waste);
+
+    // Density values are stored per the active unit system:
+    //   metric → t/m³ applied to cubic meters; imperial → t/yd³ applied to cubic yards.
+    const tons = isMetric ? (cubicMeters * density) : (cubicYards * density);
+
+    // Bags: 25 kg sack ≈ 0.015 m³ (metric, LatAm typical); 50 lb ≈ 0.5 ft³ (imperial).
+    const bags = isMetric ? (cubicMeters / 0.015) : ((cubicYards * 27) / 0.5);
     const cost = tons * price;
 
-    $('#st-yards').textContent = cubicYards.toFixed(2);
-    $('#st-tons').textContent = tons.toFixed(2);
-    $('#st-bags').textContent = Math.ceil(bags).toLocaleString();
-    $('#st-cost').textContent = '$' + Math.round(cost).toLocaleString();
+    // Primary result: m³ in metric mode, yd³ in imperial mode.
+    const mainVol = isMetric ? cubicMeters : cubicYards;
+    const unitEl = $('#st-unit');
+    if (unitEl) unitEl.textContent = isMetric
+      ? (root.dataset.unitMain || 'cubic meters')
+      : (root.dataset.unitMainImperial || 'cubic yards');
+
+    $('#st-yards').textContent = mainVol.toFixed(2);
+    $('#st-tons').textContent  = tons.toFixed(2);
+    $('#st-bags').textContent  = Math.ceil(bags).toLocaleString();
+    $('#st-cost').textContent  = '$' + Math.round(cost).toLocaleString();
   }
 
   function updateShape(shape) {
     if (shape === 'circle') {
       widthField.hidden = true;
-      if (lengthLabel) lengthLabel.textContent = 'Diameter';
+      if (lengthLabel) lengthLabel.textContent = labelDiameter;
     } else {
       widthField.hidden = false;
-      if (lengthLabel) lengthLabel.textContent = 'Length';
+      if (lengthLabel) lengthLabel.textContent = labelLength;
     }
   }
 
@@ -310,23 +401,32 @@
   });
 
   $('#st-btn-copy').addEventListener('click', () => {
-    const text = `Stone needed: ${$('#st-yards').textContent} yd³ (${$('#st-tons').textContent} tons). Estimated cost: ${$('#st-cost').textContent}.`;
+    const isMetric = getActive('.unit-toggle button').dataset.units === 'metric';
+    const volUnit = isMetric ? 'm³' : 'yd³';
+    const yards = $('#st-yards').textContent;
+    const tons  = $('#st-tons').textContent;
+    const cost  = $('#st-cost').textContent;
+    const tonsLabel = root.dataset.unitTons || 'tons';
+    const text = isES
+      ? `Piedra: ${yards} ${volUnit} (${tons} ${tonsLabel}). Costo estimado: ${cost}.`
+      : `Stone needed: ${yards} ${volUnit} (${tons} ${tonsLabel}). Estimated cost: ${cost}.`;
     navigator.clipboard?.writeText(text).then(() => {
       const btn = $('#st-btn-copy');
       const original = btn.textContent;
-      btn.textContent = '✓ Copied';
+      btn.textContent = root.dataset.copied || '✓ Copied';
       setTimeout(() => { btn.textContent = original; }, 1500);
     });
   });
 
   $('#st-btn-share').addEventListener('click', () => {
     if (navigator.share) {
-      navigator.share({ title: 'Stone Calculator', url: location.href });
+      navigator.share({ title: root.dataset.shareTitle || 'Stone Calculator', url: location.href });
     } else {
       navigator.clipboard?.writeText(location.href);
     }
   });
 
+  updateShape('rectangle');
   calculate();
 })();
 </script>
