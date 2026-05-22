@@ -1,9 +1,13 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Breadcrumb from '@components/Breadcrumb.astro';
-import { CLUSTERS, getCalculatorsByCluster, getLiveCalculators } from '@data/calculators';
+import { CLUSTERS, getLiveCalculatorsES } from '@data/calculators';
 
-const liveCount = getLiveCalculators().length;
+const liveEs = getLiveCalculatorsES();
+const liveCount = liveEs.length;
+
+const title = `Las ${liveCount} calculadoras de materiales de construcción — Gratis | MaterialCal`;
+const description = `Explora ${liveCount} calculadoras de materiales de construcción gratis: grava, arena, concreto, asfalto, azulejos, pintura y más. Sin registro.`;
 
 const alternates = [
   { lang: 'en', href: 'https://materialcal.com/calculators/' },
@@ -14,50 +18,46 @@ const alternates = [
 const schema = {
   "@context": "https://schema.org",
   "@type": "CollectionPage",
-  "name": "All Material Calculators",
-  "description": "Complete list of free material and construction calculators."
+  "name": "Calculadoras de materiales de construcción",
+  "description": "Lista completa de calculadoras de materiales de construcción gratis.",
+  "inLanguage": "es"
 };
 ---
 
-<BaseLayout
-  title={`All ${liveCount} Calculators — Free Material Estimators | MaterialCal`}
-  description={`Browse all ${liveCount} free material calculators: gravel, mulch, concrete, lumber, paint, and more.`}
-  schema={schema}
-  alternates={alternates}
->
+<BaseLayout title={title} description={description} schema={schema} lang="es" alternates={alternates}>
   <div class="container">
     <Breadcrumb trail={[
-      { label: 'Home', href: '/' },
-      { label: 'All Calculators' }
+      { label: 'Inicio', href: '/es/' },
+      { label: 'Calculadoras' }
     ]} />
 
     <header class="hub-header">
-      <h1>All Calculators</h1>
+      <h1>Calculadoras de materiales de construcción</h1>
       <p class="intro">
-        Every calculator on MaterialCal, organized by category. Free, mobile-friendly,
-        and accurate to within professional supplier tolerances.
+        Todas las calculadoras de MaterialCal, organizadas por categoría. Gratis, fáciles de usar
+        desde el celular y precisas dentro de las tolerancias que manejan los proveedores.
       </p>
       <div class="hub-meta">
-        <span class="meta-chip">{liveCount} calculators available</span>
-        <span class="meta-chip">No signup</span>
-        <span class="meta-chip">No paywall</span>
+        <span class="meta-chip">{liveCount} calculadoras disponibles</span>
+        <span class="meta-chip">Sin registro</span>
+        <span class="meta-chip">Gratis</span>
       </div>
     </header>
 
-    {CLUSTERS.filter(cl => cl.id !== 'cost').map(cluster => {
-      const liveInCluster = getCalculatorsByCluster(cluster.id).filter(c => c.status === 'live');
+    {CLUSTERS.map(cluster => {
+      const liveInCluster = liveEs.filter(c => c.cluster === cluster.id);
       if (liveInCluster.length === 0) return null;
       return (
         <section class="cluster" id={cluster.id}>
           <header class="cluster-head">
-            <h2>{cluster.name}</h2>
-            <p>{cluster.description}</p>
+            <h2>{cluster.name_es}</h2>
+            <p>{cluster.description_es}</p>
           </header>
           <div class="cluster-grid">
             {liveInCluster.map(c => (
-              <a href={`/${c.slug}/`} class="calc-tile">
-                <div class="tile-title">{c.title}</div>
-                <div class="tile-desc">{c.description}</div>
+              <a href={`/es/${c.slug_es}/`} class="calc-tile">
+                <div class="tile-title">{c.shortTitle_es}</div>
+                <div class="tile-desc">{c.description_es}</div>
               </a>
             ))}
           </div>
