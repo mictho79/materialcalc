@@ -1,5 +1,16 @@
 ---
+import { getStrings } from '@i18n/index';
+import { getLiveCalculatorsES } from '@data/calculators';
+
+export interface Props { lang?: 'en' | 'es'; }
+const { lang = 'en' } = Astro.props;
+const t = getStrings(lang).footer;
 const year = new Date().getFullYear();
+
+// For ES, build the calculator columns from live ES calcs (translated slugs/titles).
+const liveEs = lang === 'es' ? getLiveCalculatorsES() : [];
+const esPopular = liveEs.slice(0, 5);
+const esMore = liveEs.slice(5);
 ---
 
 <footer class="site-footer">
@@ -7,33 +18,53 @@ const year = new Date().getFullYear();
     <div class="cols">
       <div>
         <div class="brand">Material<span>Cal</span></div>
-        <p class="tagline">Free, accurate calculators for every construction and landscaping material. Trusted by contractors and homeowners.</p>
+        <p class="tagline">{t.tagline}</p>
       </div>
+      {lang === 'es' ? (
+        <>
+          <div>
+            <h4>{t.popular}</h4>
+            {esPopular.map(c => (
+              <a href={`/es/${c.slug_es}/`}>{c.shortTitle_es}</a>
+            ))}
+          </div>
+          <div>
+            <h4>{t.moreCalculators}</h4>
+            {esMore.map(c => (
+              <a href={`/es/${c.slug_es}/`}>{c.shortTitle_es}</a>
+            ))}
+            <a href="/es/">{t.browseAll}</a>
+          </div>
+        </>
+      ) : (
+        <>
+          <div>
+            <h4>{t.popular}</h4>
+            <a href="/gravel-calculator/">Gravel</a>
+            <a href="/cubic-yard-calculator/">Cubic Yard</a>
+            <a href="/board-feet-calculator/">Board Feet</a>
+            <a href="/mulch-calculator/">Mulch</a>
+            <a href="/square-footage-calculator/">Square Footage</a>
+          </div>
+          <div>
+            <h4>{t.moreCalculators}</h4>
+            <a href="/concrete-calculator/">Concrete</a>
+            <a href="/sand-calculator/">Sand</a>
+            <a href="/stone-calculator/">Stone</a>
+            <a href="/calculators/">{t.browseAll}</a>
+          </div>
+        </>
+      )}
       <div>
-        <h4>Popular</h4>
-        <a href="/gravel-calculator/">Gravel</a>
-        <a href="/cubic-yard-calculator/">Cubic Yard</a>
-        <a href="/board-feet-calculator/">Board Feet</a>
-        <a href="/mulch-calculator/">Mulch</a>
-        <a href="/square-footage-calculator/">Square Footage</a>
-      </div>
-      <div>
-        <h4>More Calculators</h4>
-        <a href="/concrete-calculator/">Concrete</a>
-        <a href="/sand-calculator/">Sand</a>
-        <a href="/stone-calculator/">Stone</a>
-        <a href="/calculators/">Browse all →</a>
-      </div>
-      <div>
-        <h4>Company</h4>
-        <a href="/about/">About</a>
-        <a href="/methodology/">Methodology</a>
-        <a href="/contact/">Contact</a>
-        <a href="/privacy/">Privacy</a>
-        <a href="/terms/">Terms</a>
+        <h4>{t.company}</h4>
+        <a href="/about/">{t.about}</a>
+        <a href="/methodology/">{t.methodology}</a>
+        <a href="/contact/">{t.contact}</a>
+        <a href="/privacy/">{t.privacy}</a>
+        <a href="/terms/">{t.terms}</a>
       </div>
     </div>
-    <div class="bottom">© {year} MaterialCal · All calculations are estimates — always confirm with your supplier before ordering.</div>
+    <div class="bottom">© {year} MaterialCal · {t.disclaimer}</div>
   </div>
 </footer>
 

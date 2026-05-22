@@ -1,11 +1,22 @@
 ---
+import { getStrings } from '@i18n/index';
+export interface Props { lang?: 'en' | 'es'; switchHref?: string; }
+const { lang = 'en', switchHref } = Astro.props;
+const t = getStrings(lang).nav;
+
 const currentPath = Astro.url.pathname;
 const isActive = (path: string) => currentPath.startsWith(path);
+
+// ES "Calculadoras" points at the ES hub (/es/); EN points at /calculators/.
+// Trust pages (about/methodology/contact) stay on the existing EN paths in Phase 1.
+const calculatorsHref = lang === 'es' ? '/es/' : '/calculators/';
+const homeHref = lang === 'es' ? '/es/' : '/';
+const switchTarget = switchHref || (lang === 'es' ? '/' : '/es/');
 ---
 
 <header class="site-header">
   <div class="container header-inner">
-    <a href="/" class="logo" aria-label="MaterialCal home">
+    <a href={homeHref} class="logo" aria-label={t.homeAria}>
       Material<span>Cal</span>
     </a>
 
@@ -21,10 +32,11 @@ const isActive = (path: string) => currentPath.startsWith(path);
     </button>
 
     <nav class="nav" id="main-nav" aria-label="Main navigation">
-      <a href="/calculators/" class:list={[{ active: isActive('/calculators') }]}>Calculators</a>
-      <a href="/about/" class:list={[{ active: isActive('/about') }]}>About</a>
-      <a href="/methodology/" class:list={[{ active: isActive('/methodology') }]}>Methodology</a>
-      <a href="/contact/" class:list={[{ active: isActive('/contact') }]}>Contact</a>
+      <a href={calculatorsHref} class:list={[{ active: isActive('/calculators') }]}>{t.calculators}</a>
+      <a href="/about/" class:list={[{ active: isActive('/about') }]}>{t.about}</a>
+      <a href="/methodology/" class:list={[{ active: isActive('/methodology') }]}>{t.methodology}</a>
+      <a href="/contact/" class:list={[{ active: isActive('/contact') }]}>{t.contact}</a>
+      <a class="lang-switch" href={switchTarget}>{t.switchTo}</a>
     </nav>
   </div>
 </header>
@@ -116,6 +128,13 @@ const isActive = (path: string) => currentPath.startsWith(path);
     outline-offset: 4px;
     border-radius: 2px;
   }
+  .nav a.lang-switch {
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 999px;
+    padding: 4px 12px;
+    opacity: 0.9;
+  }
+  .nav a.lang-switch:hover { opacity: 1; border-color: var(--accent); }
 
   /* Mobile: burger appears, nav becomes dropdown */
   @media (max-width: 640px) {
