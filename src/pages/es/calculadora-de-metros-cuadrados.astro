@@ -1,0 +1,316 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import SquareFootageCalculator from '@components/SquareFootageCalculator.astro';
+import AdSlot from '@components/AdSlot.astro';
+import FAQ from '@components/FAQ.astro';
+import AuthorBio from '@components/AuthorBio.astro';
+import RelatedCalculators from '@components/RelatedCalculators.astro';
+import EmbedCTA from '@components/EmbedCTA.astro';
+import { metrosCuadradosFAQ } from '@data/faqs/es/metros-cuadrados';
+import { getRelatedCalculatorsES } from '@data/calculators';
+
+const title = "Calculadora de Metros Cuadrados";
+const description = "Calculadora de metros cuadrados gratis para cualquier forma — rectángulo, círculo, triángulo y trapecio. Calcula la superficie en m², convierte a hectáreas y agrega el factor de desperdicio para piso, pintura o pasto.";
+
+const alternates = [
+  { lang: 'en', href: 'https://materialcal.com/square-footage-calculator/' },
+  { lang: 'es', href: 'https://materialcal.com/es/calculadora-de-metros-cuadrados/' },
+  { lang: 'x-default', href: 'https://materialcal.com/square-footage-calculator/' }
+];
+
+const related = getRelatedCalculatorsES('square-footage-calculator', 4).map(c => ({
+  title: c.shortTitle_es,
+  href: `/es/${c.slug_es}/`,
+  desc: c.description_es
+}));
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Calculadora de Metros Cuadrados",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Cualquiera (en línea)",
+    "description": description,
+    "url": "https://materialcal.com/es/calculadora-de-metros-cuadrados/",
+    "inLanguage": "es",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "MXN" }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Cómo calcular los metros cuadrados",
+    "inLanguage": "es",
+    "step": [
+      { "@type": "HowToStep", "name": "Mide el espacio", "text": "Toma el largo y el ancho de cada sección rectangular, en metros." },
+      { "@type": "HowToStep", "name": "Multiplica las dimensiones", "text": "Largo × ancho = metros cuadrados de cada sección." },
+      { "@type": "HowToStep", "name": "Suma las secciones", "text": "Suma todas las áreas para obtener la superficie total de espacios irregulares." },
+      { "@type": "HowToStep", "name": "Agrega el desperdicio", "text": "10% para la mayoría de los proyectos; 15% para trazos en diagonal o con patrón." }
+    ]
+  }
+];
+---
+
+<BaseLayout title={`${title} | MaterialCal`} description={description} schema={schema} lang="es" alternates={alternates}>
+  <div class="container content-wrapper">
+    <Breadcrumb trail={[
+      { label: 'Inicio', href: '/es/' },
+      { label: 'Calculadoras', href: '/es/' },
+      { label: 'Calculadora de Metros Cuadrados' }
+    ]} />
+
+    <header class="page-header">
+      <h1>Calculadora de Metros Cuadrados</h1>
+      <p class="intro">
+        Calcula los metros cuadrados de cualquier cuarto, piso, terreno, pared o superficie.
+        Funciona con rectángulos, círculos, triángulos y trapecios — ideal para piso, pintura,
+        loseta, tepe o medir un terreno. Resultados en m², con conversión a hectáreas y factor
+        de desperdicio incluido.
+      </p>
+    </header>
+
+    <SquareFootageCalculator lang="es" />
+
+    <article class="content">
+      <h2>Cómo calcular los metros cuadrados</h2>
+      <p>
+        El metro cuadrado (m²) es la unidad de superficie: mide cuánto espacio ocupa un área de
+        dos dimensiones. La fórmula básica es largo × ancho, pero en la práctica te vas a topar
+        con tres complicaciones reales: las formas irregulares, las medidas mezcladas (metros y
+        centímetros) y los cuartos formados por varias secciones. Esta calculadora resuelve las
+        tres, pero aquí tienes la matemática de fondo para que puedas verificar cualquier resultado.
+      </p>
+
+      <div class="formula">
+        Rectángulo: Superficie = Largo × Ancho<br>
+        Círculo: Superficie = π × (Diámetro ÷ 2)²<br>
+        Triángulo: Superficie = (Base × Altura) ÷ 2<br>
+        Trapecio: Superficie = (Lado₁ + Lado₂) × Altura ÷ 2
+      </div>
+
+      <p>
+        El error más común es mezclar unidades. Si un lado mide 4 metros con 50 centímetros,
+        conviértelo a 4.50 m (50 ÷ 100 = 0.50) antes de multiplicar. Si lo dejas como "4.5" pero
+        pensando en centímetros, o sumas mal los centímetros, el resultado queda equivocado. Lo más
+        seguro es trabajar todo en metros con decimales desde el principio.
+      </p>
+
+      <h3>Ejemplo resuelto: una sala con un nicho</h3>
+      <p>
+        Sección rectangular principal: 5 m × 4 m = 20 m². El nicho de un ventanal (trapecio): 1.8 m
+        de un lado y 2.4 m del otro, con 1 m de fondo, da (1.8 + 2.4) × 1 ÷ 2 = 2.1 m². Superficie
+        total de la sala: 20 + 2.1 = 22.1 m².
+      </p>
+      <ul>
+        <li><strong>Piso laminado (con 10% de desperdicio):</strong> 22.1 × 1.10 ≈ 24.3 m² a comprar</li>
+        <li><strong>Costo del piso a $300/m² instalado:</strong> 24.3 × $300 ≈ $7,300 MXN</li>
+        <li><strong>Pintura para el techo (rinde 11 m²/litro, una mano):</strong> 22.1 ÷ 11 ≈ 2 litros</li>
+      </ul>
+
+      <div class="callout">
+        <div class="callout-title">Mide siempre en los dos sentidos</div>
+        Las casas viejas rara vez quedan perfectamente a escuadra; las paredes se "abren" uno o dos
+        centímetros de un extremo al otro. Mide el cuarto en ambas direcciones y usa el valor mayor
+        cuando pidas material, y el menor cuando estimes qué cabe. Así no te quedas corto de piso en
+        el peor momento.
+      </div>
+
+      <AdSlot label="AdSense in-content #1" slotId="sf-mid-1" />
+
+      <h2>Cómo medir un área irregular: divídela en rectángulos</h2>
+      <p>
+        La mayoría de los espacios "raros" no son tan complicados: son varias figuras simples
+        juntas. La técnica que usan los albañiles y los instaladores es dividir el área en
+        rectángulos, calcular cada uno y sumar. Funciona para plantas en L, en T o en U.
+      </p>
+      <ol>
+        <li><strong>Haz un croquis.</strong> No tiene que ser a escala; solo necesitas el contorno y las medidas.</li>
+        <li><strong>Divídelo en rectángulos.</strong> Traza líneas que separen el espacio en figuras simples. La mayoría de los cuartos se arman con dos o tres rectángulos.</li>
+        <li><strong>Mide cada rectángulo.</strong> Largo y ancho al centímetro. Convierte los centímetros a metros (divide entre 100).</li>
+        <li><strong>Calcula cada superficie.</strong> Largo × ancho de cada rectángulo.</li>
+        <li><strong>Suma todas las áreas.</strong> El total es la superficie en metros cuadrados.</li>
+        <li><strong>Resuelve nichos y ventanales.</strong> Suelen ser trapecios: mide los dos lados paralelos y el fondo, y aplica (lado₁ + lado₂) × fondo ÷ 2.</li>
+        <li><strong>Paredes curvas.</strong> Si el muro forma un arco real, usa el modo círculo con el radio. Si no, aproxima con rectángulos más un triángulo.</li>
+        <li><strong>Resta lo que no lleva material.</strong> Closets empotrados, chimeneas o muebles fijos grandes.</li>
+      </ol>
+
+      <h2>Metros cuadrados por tipo de proyecto</h2>
+      <p>
+        Cada trabajo mide la superficie de manera distinta. Si te equivocas en la etapa de
+        planeación, o te quedas corto de material o pagas de más.
+      </p>
+
+      <h3>Piso (laminado, vinílico, loseta, cerámica)</h3>
+      <p>
+        Mide solo el piso — descuenta el grosor de los muros, los closets que no vas a recubrir y
+        los muebles fijos. Desperdicio estándar: 10% en trazo recto, 15% en diagonal y 20% en
+        patrones como espiga. Para loseta cerámica, compra además una caja extra para reparaciones
+        futuras: el tono cambia entre lotes de producción.
+      </p>
+
+      <h3>Pintura</h3>
+      <p>
+        El área de pared se obtiene multiplicando el perímetro del cuarto por la altura del techo.
+        Un cuarto de 4 × 5 m con techo de 2.5 m tiene un perímetro de (4 + 5) × 2 = 18 m, así que
+        la pared mide 18 × 2.5 = 45 m². Resta puertas (alrededor de 2 m² cada una) y ventanas (1.5 m²)
+        para una estimación más fina, o deja el área completa como margen de seguridad.
+      </p>
+
+      <h3>Jardín y áreas verdes (tepe, semilla, mantillo)</h3>
+      <p>
+        El tepe en rollo cubre cerca de 1 m² por pieza. Mide solo el área útil de pasto — descuenta
+        macetas, andadores y construcciones. La mayoría de la gente sobrestima el pasto entre 15 y
+        25% por incluir zonas que no llevan césped. Agrega 10% de desperdicio para los cortes en
+        orillas y curvas.
+      </p>
+
+      <h3>Techos (teja, lámina)</h3>
+      <p>
+        La superficie del techo NO es igual a la huella de la construcción: es la superficie
+        inclinada. Un techo a dos aguas tiene más metros cuadrados que el terreno que cubre, según
+        su pendiente. Calcula el área real de la pendiente antes de pedir teja o lámina, no la del
+        terreno de abajo.
+      </p>
+
+      <h3>Terrenos y lotes</h3>
+      <p>
+        Las escrituras indican la superficie en metros cuadrados o en hectáreas (1 ha = 10,000 m²).
+        Para lotes irregulares, marca las esquinas y divide el terreno en triángulos o rectángulos.
+        Un lote típico de 10 × 20 m son 200 m²; uno de 8 × 15 m, 120 m². Para predios grandes,
+        conviene manejar la cifra en hectáreas.
+      </p>
+
+      <h2>Conversión: metros cuadrados y hectáreas</h2>
+      <p>
+        Para superficies grandes — terrenos, parcelas, predios — la hectárea es la unidad práctica.
+        La conversión es directa: una hectárea son 10,000 m², el equivalente a un cuadrado de
+        100 × 100 metros.
+      </p>
+
+      <div class="formula">
+        Hectáreas = metros cuadrados ÷ 10,000<br>
+        Metros cuadrados = hectáreas × 10,000<br>
+        1 hectárea = 10,000 m² = un cuadrado de 100 × 100 m<br>
+        1 m² = 0.0001 hectáreas
+      </div>
+
+      <p>
+        Por ejemplo, un terreno de 5,000 m² equivale a 0.5 ha, y uno de 25,000 m² son 2.5 ha. Si
+        te dan la medida en hectáreas y necesitas saber cuánto material lleva (cerca perimetral,
+        siembra, drenaje), multiplica por 10,000 para volver a metros cuadrados.
+      </p>
+
+      <h2>Tabla de referencia: superficies comunes</h2>
+      <p>Conversiones rápidas para cuartos, lotes y terrenos típicos:</p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Espacio</th>
+              <th>Dimensiones</th>
+              <th>Metros cuadrados</th>
+              <th>Hectáreas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Baño</td><td>2 × 2.5 m</td><td>5 m²</td><td>—</td></tr>
+            <tr><td>Recámara chica</td><td>3 × 3 m</td><td>9 m²</td><td>—</td></tr>
+            <tr><td>Recámara estándar</td><td>3 × 4 m</td><td>12 m²</td><td>—</td></tr>
+            <tr><td>Sala</td><td>4 × 5 m</td><td>20 m²</td><td>—</td></tr>
+            <tr><td>Cochera (2 autos)</td><td>5 × 6 m</td><td>30 m²</td><td>—</td></tr>
+            <tr><td>Casa chica (planta)</td><td>8 × 12 m</td><td>96 m²</td><td>0.0096 ha</td></tr>
+            <tr><td>Lote urbano</td><td>10 × 20 m</td><td>200 m²</td><td>0.02 ha</td></tr>
+            <tr><td>Terreno mediano</td><td>20 × 40 m</td><td>800 m²</td><td>0.08 ha</td></tr>
+            <tr><td>Media hectárea</td><td>50 × 100 m</td><td>5,000 m²</td><td>0.5 ha</td></tr>
+            <tr><td>Una hectárea</td><td>100 × 100 m</td><td>10,000 m²</td><td>1 ha</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <AdSlot label="AdSense in-content #2" slotId="sf-mid-2" />
+
+      <h2>Factor de desperdicio: cuánto material de más comprar</h2>
+      <p>
+        Comprar justo los metros cuadrados que mide el cuarto es la receta para quedarte corto. Los
+        cortes en orillas, los recortes alrededor de columnas y las piezas que se rompen siempre
+        consumen material extra. El factor de desperdicio es ese colchón, y cambia según el material
+        y el trazo.
+      </p>
+
+      <div class="table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr>
+              <th>Material</th>
+              <th>Rendimiento típico</th>
+              <th>Desperdicio sugerido</th>
+              <th>Notas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Piso laminado / vinílico</td><td>~2 m² por caja</td><td>10% recto, 15% diagonal</td><td>20% en espiga</td></tr>
+            <tr><td>Loseta cerámica</td><td>1 a 1.5 m² por caja</td><td>10%</td><td>Compra una caja extra por el tono del lote</td></tr>
+            <tr><td>Pintura</td><td>10 a 12 m²/litro por mano</td><td>5 a 10%</td><td>6 a 8 m²/litro en superficie porosa</td></tr>
+            <tr><td>Tepe (pasto en rollo)</td><td>~1 m² por pieza</td><td>10%</td><td>Más en jardines con curvas</td></tr>
+            <tr><td>Tablaroca / yeso</td><td>2.97 m² por hoja (1.22 × 2.44 m)</td><td>10 a 15%</td><td>Más cinta, pasta y tornillos</td></tr>
+            <tr><td>Alfombra</td><td>Rollo de 3.66 m de ancho</td><td>10 a 20%</td><td>El ancho del rollo manda el desperdicio</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>
+        Una regla práctica: para piso, suma el desperdicio en número de cajas (redondea siempre hacia
+        arriba), no en el costo. Para pintura, el sobrante de un par de litros casi siempre se ocupa
+        en retoques, así que conviene tenerlo. Y para loseta, esa caja extra que guardas vale oro el
+        día que se te quiebre una pieza dentro de dos años.
+      </p>
+
+      <h2>Metros cuadrados de una casa: ¿qué se cuenta?</h2>
+      <p>
+        Para escrituras, avalúos y anuncios de venta, los "metros cuadrados de construcción" suelen
+        referirse al área techada y habitable, medida por el exterior de los muros. Los criterios
+        varían por estado y por valuador, así que conviene confirmarlos antes de tomar decisiones.
+      </p>
+      <ul>
+        <li><strong>Sí cuenta como área habitable:</strong> recámaras, sala, comedor, cocina, baños, pasillos y escaleras techadas.</li>
+        <li><strong>Normalmente no cuenta:</strong> cochera descubierta, patios, terrazas sin techo, jardines y pretiles de azotea.</li>
+        <li><strong>Zona gris:</strong> cuartos de servicio, bodegas, terrazas techadas y áreas a medio terminar, que a veces se cuentan a la mitad.</li>
+      </ul>
+      <p>
+        Los metros del constructor y los del catastro suelen diferir entre un 5 y un 10%. Cuando
+        compres o vendas, lo que más peso tiene es la medición de un perito valuador, no el dato del
+        anuncio.
+      </p>
+
+      <h2>Errores comunes al calcular metros cuadrados</h2>
+      <ul>
+        <li><strong>No convertir los centímetros:</strong> 4 m con 50 cm son 4.50 m, no 4.5 de cualquier cosa. Pasa todo a metros con decimales.</li>
+        <li><strong>Incluir lo que no lleva material:</strong> el piso bajo una cocina integral o una tina no necesita recubrimiento.</li>
+        <li><strong>Olvidar el desperdicio:</strong> comprar exactamente los m² del cuarto garantiza que te quedes corto.</li>
+        <li><strong>Confundir techo con planta:</strong> un techo inclinado tiene más metros cuadrados que el terreno que cubre.</li>
+        <li><strong>Mezclar metros cuadrados con metros lineales:</strong> el zoclo, las molduras y la cerca se venden por metro lineal; no los multipliques como superficie.</li>
+        <li><strong>Comprar por caja sin checar el rendimiento:</strong> divide la superficie entre los m² que trae cada caja y redondea hacia arriba.</li>
+      </ul>
+    </article>
+
+    <FAQ items={metrosCuadradosFAQ} heading="Preguntas frecuentes" />
+
+    <AuthorBio />
+
+    <RelatedCalculators items={related} heading="Calculadoras relacionadas" />
+
+    <EmbedCTA calculator="square-footage" />
+  </div>
+</BaseLayout>
+
+<style>
+  .content-wrapper { max-width: var(--content-max); }
+  .page-header { padding: var(--s-3) 0 var(--s-5); }
+  .content > p { line-height: 1.7; font-size: 16px; }
+  .content > ul, .content > ol { font-size: 15px; line-height: 1.7; }
+  .content > ul li, .content > ol li { margin-bottom: var(--s-2); }
+  .table-wrap { overflow-x: auto; margin: var(--s-4) 0; }
+  .table-wrap .ref-table { min-width: 540px; }
+</style>
